@@ -68,7 +68,7 @@ gem "aws-sdk-sns", "~> 1.121"
 gem "mailchimp-marketing", "~> 0.0.218"
 
 # Holidays that move attendance (Memorial Day, July 4th, Thanksgiving, ...). Easter is computed in code.
-gem "holidays", "~> 8.8"
+gem "holidays", "~> 11.6"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
