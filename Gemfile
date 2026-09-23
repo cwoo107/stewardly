@@ -42,7 +42,7 @@ gem "pundit", "~> 2.4"
 gem "bcrypt", "~> 3.1.7"
 
 # Pagination for the people list and audit log
-gem "pagy", "~> 9.3"
+gem "pagy", "~> 43.6"
 
 # Address to point for households, groups, and campuses; provider chosen by ENV
 gem "geocoder", "~> 1.8"
