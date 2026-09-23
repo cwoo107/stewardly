@@ -1,5 +1,5 @@
 # Sets up a new church: the church itself, its default roles, a default campus,
-# starter forms, and a first church admin (with the Person that user belongs to),
+# starter forms and email templates, and a first church admin (with the Person that user belongs to),
 # in one transaction.
 class Church::Provisioning
   attr_reader :church, :admin
@@ -16,6 +16,12 @@ class Church::Provisioning
         roles = Role::DEFAULTS.map { |attributes| Role.create!(attributes.merge(system: true)) }
         Campus.create!(name: "Main campus", is_default: true)
         Form::Starters.install!
+        Pathway::Defaults.install!
+        EmailTopic.default!
+        SectionDefinition::Defaults.install!
+        EmailTemplate::Starters.install!
+        Workflow::Starters.install!
+        Site.current # a website with starter pages, not live until someone publishes it
         @admin = create_admin(roles.find(&:church_admin?))
       end
     end

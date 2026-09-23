@@ -15,7 +15,7 @@ RSpec.describe Church::Provisioning do
       expect(Role.pluck(:key)).to match_array(Role::DEFAULTS.pluck(:key))
       expect(Role.all).to all(be_system)
       expect(Campus.sole).to have_attributes(name: "Main campus", is_default: true)
-      expect(Form.pluck(:slug)).to contain_exactly("connect", "prayer")
+      expect(Form.pluck(:slug)).to contain_exactly("connect", "prayer", "help")
 
       admin = User.sole
       expect(admin.email_address).to eq("dana@grace.test")

@@ -1,0 +1,18 @@
+<%= form_with model: fund, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: fund.errors.full_messages %>
+  <% if fund.manual? || fund.new_record? %>
+    <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+    <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 2 } %>
+    <label class="flex items-center gap-2 text-sm"><%= form.check_box :active, class: "rounded border-gray-300" %> Active</label>
+  <% else %>
+    <p class="text-sm text-gray-600"><strong><%= fund.name %></strong> comes from <%= Integration.label_for(fund.provider) %>, which controls its name.</p>
+  <% end %>
+  <label class="flex items-start gap-2 text-sm">
+    <%= form.check_box :benevolence, class: "mt-0.5 rounded border-gray-300", disabled: !policy(Fund).change_benevolence_flag? %>
+    <span>Use for benevolence payments<span class="block text-gray-500">Offered when recording a payment on a benevolence case.</span></span>
+  </label>
+  <div class="flex gap-3">
+    <%= form.submit "Save fund", class: button_classes(:primary) %>
+    <%= link_to "Cancel", funds_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

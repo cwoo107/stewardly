@@ -1,0 +1,37 @@
+<% content_for :title, "Donations" %>
+<%= render "shared/page_header", title: "Donations" do %>
+  <%= link_to "Export CSV", donations_path(request.query_parameters.merge(format: :csv)), class: button_classes(:outline) %>
+<% end %>
+<%= render "shared/giving_nav" %>
+
+<%= form_with url: donations_path, method: :get, class: "mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6" do %>
+  <%= search_field_tag :q, params[:q], placeholder: "Person", class: "lg:col-span-2 #{input_classes}", aria: { label: "Person" } %>
+  <%= select_tag :fund_id, options_from_collection_for_select(Fund.alphabetical, :id, :name, params[:fund_id]), include_blank: "Any fund", class: select_classes, aria: { label: "Fund" } %>
+  <%= date_field_tag :from, params[:from], class: input_classes, aria: { label: "From" } %>
+  <%= date_field_tag :to, params[:to], class: input_classes, aria: { label: "To" } %>
+  <%= submit_tag "Filter", class: button_classes(:outline), name: nil %>
+<% end %>
+
+<div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr><th scope="col" class="px-4 py-3 font-semibold">Date</th><th scope="col" class="px-4 py-3 font-semibold">Person</th><th scope="col" class="px-4 py-3 font-semibold">Fund</th><th scope="col" class="px-4 py-3 text-right font-semibold">Amount</th></tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @donations.each do |donation| %>
+        <tr>
+          <td class="px-4 py-3 text-gray-700"><%= l(donation.given_on, format: :long) %></td>
+          <td class="px-4 py-3">
+            <% if donation.person %><%= link_to donation.person.name, donation.person, class: "font-medium hover:underline" %>
+            <% elsif donation.match_ignored? %><span class="text-gray-500">Not matched</span>
+            <% else %><%= link_to "Needs matching", donation_matches_path, class: "text-amber-700 underline" %><% end %>
+          </td>
+          <td class="px-4 py-3 text-gray-700"><%= donation.fund&.name || "—" %></td>
+          <td class="px-4 py-3 text-right tabular-nums"><%= donation.amount %> <%= render "donations/status", donation: %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @donations.empty? %><p class="px-4 py-6 text-sm text-gray-500">No donations match.</p><% end %>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

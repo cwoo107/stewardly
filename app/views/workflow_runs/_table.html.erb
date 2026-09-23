@@ -1,0 +1,32 @@
+<div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th scope="col" class="px-4 py-3 font-semibold"><%= local_assigns[:show_workflow] ? "Workflow" : "Person" %></th>
+        <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Now at</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Started</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% runs.each do |run| %>
+        <tr>
+          <td class="px-4 py-3">
+            <%= link_to (local_assigns[:show_workflow] ? run.workflow.name : run.person.name), workflow_run_path(run.workflow, run), class: "font-medium hover:underline" %>
+            <span class="block text-xs text-gray-500">Version <%= run.workflow_version.number %></span>
+          </td>
+          <td class="px-4 py-3"><%= run_status_badge(run) %></td>
+          <td class="px-4 py-3 text-gray-700">
+            <% if run.in_flight? && (step = run.current_step) %>
+              <%= step_summary(step) %><% if run.wake_at %><span class="block text-xs text-gray-500">until <%= l(run.wake_at, format: :short) %></span><% end %>
+            <% else %>
+              <%= run.exit_reason || "—" %>
+            <% end %>
+          </td>
+          <td class="px-4 py-3 text-gray-600"><%= l(run.started_at, format: :short) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if runs.empty? %><p class="px-4 py-6 text-sm text-gray-500">No runs yet.</p><% end %>
+</div>

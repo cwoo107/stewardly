@@ -7,6 +7,9 @@ class Task < ApplicationRecord
   belongs_to :project, optional: true
   belongs_to :owner, class_name: "User", optional: true
   belongs_to :created_by, class_name: "User", optional: true
+  belongs_to :workflow_step_execution, optional: true # created by a workflow
+  has_one :insight, dependent: :nullify
+  after_update_commit :resolve_insight, if: -> { saved_change_to_status? && done? }
   # Declared after belongs_to so acts_as_tenant also validates those associations belong to this church.
   acts_as_tenant :church
 
@@ -37,5 +40,10 @@ class Task < ApplicationRecord
   private
     def track_completion
       self.completed_at = done? ? (completed_at || Time.current) : nil
+    end
+
+    # Insights about this task (e.g. overdue) and ones turned into it are done with it.
+    def resolve_insight
+      Insight.live.where(subject: self).or(Insight.live.where(task_id: id)).find_each { |insight| insight.resolve!(by: owner, resolution: "done") }
     end
 end

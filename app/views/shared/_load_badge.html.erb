@@ -1,0 +1,2 @@
+<% colors = { "underused" => "violet", "healthy" => "green", "elevated" => "amber", "at_risk" => "rose" } %>
+<span title="<%= load.reasons.join(", ").presence || "Healthy load" %>"><%= badge(load.label, color: colors.fetch(load.level)) %></span>

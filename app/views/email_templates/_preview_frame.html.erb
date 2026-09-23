@@ -1,0 +1,11 @@
+<%# The live preview. Width links reload just this frame. %>
+<div class="mb-3 flex items-center justify-between gap-3">
+  <h2 class="text-sm font-semibold text-gray-900">Preview</h2>
+  <div class="flex gap-1 rounded-lg bg-gray-100 p-1 text-sm" role="group" aria-label="Preview width">
+    <%= link_to "Desktop", preview_email_template_path(template), data: { turbo_frame: "email_preview" }, class: "rounded-md px-3 py-1 hover:bg-white" %>
+    <%= link_to "Mobile", preview_email_template_path(template, width: "mobile"), data: { turbo_frame: "email_preview" }, class: "rounded-md px-3 py-1 hover:bg-white" %>
+  </div>
+</div>
+<%= turbo_frame_tag "email_preview", src: preview_email_template_path(template), class: "block" do %>
+  <p class="rounded-2xl bg-gray-100 p-8 text-center text-sm text-gray-500">Rendering preview…</p>
+<% end %>

@@ -2,7 +2,7 @@
 <%= render "shared/page_header", title: "Settings", subtitle: "Your church lives at #{Current.church.host}." %>
 <%= render "shared/settings_nav" %>
 
-<%= form_with model: @church, url: church_settings_path, method: :patch, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: @church, url: church_settings_path, method: :patch, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: @church.errors.full_messages %>
 
   <div>
@@ -18,7 +18,7 @@
 
   <div>
     <%= form.label :group_coverage_miles, "Group coverage radius (miles)", class: label_classes %>
-    <%= form.number_field :group_coverage_miles, min: 1, max: 50, class: "max-w-32 #{input_classes}" %>
+    <%= form.number_field :group_coverage_miles, min: 1, max: 50, class: "#{input_classes}" %>
     <p class="mt-2 text-sm text-gray-500">Households farther than this from every active group show up as a coverage gap on the map.</p>
   </div>
 
@@ -42,8 +42,71 @@
 
   <div>
     <%= form.label :reminder_days_before, "Remind volunteers (days before)", class: label_classes %>
-    <%= form.number_field :reminder_days_before, min: 1, max: 14, class: "max-w-32 #{input_classes}" %>
+    <%= form.number_field :reminder_days_before, min: 1, max: 14, class: "#{input_classes}" %>
   </div>
+
+  <div>
+    <%= form.label :no_contact_days, "Flag members with no contact after (days)", class: label_classes %>
+    <%= form.number_field :no_contact_days, min: 14, max: 365, class: input_classes %>
+    <p class="mt-2 text-sm text-gray-500">Used by the “No contact in a while” insight.</p>
+  </div>
+
+  <div>
+    <%= form.label :workflow_daily_send_limit, "Workflow emails per day", class: label_classes %>
+    <%= form.number_field :workflow_daily_send_limit, min: 0, max: 100_000, class: "#{input_classes}" %>
+    <p class="mt-2 text-sm text-gray-500">A safety limit for automated email. Anything over it waits until 8am the next day.</p>
+  </div>
+
+  <label class="flex items-start gap-2 text-sm">
+    <%= form.check_box :social_event_promos, class: "mt-0.5 rounded border-gray-300" %>
+    <span>Draft a social post when a public event is published<span class="block text-gray-500">Drafts only: nothing is posted until someone schedules it.</span></span>
+  </label>
+
+  <fieldset class="space-y-4 rounded-2xl bg-gray-50 p-4">
+    <legend class="text-sm font-semibold text-gray-900">Benevolence</legend>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <%= label_tag "church_benevolence_approval_threshold", "Extra approval above", class: label_classes %>
+        <%= text_field_tag "church[benevolence_approval_threshold]", format("%.2f", @church.benevolence_approval_threshold_cents / 100.0),
+              id: "church_benevolence_approval_threshold", inputmode: "decimal", class: input_classes %>
+      </div>
+      <div>
+        <%= form.label :benevolence_approvals_required, "Approvals needed above that", class: label_classes %>
+        <%= form.select :benevolence_approvals_required, [ [ "1 person", 1 ], [ "2 people", 2 ] ], {}, class: select_classes %>
+      </div>
+      <div>
+        <%= label_tag "church_benevolence_annual_limit", "Limit per 12 months", class: label_classes %>
+        <%= text_field_tag "church[benevolence_annual_limit]", format("%.2f", @church.benevolence_annual_limit_cents / 100.0),
+              id: "church_benevolence_annual_limit", inputmode: "decimal", class: input_classes %>
+      </div>
+      <div>
+        <%= form.label :benevolence_limit_scope, "Limit applies to each", class: label_classes %>
+        <%= form.select :benevolence_limit_scope, [ [ "Household", "household" ], [ "Person", "person" ] ], {}, class: select_classes %>
+      </div>
+    </div>
+    <p class="text-sm text-gray-500">Requests above the threshold need approval from people who aren't handling the case. The limit is a warning on the case, not a block. Use 0 for no limit.</p>
+  </fieldset>
+
+  <fieldset class="space-y-4 rounded-2xl bg-gray-50 p-4">
+    <legend class="text-sm font-semibold text-gray-900">AI</legend>
+    <label class="flex items-start gap-2 text-sm">
+      <%= form.check_box :ai_enabled, class: "mt-0.5 rounded border-gray-300" %>
+      <span>Let workflows draft messages with AI<span class="block text-gray-500">
+        The AI runs on Stewardly's own server, not a third-party service. Drafts wait for approval unless a church admin
+        turns on auto-send for a step. Prayer requests, notes, and contact details are never sent to it.</span></span>
+    </label>
+    <label class="flex items-start gap-2 text-sm">
+      <%= form.check_box :ai_private_totals, class: "mt-0.5 rounded border-gray-300" %>
+      <span>Include prayer and benevolence totals in reports<span class="block text-gray-500">Counts and dollar totals only, and only for people who already have those permissions. Request text is never included.</span></span>
+    </label>
+    <div>
+      <%= form.label :ai_monthly_token_cap, "Monthly AI limit (tokens)", class: label_classes %>
+      <%= form.number_field :ai_monthly_token_cap, min: 0, step: 1000, class: "#{input_classes}" %>
+      <p class="mt-2 text-sm text-gray-500">
+        Used this month: <%= number_with_delimiter(AiRequest.tokens_used_since(@church.now.beginning_of_month)) %>.
+        A short drafted email is roughly 500 tokens.</p>
+    </div>
+  </fieldset>
 
   <%= form.submit "Save settings", class: button_classes(:primary) %>
 <% end %>

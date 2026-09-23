@@ -10,3 +10,63 @@ forecast_sweep:
   class: "ForecastSweepJob"
   queue: low
   description: "Forecasts the next two weeks of services at 2am in each church's time zone, and freezes past forecasts"
+
+pathway_sweep:
+  cron: "25 * * * *"
+  class: "PathwaySweepJob"
+  queue: low
+  description: "Re-places everyone on the pathway at 3am in each church's time zone"
+
+campaign_scheduler:
+  cron: "*/5 * * * *"
+  class: "CampaignSchedulerJob"
+  queue: default
+  description: "Starts email campaigns whose scheduled time has come"
+
+workflow_sweep:
+  cron: "35 * * * *"
+  class: "WorkflowSweepJob"
+  queue: low
+  description: "Starts date-based and missed-weeks workflows at 6am in each church's time zone"
+
+giving_reconcile:
+  cron: "45 * * * *"
+  class: "GivingReconcileJob"
+  queue: low
+  description: "Re-fetches the last week of donations at 2am in each church's time zone"
+
+insights_sweep:
+  cron: "50 * * * *"
+  class: "InsightsSweepJob"
+  queue: low
+  description: "Runs the insight checks at 4am in each church's time zone"
+
+daily_brief:
+  cron: "5 * * * *"
+  class: "DailyBriefJob"
+  queue: low
+  description: "Builds daily briefs at 5am and emails opted-in staff at 6am, church time"
+
+saved_report_refresh:
+  cron: "0 9 * * *"
+  class: "SavedReportRefreshJob"
+  queue: low
+  description: "Re-runs pinned reports so dashboards show fresh numbers"
+
+site_domain_verification:
+  cron: "20 * * * *"
+  class: "SiteDomainVerificationJob"
+  queue: low
+  description: "Checks DNS for custom website domains that aren't verified yet"
+
+social_publish_sweep:
+  cron: "* * * * *"
+  class: "SocialPublishSweepJob"
+  queue: default
+  description: "Publishes due social posts (each target once) and flags any left mid-publish"
+
+social_account_check:
+  cron: "10 7 * * *"
+  class: "SocialAccountCheckJob"
+  queue: low
+  description: "Checks that connected Facebook and Instagram accounts can still be posted to"

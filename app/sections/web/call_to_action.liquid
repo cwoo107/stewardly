@@ -1,0 +1,5 @@
+<section class="site-section bg-(--site-surface) px-6 py-16 text-center sm:px-12 lg:px-24">
+  <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+  {% if settings.body != blank %}<p class="mt-4 text-lg text-(--site-muted)">{{ settings.body | escape }}</p>{% endif %}
+  {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button mt-8 inline-block bg-(--site-accent) px-6 py-3 font-semibold text-white">{{ settings.button_label | escape }}</a>{% endif %}
+</section>

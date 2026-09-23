@@ -14,6 +14,12 @@ RSpec.describe "Platform sessions" do
     on_platform
     post platform_session_path, params: { email_address: user.email_address, password: "password" }
     expect(response).to redirect_to(new_platform_session_path)
+    expect(flash[:alert]).to include("church staff sign in at their church's own address (like yourchurch.localhost)")
+
+    post platform_session_path, params: { email_address: "nobody@example.com", password: "nope" }
+    expect(flash[:alert]).to include("church staff sign in") # same message: no hint about which emails exist
+    get new_platform_session_path
+    expect(response.body).to include("This is the platform console")
   end
 
   it "is not reachable from a church subdomain" do

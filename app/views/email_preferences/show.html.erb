@@ -1,0 +1,21 @@
+<% content_for :title, "Email preferences" %>
+<%= form_with url: email_preferences_path(params[:token]), method: :patch, class: "#{card_classes} space-y-6" do %>
+  <div>
+    <h1 class="text-2xl font-medium tracking-tight">Email preferences</h1>
+    <p class="mt-1 text-gray-600">Choose which emails <%= @person.email %> gets from <%= Current.church.name %>.</p>
+  </div>
+  <fieldset class="space-y-4">
+    <legend class="sr-only">Topics</legend>
+    <% @topics.each do |topic| %>
+      <label class="flex items-start gap-3">
+        <%= check_box_tag "topic_ids[]", topic.id, !@unsubscribed_from_all && topic.subscribed?(@person), id: "topic_#{topic.id}", class: "mt-1 rounded border-gray-300" %>
+        <span><span class="font-medium"><%= topic.name %></span><% if topic.description.present? %><span class="block text-sm text-gray-600"><%= topic.description %></span><% end %></span>
+      </label>
+    <% end %>
+  </fieldset>
+  <div class="flex flex-wrap gap-3">
+    <%= submit_tag "Save preferences", class: button_classes(:primary) %>
+    <%= button_tag "Unsubscribe from everything", name: "all", value: "none", class: button_classes(:outline) %>
+  </div>
+  <p class="text-xs text-gray-500">You'll still get emails you ask for, like registration confirmations and serving reminders.</p>
+<% end %>

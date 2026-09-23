@@ -1,0 +1,5 @@
+<mj-section background-color="{{ theme.content_background }}" padding="8px 24px">
+  <mj-column>
+    <mj-button href="{{ settings.url }}" background-color="{{ settings.color | default: theme.brand_color }}" border-radius="8px" align="{{ settings.align | default: 'center' }}" font-weight="600">{{ settings.label | escape }}</mj-button>
+  </mj-column>
+</mj-section>

@@ -44,6 +44,12 @@
     <orderEntry type="library" scope="PROVIDED" name="acts_as_tenant (v1.0.1, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="addressable (v2.9.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ast (v2.4.3, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="aws-eventstream (v1.4.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="aws-partitions (v1.1288.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="aws-sdk-core (v3.257.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="aws-sdk-sesv2 (v1.110.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="aws-sdk-sns (v1.121.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="aws-sigv4 (v1.12.1, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="base64 (v0.3.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bcrypt (v3.1.22, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bcrypt_pbkdf (v1.1.2, rbenv: 3.4.2) [gem]" level="application" />
@@ -57,6 +63,7 @@
     <orderEntry type="library" scope="TEST" name="capybara (v3.40.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="chartkick (v5.2.1, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="childprocess (v5.1.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="commonmarker (v2.10.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="concurrent-ruby (v1.3.8, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="connection_pool (v3.0.2, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="crack (v1.0.1, rbenv: 3.4.2) [gem]" level="application" />
@@ -90,6 +97,7 @@
     <orderEntry type="library" scope="PROVIDED" name="io-console (v0.9.4, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="irb (v1.18.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="jbuilder (v2.15.1, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="jmespath (v1.6.2, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="json (v2.21.2, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="kamal (v2.12.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="language_server-protocol (v3.17.0.6, rbenv: 3.4.2) [gem]" level="application" />
@@ -97,14 +105,18 @@
     <orderEntry type="library" scope="PROVIDED" name="letter_opener (v1.10.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="letter_opener_web (v3.0.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="lint_roller (v1.1.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="liquid (v5.14.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="logger (v1.7.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="loofah (v2.25.2, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mail (v2.9.1, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="mailchimp-marketing (v0.0.218, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="marcel (v1.2.1, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="matrix (v0.4.3, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mini_magick (v5.4.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="mini_mime (v1.1.5, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="minitest (v6.0.6, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="mjml-rails (v5.0.0, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="mrml (v1.10.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="msgpack (v1.8.5, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="net-imap (v0.6.7, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="net-pop (v0.1.2, rbenv: 3.4.2) [gem]" level="application" />
@@ -120,6 +132,7 @@
     <orderEntry type="library" scope="PROVIDED" name="parallel (v2.2.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="parser (v3.3.12.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="pg (v1.6.3, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="postmark (v1.25.1, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="pp (v0.6.4, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="prettyprint (v0.2.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="prism (v1.9.0, rbenv: 3.4.2) [gem]" level="application" />
@@ -165,6 +178,7 @@
     <orderEntry type="library" scope="PROVIDED" name="sidekiq-cron (v2.4.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="sshkit (v1.25.1, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="stimulus-rails (v1.3.4, rbenv: 3.4.2) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="strscan (v3.1.8, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tailwindcss-rails (v4.6.0, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="tailwindcss-ruby (v4.3.3, rbenv: 3.4.2) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="thor (v1.5.0, rbenv: 3.4.2) [gem]" level="application" />

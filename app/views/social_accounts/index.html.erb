@@ -1,0 +1,32 @@
+<% content_for :title, "Social accounts" %>
+<%= render "shared/page_header", title: "Social accounts", subtitle: "The Facebook Pages and Instagram business accounts your church posts to." do %>
+  <%= link_to (@accounts.any? ? "Reconnect or add accounts" : "Connect Facebook and Instagram"), connect_social_accounts_path, class: button_classes(:primary), data: { turbo: false } if policy(SocialAccount).connect? %>
+<% end %>
+<%= render "shared/social_nav" %>
+
+<% unless @configured %>
+  <p class="mb-6 rounded-2xl bg-amber-50 px-5 py-3 text-sm text-amber-900">Facebook and Instagram aren't set up on this server yet. The platform needs a Meta app (META_APP_ID and META_APP_SECRET); see docs/deploy-social.md.</p>
+<% end %>
+
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @accounts.each do |account| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div class="flex items-center gap-3">
+        <% if account.avatar_url.present? %><img src="<%= account.avatar_url %>" alt="" class="h-10 w-10 rounded-full"><% end %>
+        <div>
+          <p class="font-medium"><%= account.label %> <%= social_status_badge(account) %></p>
+          <% if account.last_error %><p class="text-sm text-rose-700"><%= account.last_error %></p><% end %>
+          <% if account.checked_at %><p class="text-xs text-gray-500">Checked <%= time_ago_in_words(account.checked_at) %> ago</p><% end %>
+        </div>
+      </div>
+      <% if policy(SocialAccount).destroy? %>
+        <span class="flex gap-2">
+          <%= button_to "Check", check_social_account_path(account), class: button_classes(:outline) unless account.disconnected? %>
+          <%= button_to "Disconnect", social_account_path(account), method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Disconnect #{account.label}? Scheduled posts to it won't go out." } } unless account.disconnected? %>
+        </span>
+      <% end %>
+    </li>
+  <% end %>
+  <% if @accounts.empty? %><li class="px-5 py-4 text-sm text-gray-500">Nothing connected yet.</li><% end %>
+</ul>
+<% unless policy(SocialAccount).connect? %><p class="mt-4 text-sm text-gray-500">Someone with the “Connect outside services” permission can connect accounts.</p><% end %>

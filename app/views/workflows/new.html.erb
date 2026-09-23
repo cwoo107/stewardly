@@ -1,0 +1,11 @@
+<% content_for :title, "New workflow" %>
+<%= render "shared/page_header", title: "New workflow" %>
+<%= form_with model: @workflow, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: @workflow.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "Newcomer follow-up" } %>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 2 } %>
+  <div class="flex gap-3">
+    <%= form.submit "Create workflow", class: button_classes(:primary) %>
+    <%= link_to "Cancel", workflows_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

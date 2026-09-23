@@ -1,0 +1,4 @@
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24 {% if settings.align == 'center' %}text-center{% endif %}">
+  {% if settings.heading != blank %}<h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>{% endif %}
+  <div class="site-prose mt-6">{{ settings.body | markdown }}</div>
+</section>

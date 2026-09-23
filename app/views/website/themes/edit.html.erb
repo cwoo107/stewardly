@@ -1,0 +1,28 @@
+<% content_for :title, "Theme" %>
+<%= render "shared/page_header", title: "Theme", subtitle: "Colors, fonts, logo, and footer for every page." %>
+<%= render "shared/website_nav" %>
+
+<%= form_with url: website_theme_path, method: :patch, multipart: true, class: "space-y-8" do %>
+  <fieldset class="grid gap-4 md:grid-cols-3">
+    <legend class="mb-3 text-sm font-semibold text-gray-900">Theme</legend>
+    <% Site::Theme.all.each do |theme| %>
+      <label class="<%= card_classes %> flex cursor-pointer items-start gap-3 has-checked:ring-2 has-checked:ring-cyan-500">
+        <%= radio_button_tag "site[theme_key]", theme.key, @site.theme_key == theme.key, class: "mt-1" %>
+        <span>
+          <span class="flex gap-1"><% theme.defaults.values_at("brand_color", "accent_color", "surface_color").each do |color| %><span class="h-4 w-4 rounded-full ring-1 ring-gray-200" style="background: <%= color %>"></span><% end %></span>
+          <span class="mt-2 block font-semibold"><%= theme.name %></span>
+          <span class="block text-sm text-gray-600"><%= theme.description %></span>
+        </span>
+      </label>
+    <% end %>
+  </fieldset>
+  <label class="flex items-center gap-2 text-sm"><%= check_box_tag :reset_colors, "1", false, class: "rounded border-gray-300" %> When switching themes, use the new theme's colors and fonts</label>
+
+  <div class="grid gap-6 <%= card_classes %> md:grid-cols-2">
+    <% current = @site.settings %>
+    <% Site::Theme::SETTINGS.each do |setting| %>
+      <%= render "email_template_sections/setting", setting:, name: "settings[#{setting["id"]}]", value: current[setting["id"]] %>
+    <% end %>
+  </div>
+  <%= submit_tag "Save theme", class: button_classes(:primary) %>
+<% end %>

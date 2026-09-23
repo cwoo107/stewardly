@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "person_search" do %>
+<%= turbo_frame_tag params[:frame].to_s.match?(/\A[a-z0-9_]+\z/) ? params[:frame] : "person_search" do %>
   <ul role="list" class="mt-3 divide-y divide-gray-100 rounded-2xl bg-gray-50">
     <% @people.each do |person| %>
       <li class="flex items-center justify-between gap-3 px-4 py-2 text-sm">
@@ -6,6 +6,10 @@
         <% case @target %>
         <% when Group %>
           <%= button_to "Add", group_group_memberships_path(@target), params: { group_membership: { person_id: person.id } }, class: button_classes(:outline), form: { data: { turbo_frame: "_top" } } %>
+        <% when :benevolence %>
+          <%= link_to "Open a case", new_benevolence_case_path(person_id: person.id), class: button_classes(:outline), data: { turbo_frame: "_top" } %>
+        <% when Donation %>
+          <%= button_to "Match", donation_match_path(@target), method: :patch, params: { person_id: person.id }, class: button_classes(:outline), form: { data: { turbo_frame: "_top" } } %>
         <% when Team %>
           <%= button_to "Add", team_team_memberships_path(@target), params: { team_membership: { person_id: person.id } }, class: button_classes(:outline), form: { data: { turbo_frame: "_top" } } %>
         <% end %>

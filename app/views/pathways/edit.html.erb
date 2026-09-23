@@ -1,0 +1,44 @@
+<% content_for :title, "Pathway stages" %>
+<%= render "shared/page_header", title: "Stages and rules",
+      subtitle: "People are placed at the highest stage whose rules they meet. Everyone starts at the first stage." do %>
+  <div class="flex gap-2">
+    <%= link_to "Dashboard", pathway_path, class: button_classes(:outline) %>
+    <%= link_to "Add a stage", new_pathway_stage_path, class: button_classes(:primary) %>
+  </div>
+<% end %>
+
+<%= form_with model: @pathway, url: pathway_path, method: :patch, class: "mb-6 flex items-end gap-3" do |form| %>
+  <div class="flex-1"><%= render "shared/field", form:, attribute: :name, label: "Pathway name" %></div>
+  <%= form.submit "Save", class: button_classes(:outline) %>
+<% end %>
+
+<ol class="space-y-3" data-controller="sortable">
+  <% @pathway.stages.each do |stage| %>
+    <li class="<%= card_classes %> cursor-grab" data-move-url="<%= move_pathway_stage_path(stage) %>" id="<%= dom_id(stage) %>">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 class="font-semibold"><span class="mr-2 text-gray-300" aria-hidden="true">⋮⋮</span><%= stage.name %></h2>
+          <% if stage.description.present? %><p class="mt-1 text-sm text-gray-600"><%= stage.description %></p><% end %>
+          <ul class="mt-2 space-y-1 text-sm text-gray-700">
+            <% if stage.conditions.empty? %>
+              <li class="text-gray-500">Everyone not at a later stage</li>
+            <% else %>
+              <li class="text-xs uppercase tracking-wide text-gray-400">Meets <%= stage.match == "any" ? "any" : "all" %> of</li>
+              <% stage.conditions.each do |condition| %><li>· <%= condition.summary %></li><% end %>
+            <% end %>
+          </ul>
+          <p class="mt-2 text-xs text-gray-500">
+            <%= stage.stuck_after_days && !stage.last? ? "Stuck after #{pluralize(stage.stuck_after_days, "day")}" : "Never marked stuck" %>
+          </p>
+        </div>
+        <span class="flex gap-2">
+          <%= link_to "Edit", edit_pathway_stage_path(stage), class: button_classes(:outline) %>
+          <% if policy(stage).destroy? %>
+            <%= button_to "Delete", pathway_stage_path(stage), method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{stage.name}?" } } %>
+          <% end %>
+        </span>
+      </div>
+    </li>
+  <% end %>
+</ol>
+<p class="mt-4 text-sm text-gray-500">Drag to reorder. Changes re-place everyone in the background.</p>

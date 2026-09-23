@@ -1,0 +1,7 @@
+{% if settings.image_url != blank %}
+<mj-section background-color="{{ theme.content_background }}" padding="8px 24px">
+  <mj-column>
+    <mj-image src="{{ settings.image_url | escape }}" alt="{{ settings.alt | escape }}"{% if settings.link != blank %} href="{{ settings.link | escape }}"{% endif %}{% if settings.image_url_width %} width="{{ settings.image_url_width }}px"{% endif %}{% if settings.image_url_height %} height="{{ settings.image_url_height }}px"{% endif %} align="{{ settings.align | default: 'center' }}" padding="0" border-radius="8px" />
+  </mj-column>
+</mj-section>
+{% endif %}

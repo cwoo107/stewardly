@@ -1,14 +1,14 @@
 <% content_for :title, "New form" %>
 <%= render "shared/page_header", title: "New form" %>
 
-<%= form_with model: @form, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: @form, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: @form.errors.full_messages %>
   <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "Connect card" } %>
   <div>
     <%= form.label :purpose, "What is it for?", class: label_classes %>
-    <%= form.select :purpose, [ [ "General (sign-ups, connect cards, surveys)", "general" ], [ "Prayer requests", "prayer_request" ],
+    <%= form.select :purpose, [ [ "General (sign-ups, connect cards, surveys)", "general" ], [ "Prayer requests", "prayer_request" ], [ "Benevolence requests (financial help)", "benevolence_request" ],
           [ "Event registration questions", "event_registration" ] ], {}, class: select_classes %>
-    <p class="mt-2 text-sm text-gray-500">Prayer request forms create a private prayer request for each submission. Event registration forms are asked when people register for an event.</p>
+    <p class="mt-2 text-sm text-gray-500">Prayer request forms create a private prayer request for each submission; benevolence forms open a private benevolence case. Event registration forms are asked when people register for an event.</p>
   </div>
   <div class="flex gap-3">
     <%= form.submit "Create form", class: button_classes(:primary) %>

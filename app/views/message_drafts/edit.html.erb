@@ -1,0 +1,14 @@
+<% content_for :title, "Review message" %>
+<%= render "shared/page_header", title: "Review message", subtitle: "To #{@draft.person.name} (#{@draft.person.email.presence || "no email address"}) from the “#{@draft.workflow_run.workflow.name}” workflow" %>
+
+<%= form_with model: @draft, url: message_draft_path(@draft), method: :patch, class: "space-y-6 #{card_classes}" do |form| %>
+  <% if @draft.note.present? %><p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><%= @draft.note %></p><% end %>
+  <%= render "shared/field", form:, attribute: :subject, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :body, label: "Message", type: :text_area,
+        hint: "Plain text or simple Markdown. Your church's footer with the unsubscribe link is added automatically.", options: { rows: 10 } %>
+  <p class="text-xs text-gray-500"><%= @draft.source_ai? ? "Drafted by AI. Check names, dates, and tone before sending." : "Write this message yourself." %></p>
+  <div class="flex flex-wrap gap-3">
+    <%= form.submit "Approve and send", class: button_classes(:primary), data: { turbo_confirm: "Send this to #{@draft.person.name}?" } %>
+    <%= link_to "Back", message_drafts_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

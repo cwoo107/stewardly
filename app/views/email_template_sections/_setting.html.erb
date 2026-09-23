@@ -1,0 +1,55 @@
+<%# One schema-defined setting. name is the form field name; value the current value. %>
+<% field_id = name.parameterize(separator: "_") %>
+<div>
+  <% if setting["type"] == "checkbox" %>
+    <label class="flex items-center gap-2 text-sm">
+      <%= hidden_field_tag name, "0", id: nil %>
+      <%= check_box_tag name, "1", value == true, id: field_id, class: "rounded border-gray-300" %>
+      <%= setting["label"] %>
+    </label>
+  <% else %>
+    <%= label_tag field_id, setting["label"], class: label_classes %>
+    <% case setting["type"] %>
+    <% when "textarea" %>
+      <%= text_area_tag name, value, id: field_id, rows: 4, class: input_classes %>
+    <% when "markdown" %>
+      <%= text_area_tag name, value, id: field_id, rows: 8, class: "#{input_classes} font-mono" %>
+      <p class="mt-2 text-sm text-gray-500">Markdown: **bold**, *italic*, [link](https://…), blank line between paragraphs. {{ person.first_name }} works too.</p>
+    <% when "url" %>
+      <%= url_field_tag name, value, id: field_id, placeholder: "https://", class: input_classes %>
+    <% when "color" %>
+      <div class="flex items-center gap-3">
+        <%= color_field_tag name, value.presence || "#000000", id: field_id, class: "h-10 w-20 rounded-lg border border-gray-200" %>
+        <span class="text-xs text-gray-500"><%= value.presence ? value : "Using the theme color" %></span>
+      </div>
+    <% when "select" %>
+      <%= select_tag name, options_for_select(Array(setting["options"]).map { |option| [ setting.dig("labels", option) || option.humanize, option ] }, value.presence || setting["default"]), id: field_id, class: select_classes %>
+    <% when "form" %>
+      <% forms = Form.where(status: "published", access: "public").where.not(purpose: %w[ event_registration benevolence_request ]).alphabetical %>
+      <%= select_tag name, options_for_select(forms.map { |form| [ form.name, form.slug ] }, value), include_blank: "None", id: field_id, class: select_classes %>
+    <% when "number" %>
+      <%= number_field_tag name, value, id: field_id, min: setting["min"], max: setting["max"], class: "#{input_classes}" %>
+    <% when "image" %>
+      <% field = ->(suffix) { name.sub(/\]\z/, "_#{suffix}]") } %>
+      <% if (blob = Email::ImageSource.blob_for(value)) %>
+        <div class="mb-3 flex items-center gap-3">
+          <img src="<%= url_for(blob) %>" alt="" class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200">
+          <div class="text-sm">
+            <p class="font-medium"><%= blob.filename %></p>
+            <label class="mt-1 flex items-center gap-2 text-gray-600">
+              <%= check_box_tag field.("remove"), "1", false, id: "#{field_id}_remove", class: "rounded border-gray-300" %> Remove image
+            </label>
+          </div>
+        </div>
+        <%= hidden_field_tag field.("keep"), value, id: nil %>
+      <% elsif value.present? %>
+        <img src="<%= value %>" alt="" class="mb-2 max-h-24 rounded-lg ring-1 ring-gray-200">
+      <% end %>
+      <%= file_field_tag name, id: field_id, accept: "image/*", class: "block text-sm" %>
+      <%= url_field_tag field.("url"), (value unless blob), id: "#{field_id}_url", placeholder: "…or paste an image URL", class: "mt-2 #{input_classes}", aria: { label: "#{setting["label"]} URL" } %>
+    <% else %>
+      <%= text_field_tag name, value, id: field_id, class: input_classes %>
+    <% end %>
+    <% if setting["hint"] %><p class="mt-2 text-sm text-gray-500"><%= setting["hint"] %></p><% end %>
+  <% end %>
+</div>

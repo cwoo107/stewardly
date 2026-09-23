@@ -12,8 +12,10 @@ export default class extends Controller {
   }
 
   async add() {
-    const params = new URLSearchParams({ type: this.typeTarget.value, index: Date.now() })
-    const response = await fetch(`${this.conditionUrlValue}?${params}`, { headers: { Accept: "text/vnd.turbo-stream.html" } })
+    const url = new URL(this.conditionUrlValue, window.location.href)
+    url.searchParams.set("type", this.typeTarget.value)
+    url.searchParams.set("index", Date.now())
+    const response = await fetch(url, { headers: { Accept: "text/vnd.turbo-stream.html" } })
     Turbo.renderStreamMessage(await response.text())
     this.refresh()
   }
@@ -24,12 +26,14 @@ export default class extends Controller {
   }
 
   refresh() {
+    if (!this.hasPreviewTarget) return
     clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      const params = new URLSearchParams(new FormData(this.element))
-      params.delete("authenticity_token")
-      params.delete("_method")
-      this.previewTarget.src = `${this.previewUrlValue}?${params}`
+      const url = new URL(this.previewUrlValue, window.location.href)
+      new FormData(this.element).forEach((value, key) => {
+        if (key !== "authenticity_token" && key !== "_method") url.searchParams.append(key, value)
+      })
+      this.previewTarget.src = url.toString()
     }, 250)
   }
 }

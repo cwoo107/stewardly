@@ -11,7 +11,9 @@ class SegmentsController < ApplicationController
   end
 
   def new
-    @segment = authorize Segment.new(definition: { match: "all", conditions: Array(params[:conditions]) })
+    # Links can pre-fill conditions (?conditions[][type]=stuck&…); Segment::Condition keeps only known attributes.
+    conditions = Array(params[:conditions]).map { |condition| condition.respond_to?(:to_unsafe_h) ? condition.to_unsafe_h : condition }
+    @segment = authorize Segment.new(definition: { match: "all", conditions: })
   end
 
   def create
@@ -52,6 +54,7 @@ class SegmentsController < ApplicationController
     authorize Segment, :preview?
     @condition = Segment::Condition.new(type: params[:type])
     @index = params[:index].to_i
+    @prefix = params[:prefix].presence_in(%w[ segment pathway_stage workflow_entry workflow_condition ]) || "segment"
   end
 
   private

@@ -1,0 +1,6 @@
+<% content_for :title, "#{@page.title} settings" %>
+<%= render "shared/page_header", title: "Page settings", subtitle: @page.title %>
+<%= render "form", page: @page %>
+<% unless @page.home? %>
+  <%= button_to "Delete page", website_page_path(@page), method: :delete, class: "mt-6 #{button_classes(:danger)}", form: { data: { turbo_confirm: "Delete #{@page.title}?" } } %>
+<% end %>

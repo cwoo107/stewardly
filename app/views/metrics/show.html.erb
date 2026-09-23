@@ -1,0 +1,28 @@
+<% content_for :title, @tool.title %>
+<%= render "shared/page_header", title: @tool.title, subtitle: @tool.description %>
+<%= render "shared/reports_nav" %>
+
+<% if @tool.parameters.any? %>
+  <%= form_with url: metric_path(@tool.tool_name), method: :get, class: "mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 #{card_classes}" do %>
+    <% @tool.parameters.each do |key, spec| %>
+      <div>
+        <%= label_tag "arguments_#{key}", spec[:label] || key.to_s.humanize, class: label_classes %>
+        <% name = "arguments[#{key}]" %>
+        <% value = @call.dig("arguments", key.to_s) %>
+        <% if spec[:enum] %>
+          <%= select_tag name, options_for_select(spec[:enum].map { |option| [ option.humanize, option ] }, value), include_blank: "Default", id: "arguments_#{key}", class: select_classes %>
+        <% elsif spec[:format] == "date" %>
+          <%= date_field_tag name, value, id: "arguments_#{key}", class: input_classes %>
+        <% else %>
+          <%= number_field_tag name, value, id: "arguments_#{key}", class: input_classes %>
+        <% end %>
+      </div>
+    <% end %>
+    <div class="flex items-end"><%= submit_tag "Run", class: button_classes(:primary), name: nil %></div>
+  <% end %>
+<% end %>
+
+<%= render "reports/result", call: @call %>
+<% unless @call["error"] %>
+  <%= button_to "Save report", saved_reports_path, params: { tool: @tool.tool_name, arguments: @arguments }, class: "mt-4 #{button_classes(:outline)}" %>
+<% end %>

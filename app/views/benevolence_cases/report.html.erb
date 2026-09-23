@@ -1,0 +1,23 @@
+<% content_for :title, "Benevolence report" %>
+<%= render "shared/page_header", title: "Benevolence report", subtitle: "Payments in the last 12 months." %>
+<dl class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <% [ [ "Paid", Money.format(@report.total_cents) ], [ "Households helped", number_with_delimiter(@report.households_helped) ],
+       [ "Requests", number_with_delimiter(@report.requests_by_status.values.sum) ], [ "Denied", number_with_delimiter(@report.requests_by_status["denied"].to_i) ] ].each do |label, value| %>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200"><dt class="text-sm text-gray-600"><%= label %></dt><dd class="mt-1 text-2xl font-semibold tracking-tight"><%= value %></dd></div>
+  <% end %>
+</dl>
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="<%= card_classes %> lg:col-span-3" aria-labelledby="monthly">
+    <h2 id="monthly" class="font-semibold">Paid each month</h2>
+    <div class="mt-4"><%= column_chart solid_series([ { name: "Paid", data: @report.by_month } ]), **column_chart_options(legend: false, prefix: "$", min: 0) %></div>
+  </section>
+  <% [ [ "By need", @report.by_need ], [ "By fund", @report.by_fund ] ].each do |heading, rows| %>
+    <section class="<%= card_classes %>">
+      <h2 class="font-semibold"><%= heading %></h2>
+      <ul role="list" class="mt-4 divide-y divide-gray-100 text-sm">
+        <% rows.each do |label, cents| %><li class="flex justify-between gap-3 py-2"><span><%= label %></span><span class="tabular-nums font-medium"><%= Money.format(cents) %></span></li><% end %>
+        <% if rows.empty? %><li class="py-2 text-gray-500">Nothing paid yet.</li><% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

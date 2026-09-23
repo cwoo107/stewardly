@@ -1,0 +1,12 @@
+<%= turbo_frame_tag "page_preview" do %>
+  <% if @result.errors.any? %>
+    <div class="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+      <p class="font-semibold">Some sections have errors (visitors won't see them):</p>
+      <ul class="mt-1 list-disc pl-5"><% @result.errors.each do |error| %><li><%= error %></li><% end %></ul>
+    </div>
+  <% end %>
+  <div class="overflow-x-auto rounded-2xl bg-gray-100 p-3">
+    <%# Still sandboxed (no scripts, its own origin); links may open the editor (_top) or a new tab. %>
+    <iframe srcdoc="<%= @result.html %>" sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" title="Page preview" class="mx-auto block h-[760px] rounded-lg bg-white shadow-sm" style="width: <%= @width %>px; max-width: 100%"></iframe>
+  </div>
+<% end %>

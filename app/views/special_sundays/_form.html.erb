@@ -1,4 +1,4 @@
-<%= form_with model: special_sunday, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: special_sunday, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: special_sunday.errors.full_messages %>
   <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "Back to school" } %>
   <%= render "shared/field", form:, attribute: :local_date, label: "Date", type: :date_field, options: { required: true } %>

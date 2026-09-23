@@ -1,0 +1,50 @@
+<% segment = Segment.new(definition: stage.definition) %>
+<%= form_with model: stage, class: "space-y-6",
+      data: { controller: "segment-builder", action: "change->segment-builder#refresh input->segment-builder#refresh",
+              segment_builder_condition_url_value: condition_segments_path(prefix: "pathway_stage"),
+              segment_builder_preview_url_value: preview_pathway_stages_path(stage_id: stage.id) } do |form| %>
+  <%= render "shared/form_errors", messages: stage.errors.full_messages %>
+
+  <div class="<%= card_classes %> space-y-6">
+    <div class="grid gap-6 sm:grid-cols-2">
+      <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+      <%= render "shared/field", form:, attribute: :stuck_after_days, label: "Stuck after (days)", type: :number_field,
+            hint: "Blank = never stuck. The last stage is never stuck.", options: { min: 7 } %>
+    </div>
+    <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 2 } %>
+
+    <% if stage.persisted? && stage.first? %>
+      <p class="text-sm text-gray-600">This is the first stage: everyone who isn't at a later stage is here, so it has no rules.</p>
+    <% else %>
+      <div>
+        <label for="stage_match" class="<%= label_classes %>">People reach this stage when they meet</label>
+        <%= select_tag "pathway_stage[definition][match]", options_for_select([ [ "All of these", "all" ], [ "Any of these", "any" ] ], segment.match),
+              id: "stage_match", class: "#{select_classes}" %>
+      </div>
+      <div id="segment_conditions" class="space-y-4">
+        <% segment.conditions.each_with_index do |condition, index| %>
+          <%= render "segments/condition", condition:, index:, prefix: "pathway_stage" %>
+        <% end %>
+      </div>
+      <div class="flex flex-wrap items-end gap-3 border-t border-gray-100 pt-6">
+        <div>
+          <label for="new_condition_type" class="<%= label_classes %>">Add a rule</label>
+          <%= select_tag :new_condition_type, options_for_select(Segment::Condition::TYPES.except(*Segment::Condition::PATHWAY_TYPES).invert),
+                id: "new_condition_type", class: select_classes, data: { segment_builder_target: "type" }, form: "none" %>
+        </div>
+        <button type="button" class="<%= button_classes(:secondary) %>" data-action="segment-builder#add">Add</button>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="<%= card_classes %>">
+    <%= turbo_frame_tag "segment_preview", data: { segment_builder_target: "preview" } do %>
+      <p class="text-sm text-gray-500">Counting…</p>
+    <% end %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= form.submit "Save stage", class: button_classes(:primary) %>
+    <%= link_to "Cancel", edit_pathway_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

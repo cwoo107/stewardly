@@ -1,0 +1,22 @@
+<% content_for :title, "Funds" %>
+<%= render "shared/page_header", title: "Funds", subtitle: "Giving funds come from your giving platform. Add your own for benevolence payments." do %>
+  <%= link_to "New fund", new_fund_path, class: button_classes(:primary) if policy(Fund).create? %>
+<% end %>
+<%= render "shared/giving_nav" if policy(Donation).index? %>
+
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @funds.each do |fund| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div>
+        <p class="font-medium"><%= fund.name %>
+          <%= badge(fund.manual? ? "Added here" : "From #{Integration.label_for(fund.provider)}", color: "gray") %>
+          <%= badge("Benevolence", color: "violet") if fund.benevolence %>
+          <%= badge("Inactive", color: "amber") unless fund.active %>
+        </p>
+        <% if policy(Donation).index? %><p class="text-sm text-gray-600"><%= Money.format(@totals[fund.id].to_i) %> given this year</p><% end %>
+      </div>
+      <%= link_to "Edit", edit_fund_path(fund), class: button_classes(:outline) if policy(fund).update? %>
+    </li>
+  <% end %>
+  <% if @funds.empty? %><li class="px-5 py-4 text-sm text-gray-500">No funds yet.</li><% end %>
+</ul>

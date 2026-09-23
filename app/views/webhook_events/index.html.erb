@@ -1,0 +1,23 @@
+<% content_for :title, "Webhook log" %>
+<%= render "shared/page_header", title: "Webhook log", subtitle: "Every notification your email provider sent, stored as received." %>
+<%= render "shared/email_nav" %>
+
+<div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr><th scope="col" class="px-4 py-3 font-semibold">Received</th><th scope="col" class="px-4 py-3 font-semibold">Provider</th><th scope="col" class="px-4 py-3 font-semibold">Status</th><th scope="col" class="px-4 py-3 font-semibold">Error</th></tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @events.each do |event| %>
+        <tr>
+          <td class="px-4 py-3"><%= link_to l(event.created_at, format: :long), event, class: "font-medium hover:underline" %></td>
+          <td class="px-4 py-3"><%= Integration.label_for(event.provider) %></td>
+          <td class="px-4 py-3"><%= badge event.status.humanize, color: { "processed" => "green", "failed" => "rose" }.fetch(event.status, "gray") %></td>
+          <td class="px-4 py-3 text-gray-600"><%= event.error %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @events.empty? %><p class="px-4 py-6 text-sm text-gray-500">No webhooks received yet.</p><% end %>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

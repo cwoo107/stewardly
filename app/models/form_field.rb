@@ -26,7 +26,7 @@ class FormField < ApplicationRecord
   normalizes :maps_to, with: ->(target) { target.presence }
 
   before_validation :derive_key, on: :create
-  before_validation { self.sensitive = true if maps_to == "prayer_request.body" }
+  before_validation { self.sensitive = true if maps_to == "prayer_request.body" || maps_to.to_s.start_with?("benevolence.") }
 
   validates :label, presence: true, length: { maximum: 200 }
   validates :key, presence: true, format: { with: /\A[a-z][a-z0-9_]*\z/ }, uniqueness: { scope: :form_id }

@@ -1,5 +1,6 @@
 # A recurring service time, e.g. "Sunday 9am". Dated instances are ServiceOccurrences.
 class WorshipService < ApplicationRecord
+  include ExpiresSiteCache
   belongs_to :campus, optional: true
   # Declared after belongs_to so acts_as_tenant also validates those associations belong to this church.
   acts_as_tenant :church

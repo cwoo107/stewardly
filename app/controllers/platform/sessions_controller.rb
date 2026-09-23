@@ -11,7 +11,9 @@ class Platform::SessionsController < Platform::BaseController
       start_new_platform_session_for platform_admin
       redirect_to platform_root_path
     else
-      redirect_to new_platform_session_path, alert: "Try another email address or password."
+      # The same message for everyone, so it never reveals whether an email has a church account.
+      redirect_to new_platform_session_path, alert: "Try another email address or password. " \
+        "This is the platform console: church staff sign in at their church's own address (like #{helpers.church_sign_in_example})."
     end
   end
 

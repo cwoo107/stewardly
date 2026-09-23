@@ -38,6 +38,14 @@ class Scheduling::Board
     notes + others.map { |other| "Also serving #{other.position.name} at #{other.title}" }
   end
 
+  # Volunteer load for an assignment's person as of its date (the assignment included).
+  def load_for(assignment)
+    loads.for(assignment.person_id, as_of: assignment.local_date)
+  end
+
+  # Each team member's load today, for the roster.
+  def roster_load_for(person_id) = loads.for(person_id, as_of: team.church.today)
+
   def open_slot_count
     occurrences.sum { |occurrence| positions.sum { |position| cell(occurrence, position).open_slots } }
   end
@@ -64,6 +72,10 @@ class Scheduling::Board
     end
 
     def board_assignments = assignments_by_slot.values.flatten
+
+    def loads
+      @loads ||= Volunteering::LoadAssessment.new(people: (board_assignments.map(&:person_id) + team.team_memberships.pluck(:person_id)).uniq, church: team.church)
+    end
 
     def blocked
       @blocked ||= begin

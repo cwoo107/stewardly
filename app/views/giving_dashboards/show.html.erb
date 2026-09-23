@@ -1,0 +1,51 @@
+<% content_for :title, "Giving" %>
+<% currency = @summary.currency %>
+<%= render "shared/page_header", title: "Giving", subtitle: "Synced from your giving platform. Read-only here: refunds and edits happen there." do %>
+  <nav class="flex items-center gap-2 text-sm" aria-label="Year">
+    <%= link_to "← #{@year - 1}", giving_path(year: @year - 1), class: button_classes(:outline) %>
+    <span class="font-semibold"><%= @year %></span>
+    <%= link_to "#{@year + 1} →", giving_path(year: @year + 1), class: button_classes(:outline) unless @year >= Current.church.today.year %>
+  </nav>
+<% end %>
+<%= render "shared/giving_nav" %>
+
+<% if @summary.unmatched_count.positive? && policy(Donation).match? %>
+  <p class="mb-6 rounded-2xl bg-amber-50 px-5 py-3 text-sm text-amber-900">
+    <%= pluralize(@summary.unmatched_count, "gift") %> from <%= pluralize(@summary.unmatched_donor_count, "donor") %> couldn't be matched to a person. <%= link_to "Review them", donation_matches_path, class: "font-semibold underline" %>
+  </p>
+<% end %>
+
+<dl class="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <% [ [ "Given in #{@year}", Money.format(@summary.total_cents, currency) ], [ "Gifts", number_with_delimiter(@summary.gift_count) ],
+       [ "Givers", number_with_delimiter(@summary.giver_count) ], [ "First-time givers", number_with_delimiter(@summary.first_time_giver_count) ] ].each do |label, value| %>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+      <dt class="text-sm text-gray-600"><%= label %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight"><%= value %></dd>
+    </div>
+  <% end %>
+</dl>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="<%= card_classes %> lg:col-span-2" aria-labelledby="by_month">
+    <h2 id="by_month" class="font-semibold">Given each month</h2>
+    <% months = @summary.by_month %>
+    <div class="mt-4"><%= column_chart solid_series([ { name: "Given", data: months } ]), **column_chart_options(legend: false, prefix: Money::SYMBOLS.fetch(currency, ""), min: 0) %></div>
+    <details class="mt-4 text-sm">
+      <summary class="cursor-pointer text-gray-600">Show as a table</summary>
+      <table class="mt-2 w-full text-left">
+        <thead><tr class="text-gray-500"><th scope="col" class="py-1 font-medium">Month</th><th scope="col" class="py-1 text-right font-medium">Given</th></tr></thead>
+        <tbody><% months.each do |month, amount| %><tr class="border-t border-gray-100"><td class="py-1"><%= month %></td><td class="py-1 text-right tabular-nums"><%= Money.format((amount * 100).round, currency) %></td></tr><% end %></tbody>
+      </table>
+    </details>
+  </section>
+
+  <section class="<%= card_classes %>" aria-labelledby="by_fund">
+    <h2 id="by_fund" class="font-semibold">By fund</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100 text-sm">
+      <% @summary.by_fund.each do |fund, cents| %>
+        <li class="flex justify-between gap-3 py-2"><span><%= fund %></span><span class="tabular-nums font-medium"><%= Money.format(cents, currency) %></span></li>
+      <% end %>
+      <% if @summary.gift_count.zero? %><li class="py-2 text-gray-500">No gifts this year.</li><% end %>
+    </ul>
+  </section>
+</div>

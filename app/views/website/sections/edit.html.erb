@@ -1,0 +1,7 @@
+<% content_for :title, "#{@definition.name} code" %>
+<%= render "shared/page_header", title: @definition.name, subtitle: @definition.system? ? "Built-in section#{" (edited)" if @definition.customized?}" : "Custom section" do %>
+  <% if @definition.system? && @definition.customized? %>
+    <%= button_to "Reset to original", reset_website_section_path(@definition), class: button_classes(:outline), form: { data: { turbo_confirm: "Throw away your changes to this section's code?" } } %>
+  <% end %>
+<% end %>
+<%= render "form", definition: @definition %>

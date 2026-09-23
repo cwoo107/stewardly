@@ -1,0 +1,6 @@
+{% if settings.image_url != blank %}
+<figure class="site-section px-6 py-12 sm:px-12 lg:px-24">
+  <img src="{{ settings.image_url | escape }}" alt="{{ settings.alt | escape }}" class="site-radius mx-auto"{% if settings.image_url_width %} width="{{ settings.image_url_width }}"{% endif %}{% if settings.image_url_height %} height="{{ settings.image_url_height }}"{% endif %} loading="lazy">
+  {% if settings.caption != blank %}<figcaption class="mt-3 text-center text-sm text-(--site-muted)">{{ settings.caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

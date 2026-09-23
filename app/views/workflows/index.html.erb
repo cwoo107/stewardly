@@ -1,0 +1,22 @@
+<% content_for :title, "Workflows" %>
+<%= render "shared/page_header", title: "Workflows", subtitle: "Automations that follow up with people: a trigger, then steps like emails, waits, tasks, and checks." do %>
+  <%= link_to "New workflow", new_workflow_path, class: button_classes(:primary) if policy(Workflow).create? %>
+<% end %>
+
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <% @workflows.each do |workflow| %>
+    <%= link_to workflow.current_version ? workflow : edit_workflow_path(workflow), class: "block #{card_classes} hover:ring-cyan-500" do %>
+      <div class="flex items-start justify-between gap-3">
+        <h2 class="font-semibold"><%= workflow.name %></h2>
+        <%= workflow_status_badge(workflow) %>
+      </div>
+      <% if workflow.description.present? %><p class="mt-2 text-sm text-gray-600"><%= workflow.description %></p><% end %>
+      <p class="mt-3 text-sm text-gray-700"><%= workflow.draft.trigger.summary %></p>
+      <p class="mt-2 text-xs text-gray-500">
+        <%= pluralize(@in_flight.fetch(workflow.id, 0), "person") %> in it now
+        <% if (last = @last_started[workflow.id]) %> · last started <%= time_ago_in_words(last) %> ago<% end %>
+        <% if workflow.current_version %> · version <%= workflow.current_version.number %><% end %>
+      </p>
+    <% end %>
+  <% end %>
+</div>

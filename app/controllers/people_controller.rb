@@ -20,6 +20,9 @@ class PeopleController < ApplicationController
   def show
     @touchpoints = @person.touchpoints.recent_first.includes(author: :person).limit(50)
     @prayer_requests = policy_scope(PrayerRequest).where(person: @person).recent_first if policy(PrayerRequest).index?
+    @giving = Giving::PersonSummary.new(@person) if policy(Donation).index?
+    @benevolence_cases = policy_scope(BenevolenceCase).where(person: @person).recent_first if policy(BenevolenceCase).index?
+    @workflow_runs = @person.workflow_runs.includes(:workflow, :workflow_version).recent_first.limit(10) if policy(WorkflowRun).index?
   end
 
   def new
@@ -56,7 +59,7 @@ class PeopleController < ApplicationController
 
   private
     def set_person
-      @person = authorize policy_scope(Person).includes(:household, :tags, groups: :ministry, teams: :ministry).find(params.expect(:id))
+      @person = authorize policy_scope(Person).includes(:household, :tags, groups: :ministry, teams: :ministry, pathway_placement: :pathway_stage).find(params.expect(:id))
     end
 
     def person_params
@@ -69,6 +72,8 @@ class PeopleController < ApplicationController
       case params[:for]
       when /\Agroup:(\d+)\z/ then policy_scope(Group).find($1)
       when /\Ateam:(\d+)\z/ then Team.find($1)
+      when "benevolence" then :benevolence if policy(BenevolenceCase).create?
+      when /\Adonation:(\d+)\z/ then policy_scope(Donation).find($1)
       end
     end
 end

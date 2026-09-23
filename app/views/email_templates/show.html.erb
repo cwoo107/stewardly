@@ -1,0 +1,42 @@
+<% content_for :title, @template.name %>
+<%= render "shared/page_header", title: @template.name, subtitle: @template.subject.presence || "No default subject" do %>
+  <div class="flex flex-wrap gap-2">
+    <% if policy(@template).test? %>
+      <%= button_to "Send me a test", test_email_template_path(@template), class: button_classes(:outline) %>
+    <% end %>
+    <%= link_to "Details & theme", edit_email_template_path(@template), class: button_classes(:outline) if policy(@template).update? %>
+    <%= link_to "Use in a campaign", new_campaign_path, class: button_classes(:primary) if policy(Campaign).create? %>
+  </div>
+<% end %>
+<%= render "shared/email_nav" %>
+
+<div class="grid gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+  <section aria-labelledby="sections_heading">
+    <h2 id="sections_heading" class="mb-3 text-sm font-semibold text-gray-900">Sections</h2>
+    <ol class="space-y-2" data-controller="sortable" id="template_sections">
+      <% definitions = @definitions.index_by(&:key) %>
+      <% @template.sections.each do |section| %>
+        <li class="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 cursor-grab"
+            data-move-url="<%= move_email_template_section_path(@template, section["id"]) %>" id="section_<%= section["id"] %>">
+          <span class="text-sm font-medium"><span class="mr-2 text-gray-300" aria-hidden="true">⋮⋮</span><%= definitions[section["key"]]&.name || section["key"].humanize %></span>
+          <span class="flex gap-2">
+            <%= link_to "Edit", edit_email_template_section_path(@template, section["id"]), class: "text-sm text-cyan-700 underline hover:no-underline" %>
+            <%= button_to "Remove", email_template_section_path(@template, section["id"]), method: :delete,
+                  class: "text-sm text-gray-500 underline hover:no-underline cursor-pointer", form: { data: { turbo_confirm: "Remove this section?" } } %>
+          </span>
+        </li>
+      <% end %>
+      <li class="rounded-2xl border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-500">Footer: your church's name, address, and unsubscribe links (always included)</li>
+    </ol>
+    <p class="mt-2 text-xs text-gray-500">Drag to reorder.</p>
+
+    <h3 class="mt-8 mb-3 text-sm font-semibold text-gray-900">Add a section</h3>
+    <div class="flex flex-wrap gap-2">
+      <% @definitions.each do |definition| %>
+        <%= button_to "+ #{definition.name}", email_template_sections_path(@template), params: { key: definition.key }, class: button_classes(:outline) %>
+      <% end %>
+    </div>
+  </section>
+
+  <section><%= render "preview_frame", template: @template %></section>
+</div>

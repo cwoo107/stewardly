@@ -17,6 +17,10 @@ class FormSubmissionsController < ApplicationController
 
   def show
     @submission = authorize policy_scope(FormSubmission).where(form: @form).includes(:person, uploads_attachments: :blob).find(params.expect(:id))
+    # Benevolence requests are read on their case, where every view is audited.
+    if @form.benevolence_request_form? && (kase = BenevolenceCase.find_by(form_submission: @submission))
+      redirect_to kase
+    end
   end
 
   def update

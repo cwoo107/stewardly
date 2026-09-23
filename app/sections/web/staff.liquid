@@ -1,0 +1,13 @@
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24">
+  <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+  <ul class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    {% for person in settings.blocks %}
+      <li>
+        {% if person.photo_url != blank %}<img src="{{ person.photo_url | escape }}" alt="" class="site-radius aspect-square w-full object-cover" loading="lazy">{% else %}<div class="site-radius aspect-square bg-(--site-surface)"></div>{% endif %}
+        <p class="mt-4 text-lg font-semibold">{{ person.name | escape }}</p>
+        <p class="text-(--site-muted)">{{ person.role | escape }}</p>
+        {% if person.email != blank %}<a href="mailto:{{ person.email | escape }}" class="text-sm text-(--site-brand) underline">{{ person.email | escape }}</a>{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</section>

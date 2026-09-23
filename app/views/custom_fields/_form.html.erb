@@ -1,4 +1,4 @@
-<%= form_with model: custom_field, class: "max-w-md space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: custom_field, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: custom_field.errors.full_messages %>
   <%= render "shared/field", form:, attribute: :label, options: { required: true } %>
   <div>

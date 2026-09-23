@@ -1,0 +1,68 @@
+<% content_for :title, @campaign.name %>
+<% if @campaign.sending? %><meta http-equiv="refresh" content="10"><% end %>
+<%= render "shared/page_header", title: @campaign.name, subtitle: @campaign.subject do %>
+  <div class="flex items-center gap-3">
+    <%= render "status_badge", campaign: @campaign %>
+    <span class="text-sm text-gray-600">
+      <%= @campaign.sent_at ? "Sent #{l(@campaign.sent_at, format: :long)}" : (@campaign.sending_at ? "Started #{l(@campaign.sending_at, format: :long)}" : "") %>
+    </span>
+  </div>
+<% end %>
+<%= render "shared/email_nav" %>
+
+<% sent = @stats[:sent] %>
+<% rate = ->(count) { sent.positive? ? number_to_percentage(100.0 * count / sent, precision: 1) : "—" } %>
+<dl class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+  <% [
+       [ "Sent", number_with_delimiter(sent), "of #{number_with_delimiter(@stats[:recipients])}" ],
+       [ "Delivered", number_with_delimiter(@stats[:delivered]), rate.(@stats[:delivered]) ],
+       [ "Opened", number_with_delimiter(@stats[:opened]), @campaign.track_engagement? ? rate.(@stats[:opened]) : "Not tracked" ],
+       [ "Clicked", number_with_delimiter(@stats[:clicked]), @campaign.track_engagement? ? rate.(@stats[:clicked]) : "Not tracked" ],
+       [ "Bounced", number_with_delimiter(@stats[:bounced]), rate.(@stats[:bounced]) ],
+       [ "Unsubscribed", number_with_delimiter(@stats[:unsubscribed]), rate.(@stats[:unsubscribed]) ]
+     ].each do |label, value, detail| %>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+      <dt class="text-sm text-gray-600"><%= label %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight text-gray-900"><%= value %></dd>
+      <dd class="text-xs text-gray-500"><%= detail %></dd>
+    </div>
+  <% end %>
+</dl>
+<% if @stats[:complained].positive? || @stats[:failed].positive? %>
+  <p class="mb-6 text-sm text-gray-700"><%= pluralize(@stats[:complained], "spam complaint") %> · <%= pluralize(@stats[:failed], "failed send") %></p>
+<% end %>
+<p class="mb-6 text-xs text-gray-500">Opens are approximate: some mail apps load images automatically, others block them.</p>
+
+<nav class="mb-4 flex flex-wrap gap-2 text-sm" aria-label="Filter recipients">
+  <%= link_to "Everyone", campaign_path(@campaign), class: "rounded-full px-3 py-1 #{params[:status].blank? ? "bg-gray-900 text-white" : "bg-white ring-1 ring-gray-200"}" %>
+  <% %w[ delivered bounced complained failed skipped ].each do |status| %>
+    <%= link_to status.humanize, campaign_path(@campaign, status:), class: "rounded-full px-3 py-1 #{params[:status] == status ? "bg-gray-900 text-white" : "bg-white ring-1 ring-gray-200"}" %>
+  <% end %>
+</nav>
+
+<div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th scope="col" class="px-4 py-3 font-semibold">Recipient</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Opens</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Clicks</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Note</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @deliveries.each do |delivery| %>
+        <tr>
+          <td class="px-4 py-3"><%= link_to delivery.person.name, delivery.person, class: "font-medium hover:underline" %><p class="text-gray-500"><%= delivery.email %></p></td>
+          <td class="px-4 py-3"><%= badge delivery.status.humanize, color: { "delivered" => "green", "sent" => "cyan", "bounced" => "rose", "complained" => "rose", "failed" => "rose", "skipped" => "amber" }.fetch(delivery.status, "gray") %></td>
+          <td class="px-4 py-3 tabular-nums"><%= delivery.open_count %></td>
+          <td class="px-4 py-3 tabular-nums"><%= delivery.click_count %></td>
+          <td class="px-4 py-3 text-gray-600"><%= delivery.unsubscribed_at ? "Unsubscribed" : delivery.error %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @deliveries.empty? %><p class="px-4 py-6 text-sm text-gray-500">No recipients here.</p><% end %>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

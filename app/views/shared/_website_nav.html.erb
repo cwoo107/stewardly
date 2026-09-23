@@ -1,0 +1,7 @@
+<% links = [ [ "Pages", website_path, policy(:website).show? ], [ "Theme", edit_website_theme_path, policy(:website).update? ],
+     [ "Sections code", website_sections_path, policy(:website).develop? ], [ "Layout code", edit_website_layout_path, policy(:website).develop? ] ].select(&:last) %>
+<nav class="mb-8 flex flex-wrap gap-2" aria-label="Website">
+  <% links.each do |label, path, _| %>
+    <%= link_to label, path, class: "rounded-full px-3 py-1 text-sm #{request.path == path ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>

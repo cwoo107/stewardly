@@ -1,0 +1,40 @@
+<% content_for :title, "Review queue" %>
+<%= render "shared/page_header", title: "Review queue", subtitle: "Gifts we couldn't match to a person. Matching one also matches that donor's future gifts." %>
+<%= render "shared/giving_nav" %>
+
+<ul role="list" class="space-y-4">
+  <% @donations.each do |donation| %>
+    <li class="<%= card_classes %>">
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div>
+          <p class="text-lg font-semibold"><%= donation.amount %> <span class="text-sm font-normal text-gray-500">on <%= l(donation.given_on, format: :long) %> to <%= donation.fund&.name || "no fund" %></span></p>
+          <p class="mt-1 text-sm"><%= donation.donor_name.presence || "No name" %> · <%= donation.donor_email.presence || "no email" %></p>
+          <% if (count = @waiting_by_donor[donation.donor_external_id].to_i) > 1 %>
+            <p class="mt-1 text-sm text-gray-600">First of <%= count %> gifts from this donor (<%= Money.format(@waiting_total_by_donor[donation.donor_external_id], donation.currency) %> in all). Matching this one matches them all.</p>
+          <% end %>
+          <% suggestions = Giving::Matching.new(donation).suggestions %>
+          <% if suggestions.any? %>
+            <p class="mt-4 text-xs font-semibold uppercase tracking-wide text-gray-500">Likely matches</p>
+            <ul role="list" class="mt-2 space-y-2">
+              <% suggestions.each do |person| %>
+                <li class="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-gray-50 px-3 py-2 text-sm">
+                  <span><%= person.name %> <span class="text-gray-500"><%= person.email %></span></span>
+                  <%= button_to "Match", donation_match_path(donation), method: :patch, params: { person_id: person.id }, class: button_classes(:outline) %>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+        <div class="space-y-3">
+          <%= render "people/picker", target: "donation:#{donation.id}", prompt: "Find someone else", frame: "person_search_#{donation.id}" %>
+          <div class="flex flex-wrap gap-2">
+            <%= button_to "Add as a new person", create_person_donation_match_path(donation), class: button_classes(:outline) %>
+            <%= button_to "Leave unmatched", ignore_donation_match_path(donation), method: :patch, class: button_classes(:outline) %>
+          </div>
+        </div>
+      </div>
+    </li>
+  <% end %>
+</ul>
+<% if @donations.empty? %><p class="<%= card_classes %> text-sm text-gray-500">Every gift is matched.</p><% end %>
+<%= render "shared/pagination", pagy: @pagy %>

@@ -1,0 +1,21 @@
+<% unless Current.church.ai_enabled? %>
+  <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">AI is turned off for your church, so these land in the approval queue for someone to write. A church admin can turn AI on in settings.</p>
+<% end %>
+<%= render "workflow_steps/forms/field", key: "instructions", label: "What should the message say?", hint: "The AI sees only the person's first name, membership status, pathway stage, how many groups and teams they're in, and the kinds of recent contact. Never prayer requests, notes, or contact details." do %>
+  <%= text_area_tag "config[instructions]", config["instructions"], id: "config_instructions", rows: 4, class: input_classes,
+        placeholder: "Thank them for visiting and invite them to our newcomers' lunch." %>
+<% end %>
+<%= render "workflow_steps/forms/field", key: "subject", label: "Subject" do %>
+  <%= text_field_tag "config[subject]", config["subject"], id: "config_subject", class: input_classes %>
+<% end %>
+<%= render "workflow_steps/forms/template_and_topic", config:, template_label: "Design (optional)", template_blank: "Plain" %>
+<div class="rounded-xl bg-gray-50 p-3">
+  <label class="flex items-start gap-2 text-sm">
+    <%= hidden_field_tag "config[auto_send]", "0", id: nil %>
+    <%= check_box_tag "config[auto_send]", "1", Workflow::Steps::AiDraft.new(step).auto_send?, id: "config_auto_send", class: "mt-0.5 rounded border-gray-300",
+          disabled: !policy(@workflow).auto_send? %>
+    <span>Send without review<span class="block text-gray-500">
+      <%= policy(@workflow).auto_send? ? "Off by default. Turning this on is recorded in the audit log." : "Only a church admin can change this." %>
+    </span></span>
+  </label>
+</div>

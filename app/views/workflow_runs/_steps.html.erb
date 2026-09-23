@@ -1,0 +1,40 @@
+<ol class="space-y-2">
+  <% steps.each do |step| %>
+    <% execution = executions[step["id"]] %>
+    <% current = run.in_flight? && run.current_step_id == step["id"] %>
+    <li class="rounded-2xl bg-white p-4 shadow-sm ring-1 <%= current ? "ring-cyan-500" : "ring-gray-200" %>">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-sm font-medium"><%= step_summary(step) %></p>
+          <% if execution&.error %><p class="mt-1 text-sm text-rose-700"><%= execution.error %></p><% end %>
+          <% if (reason = execution&.result&.dig("reason") || execution&.result&.dig("deferred")) %><p class="mt-1 text-sm text-gray-600"><%= reason %></p><% end %>
+          <% if (draft_id = execution&.result&.dig("message_draft_id")) && (draft = MessageDraft.find_by(id: draft_id)) %>
+            <p class="mt-1 text-sm text-gray-600">Draft <%= draft.status %><%= " (sent automatically)" if draft.auto_sent %> · <%= link_to "Approval queue", message_drafts_path(status: draft.status), class: "underline" %></p>
+          <% end %>
+          <% if (task_id = execution&.result&.dig("task_id")) %><p class="mt-1 text-sm"><%= link_to "Open the task", edit_task_path(task_id), class: "underline" %></p><% end %>
+          <% if execution&.result&.key?("branch") %><p class="mt-1 text-sm text-gray-600">Matched: <%= execution.result["branch"] == "yes" ? "yes" : "no" %></p><% end %>
+        </div>
+        <span class="shrink-0 text-right text-xs text-gray-500">
+          <% if current && run.wake_at %>
+            <%= badge "Waiting", color: "violet" %><span class="mt-1 block">until <%= l(run.wake_at, format: :short) %></span>
+          <% elsif execution %>
+            <%= badge execution.status.humanize, color: { "completed" => "green", "skipped" => "amber", "failed" => "rose", "waiting" => "violet" }.fetch(execution.status, "cyan") %>
+            <% if execution.executed_at %><span class="mt-1 block"><%= l(execution.executed_at, format: :short) %></span><% end %>
+          <% else %>
+            <%= badge(current ? "Next" : "Not reached") %>
+          <% end %>
+        </span>
+      </div>
+      <% if step["type"] == "condition" %>
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+          <% Workflow::Definition::BRANCHES.each do |branch| %>
+            <div class="rounded-xl bg-gray-50 p-3">
+              <p class="mb-2 text-xs font-semibold uppercase tracking-wide <%= branch == "yes" ? "text-green-700" : "text-rose-700" %>">If <%= branch %></p>
+              <%= render "workflow_runs/steps", run:, steps: Array(step[branch]), executions: %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </li>
+  <% end %>
+</ol>

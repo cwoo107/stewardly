@@ -1,0 +1,17 @@
+<%= render "workflow_steps/forms/field", key: "title", label: "Task", hint: "{{ person.name }} and {{ person.first_name }} work here." do %>
+  <%= text_field_tag "config[title]", config["title"], id: "config_title", class: input_classes %>
+<% end %>
+<%= render "workflow_steps/forms/field", key: "notes", label: "Notes (optional)" do %>
+  <%= text_area_tag "config[notes]", config["notes"], id: "config_notes", rows: 2, class: input_classes %>
+<% end %>
+<div class="grid gap-4 sm:grid-cols-3">
+  <%= render "workflow_steps/forms/field", key: "owner_id", label: "For" do %>
+    <%= select_tag "config[owner_id]", options_for_select(staff_user_options, config["owner_id"]), include_blank: "Choose someone", id: "config_owner_id", class: select_classes %>
+  <% end %>
+  <%= render "workflow_steps/forms/field", key: "due_in_days", label: "Due in (days)" do %>
+    <%= number_field_tag "config[due_in_days]", config["due_in_days"], min: 0, max: 365, id: "config_due_in_days", class: input_classes %>
+  <% end %>
+  <%= render "workflow_steps/forms/field", key: "priority", label: "Priority" do %>
+    <%= select_tag "config[priority]", options_for_select(Task.priorities.keys.map { |p| [ p.humanize, p ] }, config["priority"]), id: "config_priority", class: select_classes %>
+  <% end %>
+</div>

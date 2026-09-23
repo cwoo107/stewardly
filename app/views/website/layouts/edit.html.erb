@@ -1,0 +1,12 @@
+<% content_for :title, "Layout code" %>
+<%= render "shared/page_header", title: "Layout code", subtitle: "Advanced: the header, menu, and footer around every page. Must include {{ head }} and {{ content_for_layout }}." do %>
+  <% if @site.custom_layout? %>
+    <%= button_to "Use the theme's layout", website_layout_path, method: :delete, class: button_classes(:outline), form: { data: { turbo_confirm: "Throw away your layout changes?" } } %>
+  <% end %>
+<% end %>
+<%= render "shared/website_nav" %>
+<%= form_with model: @site, url: website_layout_path, method: :patch, class: "space-y-4 #{card_classes}" do |form| %>
+  <%= form.label :layout_liquid, "Layout (Liquid HTML)", class: label_classes %>
+  <%= form.text_area :layout_liquid, value: @site.layout, rows: 30, class: "#{input_classes} font-mono", data: { controller: "code-editor", code_editor_language_value: "html" } %>
+  <%= form.submit "Save layout", class: button_classes(:primary) %>
+<% end %>

@@ -1,4 +1,5 @@
 class Campus < ApplicationRecord
+  include ExpiresSiteCache
   include Geocodable
 
   acts_as_tenant :church

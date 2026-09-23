@@ -1,6 +1,6 @@
 <% content_for :title, "Edit #{@form.name}" %>
 <%= render "shared/page_header", title: @form.name,
-      subtitle: "#{@form.status.humanize} · #{@form.prayer_request_form? ? "Prayer request form" : "General form"}" do %>
+      subtitle: "#{@form.status.humanize} · #{Form::PURPOSE_LABELS.fetch(@form.purpose)}" do %>
   <div class="flex flex-wrap gap-2">
     <%= link_to "Preview", preview_form_path(@form), class: button_classes(:outline), target: "_blank", rel: "noopener" %>
     <%= link_to "Submissions", form_submissions_path(@form), class: button_classes(:outline) if policy(FormSubmission.new(form: @form)).index? %>

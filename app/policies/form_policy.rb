@@ -1,6 +1,6 @@
 class FormPolicy < ApplicationPolicy
   # People who read submissions reach them through the forms list.
-  def index? = can?(:manage_forms) || can?(:view_form_submissions) || can?(:manage_prayer_requests)
+  def index? = can?(:manage_forms) || can?(:view_form_submissions) || can?(:manage_prayer_requests) || can?(:view_benevolence)
   def show? = can?(:manage_forms) || FormSubmissionPolicy.new(user, FormSubmission.new(form: record)).index?
   def create? = can?(:manage_forms)
   def update? = can?(:manage_forms)
@@ -16,6 +16,7 @@ class FormPolicy < ApplicationPolicy
       purposes = []
       purposes << "general" if can?(:view_form_submissions)
       purposes << "prayer_request" if can?(:manage_prayer_requests)
+      purposes << "benevolence_request" if can?(:view_benevolence)
       scope.where(purpose: purposes)
     end
   end

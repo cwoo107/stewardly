@@ -6,9 +6,10 @@ class Role < ApplicationRecord
   DEFAULTS = [
     { key: CHURCH_ADMIN, name: "Church admin", grants_all: true },
     { key: "staff", name: "Staff",
-      permissions: %w[ manage_announcements manage_courses manage_events manage_forms manage_ministries manage_people
-        manage_schedules manage_tasks record_attendance view_attendance view_form_submissions view_people view_precise_locations ] },
+      permissions: %w[ manage_announcements manage_courses manage_email manage_events manage_forms manage_ministries manage_pathways manage_people
+        manage_schedules manage_tasks manage_workflows approve_messages manage_social manage_website use_reports view_insights record_attendance view_attendance view_form_submissions view_people view_precise_locations ] },
     { key: "care_team", name: "Care team", permissions: %w[ view_people view_prayer_requests ] },
+    { key: "benevolence_team", name: "Benevolence team", permissions: %w[ manage_benevolence view_benevolence view_people ] },
     { key: "member", name: "Member", permissions: [] }
   ].freeze
 

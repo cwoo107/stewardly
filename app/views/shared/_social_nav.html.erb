@@ -1,0 +1,6 @@
+<% links = [ [ "Posts", social_posts_path ], [ "Content calendar", social_calendar_path ], [ "Accounts", social_accounts_path ] ] %>
+<nav class="mb-8 flex flex-wrap gap-2" aria-label="Social">
+  <% links.each do |label, path| %>
+    <%= link_to label, path, class: "rounded-full px-3 py-1 text-sm #{request.path == path ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>

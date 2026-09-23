@@ -1,10 +1,52 @@
 <% content_for :title, "Dashboard" %>
 <%= render "shared/page_header", title: "Welcome, #{Current.user.person.nickname.presence || Current.user.person.first_name}",
-      subtitle: "#{Current.church.name} · #{l(Current.church.today, format: :long)} (#{Current.church.time_zone})" %>
+      subtitle: "#{Current.church.name} · #{l(Current.church.today, format: :long)}" %>
 
-<div class="rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
-  <h2 class="text-lg font-semibold">Stewardly is getting ready</h2>
-  <p class="mt-2 text-gray-600">
-    People, groups, scheduling, and the rest of your church’s work will show up here as each part is switched on.
-  </p>
-</div>
+<% if @insights %>
+  <section class="mb-8" aria-labelledby="today_heading">
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="today_heading" class="text-lg font-semibold">Today</h2>
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <%= button_to "Refresh", daily_brief_path, class: button_classes(:outline) %>
+        <%= button_to Current.user.brief_email? ? "Stop emailing me this" : "Email me this at 6am", daily_brief_path, method: :patch,
+              params: { brief_email: Current.user.brief_email? ? "0" : "1" }, class: button_classes(:outline) %>
+        <%= link_to "All #{@open_count} insights", insights_path, class: "underline" %>
+      </div>
+    </div>
+    <% if @brief&.summary.present? %>
+      <div class="mb-4 rounded-2xl bg-cyan-50 p-5 text-cyan-950">
+        <p class="whitespace-pre-line"><%= @brief.summary %></p>
+        <p class="mt-2 text-xs text-cyan-800">Written by AI from the insights below. It can reorder and explain them, not add to them.</p>
+      </div>
+    <% end %>
+    <ul role="list" class="space-y-3">
+      <% @insights.first(8).each do |insight| %><%= render "insights/insight", insight:, reason: @brief&.reason_for(insight) %><% end %>
+    </ul>
+    <% if @insights.empty? %><p class="<%= card_classes %> text-sm text-gray-500">Nothing needs your attention right now.</p><% end %>
+  </section>
+<% end %>
+
+<% if @pinned&.any? %>
+  <section aria-labelledby="pinned_heading">
+    <h2 id="pinned_heading" class="mb-3 text-lg font-semibold">Pinned reports</h2>
+    <div class="grid gap-4 lg:grid-cols-2">
+      <% @pinned.each do |report| %>
+        <div class="<%= card_classes %>">
+          <div class="mb-3 flex items-center justify-between gap-2"><%= link_to report.title, report, class: "font-semibold hover:underline" %>
+            <span class="text-xs text-gray-500"><%= report.last_run_at ? "as of #{time_ago_in_words(report.last_run_at)} ago" : "" %></span></div>
+          <% report.results.each do |call| %>
+            <dl class="grid grid-cols-2 gap-3">
+              <% call.dig("result", "figures").to_h.first(4).each do |label, value| %>
+                <div><dt class="text-xs text-gray-500"><%= label %></dt><dd class="text-xl font-semibold tabular-nums"><%= value.is_a?(Numeric) ? number_with_delimiter(value) : value %></dd></div>
+              <% end %>
+            </dl>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% if @insights.nil? && @pinned.blank? %>
+  <div class="<%= card_classes %>"><p class="text-gray-600">Use the menu to get to your work.</p></div>
+<% end %>

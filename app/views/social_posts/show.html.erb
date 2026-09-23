@@ -1,0 +1,37 @@
+<% content_for :title, "Post" %>
+<%= render "shared/page_header", title: "Post", subtitle: social_when(@post) do %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= social_status_badge(@post) %>
+    <%= link_to "Edit", edit_social_post_path(@post), class: button_classes(:outline) if @post.editable? %>
+    <%= button_to "Cancel", cancel_social_post_path(@post), method: :patch, class: button_classes(:outline) if policy(@post).cancel? %>
+  </div>
+<% end %>
+<%= render "shared/social_nav" %>
+
+<div class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
+  <ul role="list" class="space-y-3">
+    <% @post.targets.includes(:social_account).each do |target| %>
+      <li class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="font-medium"><%= target.social_account.label %></span>
+          <%= social_status_badge(target) %>
+        </div>
+        <% if target.permalink %><p class="mt-2 text-sm"><%= link_to "See it on #{target.social_account.network_label}", target.permalink, target: "_blank", rel: "noopener", class: "underline" %></p><% end %>
+        <% if target.published_at %><p class="mt-1 text-xs text-gray-500">Posted <%= l(target.published_at, format: :long) %></p><% end %>
+        <% if target.error %><p class="mt-2 text-sm text-rose-700"><%= target.error %></p><% end %>
+        <% if target.pending? && target.next_attempt_at && target.attempts.positive? %><p class="mt-1 text-xs text-gray-500">Next try <%= l(target.next_attempt_at, format: :short) %></p><% end %>
+        <% if target.failed? || target.unknown? %>
+          <div class="mt-3 flex flex-wrap items-end gap-2">
+            <%= button_to "Try again", retry_social_post_target_path(@post, target), class: button_classes(:outline),
+                  form: { data: { turbo_confirm: target.unknown? ? "Check #{target.social_account.network_label} first: if it did post, trying again makes a duplicate." : "Try posting again?" } } %>
+            <%= form_with url: mark_posted_social_post_target_path(@post, target), method: :patch, class: "flex items-end gap-2" do %>
+              <%= url_field_tag :permalink, nil, placeholder: "Link to the post (optional)", class: input_classes, aria: { label: "Link to the post" } %>
+              <%= submit_tag "It posted", class: button_classes(:outline), name: nil %>
+            <% end %>
+          </div>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <section><h2 class="mb-3 text-sm font-semibold text-gray-900">What was posted</h2><%= render "previews", post: @post %></section>
+</div>

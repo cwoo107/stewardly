@@ -1,0 +1,36 @@
+<% content_for :title, "Edit post" %>
+<%= render "shared/page_header", title: @post.source_event_promo? ? "Promo for #{@post.event&.title}" : "Edit post", subtitle: "#{@post.status.humanize}#{" · #{social_when(@post)}" if @post.scheduled?}" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= button_to "Polish with AI", polish_social_post_path(@post), class: button_classes(:outline) if Current.church.ai_enabled? %>
+    <%= button_to "Delete", @post, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete this post?" } } if policy(@post).destroy? %>
+  </div>
+<% end %>
+
+<div class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
+  <div class="space-y-6">
+    <%= render "form", post: @post %>
+    <section class="<%= card_classes %> space-y-4" aria-labelledby="send_heading">
+      <h2 id="send_heading" class="font-semibold">Post it</h2>
+      <% if (problems = @post.problems).any? %>
+        <ul class="list-disc space-y-1 rounded-lg bg-amber-50 py-3 pl-8 pr-4 text-sm text-amber-900"><% problems.each do |problem| %><li><%= problem %></li><% end %></ul>
+      <% else %>
+        <div class="flex flex-wrap items-end gap-3">
+          <%= form_with url: schedule_social_post_path(@post), method: :patch, class: "flex flex-wrap items-end gap-3" do %>
+            <div>
+              <%= label_tag :scheduled_at, "Schedule for", class: label_classes %>
+              <%= datetime_local_field_tag :scheduled_at, (@post.scheduled_at || 1.day.from_now.change(hour: 9)).in_time_zone(Current.church.zone).strftime("%Y-%m-%dT%H:%M"), class: input_classes %>
+            </div>
+            <%= submit_tag @post.scheduled? ? "Reschedule" : "Schedule", class: button_classes(:primary) %>
+          <% end %>
+          <%= button_to "Post now", publish_now_social_post_path(@post), method: :patch, class: button_classes(:outline), form: { data: { turbo_confirm: "Post this now?" } } %>
+          <%= button_to "Cancel schedule", cancel_social_post_path(@post), method: :patch, class: button_classes(:outline) if @post.scheduled? %>
+        </div>
+        <p class="text-xs text-gray-500">Times are in <%= Current.church.time_zone %>. Save your edits before scheduling.</p>
+      <% end %>
+    </section>
+  </div>
+  <section aria-labelledby="preview_heading">
+    <h2 id="preview_heading" class="mb-3 text-sm font-semibold text-gray-900">Preview</h2>
+    <%= render "previews", post: @post %>
+  </section>
+</div>

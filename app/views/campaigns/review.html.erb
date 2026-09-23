@@ -1,0 +1,56 @@
+<% content_for :title, @campaign.name %>
+<%= render "shared/page_header", title: @campaign.name, subtitle: @campaign.subject do %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= render "status_badge", campaign: @campaign %>
+    <%= link_to "Edit", edit_campaign_path(@campaign), class: button_classes(:outline) if policy(@campaign).update? %>
+    <% if policy(@campaign).destroy? %>
+      <%= button_to "Delete", @campaign, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete this campaign?" } } %>
+    <% end %>
+  </div>
+<% end %>
+<%= render "shared/email_nav" %>
+
+<div class="grid gap-8 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
+  <div class="space-y-6">
+    <section class="<%= card_classes %>" aria-labelledby="review_heading">
+      <h2 id="review_heading" class="font-semibold">Review</h2>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div><dt class="text-gray-500">Template</dt><dd><%= @campaign.email_template ? link_to(@campaign.email_template.name, @campaign.email_template, class: "underline") : "—" %></dd></div>
+        <div><dt class="text-gray-500">Audience</dt><dd><%= @campaign.segment ? link_to(@campaign.segment.name, @campaign.segment, class: "underline") : "—" %></dd></div>
+        <div><dt class="text-gray-500">Topic</dt><dd><%= @campaign.email_topic&.name || "—" %></dd></div>
+        <div><dt class="text-gray-500">Recipients</dt><dd class="text-lg font-semibold"><%= number_with_delimiter(@campaign.audience.count) %></dd></div>
+        <div><dt class="text-gray-500">From</dt><dd><%= @campaign.from_name.presence || Current.church.name %> &lt;<%= Current.church.email_from_address %>&gt;</dd></div>
+        <div><dt class="text-gray-500">Tracking</dt><dd><%= @campaign.track_engagement? ? "Opens and clicks" : "Off" %></dd></div>
+      </dl>
+    </section>
+
+    <% if @campaign.problems.any? %>
+      <section class="rounded-2xl bg-amber-50 p-5 text-sm text-amber-900" aria-labelledby="problems_heading">
+        <h2 id="problems_heading" class="font-semibold">Before you can send</h2>
+        <ul class="mt-2 list-disc space-y-1 pl-5"><% @campaign.problems.each do |problem| %><li><%= problem %></li><% end %></ul>
+      </section>
+    <% elsif policy(@campaign).deliver? %>
+      <section class="<%= card_classes %> space-y-4" aria-labelledby="send_heading">
+        <h2 id="send_heading" class="font-semibold">Send</h2>
+        <% if @campaign.scheduled? %>
+          <p class="text-sm">Scheduled for <strong><%= l(@campaign.scheduled_at, format: :long) %></strong>.</p>
+          <%= button_to "Cancel schedule", cancel_campaign_path(@campaign), method: :patch, class: button_classes(:danger) %>
+        <% end %>
+        <%= button_to "Send now to #{pluralize(@campaign.audience.count, "person")}", deliver_campaign_path(@campaign), method: :patch,
+              class: button_classes(:primary), form: { data: { turbo_confirm: "Send this email now? This can't be undone." } } %>
+        <%= form_with url: schedule_campaign_path(@campaign), method: :patch, class: "flex flex-wrap items-end gap-3" do %>
+          <div>
+            <%= label_tag :scheduled_at, "Or send later", class: label_classes %>
+            <%= datetime_local_field_tag :scheduled_at, (@campaign.scheduled_at || 1.day.from_now.change(hour: 9)).strftime("%Y-%m-%dT%H:%M"), class: input_classes %>
+          </div>
+          <%= submit_tag "Schedule", class: button_classes(:outline) %>
+        <% end %>
+        <p class="text-xs text-gray-500">Times are in <%= Current.church.time_zone %>.</p>
+      </section>
+    <% end %>
+  </div>
+
+  <% if @campaign.email_template %>
+    <section><%= render "email_templates/preview_frame", template: @campaign.email_template %></section>
+  <% end %>
+</div>

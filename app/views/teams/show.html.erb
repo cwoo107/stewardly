@@ -15,7 +15,10 @@
     <ul role="list" class="mt-4 divide-y divide-gray-100">
       <% @memberships.each do |membership| %>
         <li class="flex items-center justify-between py-2 text-sm">
-          <%= link_to membership.person.name, membership.person, class: "hover:underline" %>
+          <span class="flex items-center gap-2">
+            <%= link_to membership.person.name, membership.person, class: "hover:underline" %>
+            <% if @loads %><%= render "shared/load_badge", load: @loads.for(membership.person_id, as_of: Current.church.today) %><% end %>
+          </span>
           <%= button_to "Remove", team_team_membership_path(@team, membership), method: :delete, class: "text-gray-600 underline hover:no-underline" if policy(membership).destroy? %>
         </li>
       <% end %>

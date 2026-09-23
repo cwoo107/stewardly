@@ -19,6 +19,13 @@ class Form::Mapping
     Target.new("prayer_request.share_with_prayer_team", "Prayer request: OK to share with the prayer team", %w[ checkbox ])
   ].freeze
 
+  BENEVOLENCE = [
+    Target.new("benevolence.summary", "Benevolence: what they need help with", %w[ text paragraph ]),
+    Target.new("benevolence.circumstances", "Benevolence: their situation", %w[ paragraph text ]),
+    Target.new("benevolence.amount", "Benevolence: amount requested", %w[ number ]),
+    Target.new("benevolence.need_category", "Benevolence: kind of need", %w[ select ])
+  ].freeze
+
   # Custom fields accept the form field types whose answers cast cleanly into them.
   CUSTOM_FIELD_TYPES = {
     "text" => %w[ text paragraph select email phone ], "number" => %w[ number ], "date" => %w[ date ],
@@ -29,7 +36,7 @@ class Form::Mapping
     custom = CustomField.ordered.map do |field|
       Target.new("person.custom.#{field.key}", "Person: #{field.label}", CUSTOM_FIELD_TYPES.fetch(field.field_type))
     end
-    PERSON + custom + (form&.prayer_request_form? ? PRAYER : [])
+    PERSON + custom + (form&.prayer_request_form? ? PRAYER : []) + (form&.benevolence_request_form? ? BENEVOLENCE : [])
   end
 
   def self.find(key, form:)

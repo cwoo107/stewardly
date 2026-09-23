@@ -5,6 +5,10 @@ class User < ApplicationRecord
 
   has_secure_password
   has_many :sessions, dependent: :destroy
+  has_many :daily_briefs, dependent: :delete_all
+  has_many :report_conversations, dependent: :destroy
+  has_many :saved_reports, dependent: :delete_all
+  has_many :ai_requests, dependent: :nullify
   has_many :user_roles, dependent: :destroy
   has_many :roles, through: :user_roles
   has_many :ministry_leaderships, dependent: :destroy

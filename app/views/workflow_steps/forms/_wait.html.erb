@@ -1,0 +1,25 @@
+<fieldset class="space-y-3">
+  <legend class="sr-only">Kind of wait</legend>
+  <% Workflow::Steps::Wait::MODES.each do |mode, label| %>
+    <div class="rounded-xl bg-gray-50 p-3">
+      <label class="flex items-center gap-2 text-sm font-medium">
+        <%= radio_button_tag "config[mode]", mode, config["mode"] == mode, id: "config_mode_#{mode}" %> <%= label %>
+      </label>
+      <div class="mt-2 flex flex-wrap items-center gap-2 pl-6">
+        <% case mode %>
+        <% when "duration" %>
+          <%= number_field_tag "config[amount]", config["amount"], min: 1, max: 365, class: "w-24 #{input_classes}", aria: { label: "Amount" } %>
+          <%= select_tag "config[unit]", options_for_select(Workflow::Steps::Wait::UNITS.keys.map { |unit| [ unit.humanize, unit ] }, config["unit"]), class: "w-32 #{select_classes}", aria: { label: "Unit" } %>
+        <% when "date" %>
+          <%= date_field_tag "config[date]", config["date"], class: "w-48 #{input_classes}", aria: { label: "Date" } %>
+        <% when "weekday" %>
+          <%= select_tag "config[weekday]", options_for_select(Date::DAYNAMES.each_with_index.map { |day, index| [ day, index.to_s ] }, config["weekday"]),
+                include_blank: "Day", class: "w-40 #{select_classes}", aria: { label: "Day of the week" } %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</fieldset>
+<%= render "workflow_steps/forms/field", key: "time", label: "At (for dates and days of the week)", hint: "In #{Current.church.time_zone}." do %>
+  <%= time_field_tag "config[time]", config["time"] || "09:00", id: "config_time", class: "w-36 #{input_classes}" %>
+<% end %>

@@ -34,7 +34,18 @@ Rails.application.configure do
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = true
   # Sent mail shows up at /letter_opener instead of leaving the machine.
-  config.action_mailer.delivery_method = :letter_opener_web
+  config.action_mailer.delivery_method = :church
+  config.x.platform_delivery_method = :letter_opener_web
+
+  # AI: the local Ollama server (the Ollama app, or `ollama serve`). The model must support
+  # tool calling for the report assistant; gpt-oss:20b and qwen2.5:7b both do. Real
+  # environment variables win, so `AI_MODEL=qwen2.5:7b bin/dev` switches models.
+  ENV["OLLAMA_URL"] ||= "http://localhost:11434"
+  ENV["AI_MODEL"] ||= "gpt-oss:20b"
+  ENV["AI_THINK"] ||= "low" # gpt-oss reasons before answering; keep it brief (unset for models without thinking)
+
+  # Church websites: grace.sites.localhost (the default ".localhost" only allows one level).
+  config.hosts << /[a-z0-9-]+\.#{Regexp.escape(config.x.sites_domain)}/ # Rails adds the anchors and port
   # Email previews at /rails/mailers (they use the Grace demo church).
   config.action_mailer.preview_paths << Rails.root.join("spec/mailers/previews")
 

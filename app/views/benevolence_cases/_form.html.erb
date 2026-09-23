@@ -1,0 +1,27 @@
+<%= form_with model: kase, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: kase.errors.full_messages %>
+  <%= form.hidden_field :person_id if kase.new_record? %>
+  <p class="text-sm">For <strong><%= kase.person.name %></strong><%= " · #{kase.person.household.name}" if kase.person.household %></p>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= form.label :need_category, "Kind of need", class: label_classes %>
+      <%= form.select :need_category, BenevolenceCase::NEEDS.invert, {}, class: select_classes %>
+    </div>
+    <div>
+      <%= label_tag "benevolence_case_requested", "Amount requested", class: label_classes %>
+      <%= text_field_tag "benevolence_case[requested]", kase.requested_cents.positive? ? format("%.2f", kase.requested_cents / 100.0) : nil,
+            id: "benevolence_case_requested", inputmode: "decimal", placeholder: "0.00", class: input_classes %>
+    </div>
+  </div>
+  <%= render "shared/field", form:, attribute: :summary, label: "What do they need help with?", options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :circumstances, label: "Their situation", type: :text_area, options: { rows: 5 },
+        hint: "Encrypted. Only the benevolence team can read it." %>
+  <div>
+    <%= form.label :assigned_to_id, "Handled by", class: label_classes %>
+    <%= form.select :assigned_to_id, benevolence_team_options, { include_blank: "No one yet" }, class: select_classes %>
+  </div>
+  <div class="flex gap-3">
+    <%= form.submit kase.new_record? ? "Open case" : "Save case", class: button_classes(:primary) %>
+    <%= link_to "Cancel", kase.persisted? ? kase : benevolence_cases_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

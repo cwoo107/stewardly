@@ -1,0 +1,51 @@
+<% content_for :title, "Build #{@workflow.name}" %>
+<%= render "header", workflow: @workflow %>
+<% draft = @workflow.draft %>
+
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+  <p class="text-sm text-gray-600">Changes are saved as a draft. Publish to use them; people already in the workflow finish on their version.</p>
+  <%= render "controls", workflow: @workflow %>
+</div>
+
+<% if @problems.any? %>
+  <div class="mb-6 rounded-2xl bg-amber-50 p-5 text-sm text-amber-900" role="status">
+    <p class="font-semibold">Before you can publish</p>
+    <ul class="mt-2 list-disc space-y-1 pl-5"><% @problems.each do |problem| %><li><%= problem %></li><% end %></ul>
+  </div>
+<% end %>
+
+<div class="space-y-3">
+  <section class="rounded-2xl bg-gray-900 p-5 text-white" aria-labelledby="trigger_heading">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <p id="trigger_heading" class="text-xs font-semibold uppercase tracking-wide text-gray-400">When</p>
+        <p class="mt-1 font-semibold"><%= draft.trigger.summary %></p>
+        <% if draft.entry_conditions? %>
+          <p class="mt-2 text-sm text-gray-300">Only if <%= draft.entry.conditions.map(&:summary).join(draft.entry.match == "any" ? " or " : " and ") %></p>
+        <% end %>
+      </div>
+      <%= link_to "Change", edit_workflow_trigger_path(@workflow), class: "text-sm underline hover:no-underline" %>
+    </div>
+  </section>
+
+  <%= render "workflows/step_list", workflow: @workflow, steps: draft.steps, parent_id: nil, branch: nil %>
+
+  <p class="rounded-2xl border border-dashed border-gray-300 px-5 py-3 text-sm text-gray-500">End of workflow</p>
+</div>
+
+<%= form_with model: @workflow, class: "mt-10 space-y-4 #{card_classes}" do |form| %>
+  <h2 class="font-semibold">Details</h2>
+  <%= render "shared/form_errors", messages: @workflow.errors.full_messages %>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+    <%= render "shared/field", form:, attribute: :description %>
+  </div>
+  <label class="flex items-start gap-2 text-sm">
+    <%= form.check_box :allow_reentry, class: "mt-0.5 rounded border-gray-300" %>
+    <span>Let people be in this workflow more than once at the same time<span class="block text-gray-500">Usually off: someone already in it isn't started again.</span></span>
+  </label>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <%= form.submit "Save details", class: button_classes(:outline) %>
+    <%= link_to "Delete workflow", workflow_path(@workflow), data: { turbo_method: :delete, turbo_confirm: "Delete #{@workflow.name} and its run history?" }, class: "text-sm text-red-700 underline" %>
+  </div>
+<% end %>

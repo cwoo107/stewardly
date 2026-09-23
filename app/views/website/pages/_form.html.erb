@@ -1,0 +1,20 @@
+<%= form_with model: page, url: page.persisted? ? website_page_path(page) : website_pages_path, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: page.errors.full_messages %>
+  <div class="grid gap-4 md:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :title, options: { required: true } %>
+    <% unless page.home? && page.persisted? %>
+      <%= render "shared/field", form:, attribute: :slug, label: "Address", hint: "#{Current.site&.host || Site.current.host}/#{page.slug.presence || "your-page"}", options: { placeholder: "ministries" } %>
+    <% end %>
+  </div>
+  <label class="flex items-center gap-2 text-sm"><%= form.check_box :show_in_nav, class: "rounded border-gray-300" %> Show in the site menu</label>
+  <% if page.persisted? %>
+    <div class="grid gap-4 md:grid-cols-2">
+      <%= render "shared/field", form:, attribute: :seo_title, label: "Search title (optional)" %>
+      <%= render "shared/field", form:, attribute: :seo_description, label: "Search description (optional)", type: :text_area, options: { rows: 2 } %>
+    </div>
+  <% end %>
+  <div class="flex gap-3">
+    <%= form.submit page.persisted? ? "Save page" : "Add page", class: button_classes(:primary) %>
+    <%= link_to "Cancel", page.persisted? ? website_page_path(page) : website_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

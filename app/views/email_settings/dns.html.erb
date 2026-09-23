@@ -1,0 +1,16 @@
+<%= turbo_frame_tag "dns_check" do %>
+  <ul class="mt-4 space-y-4 text-sm">
+    <% @records.each do |record| %>
+      <li>
+        <p class="flex items-center gap-2 font-medium">
+          <%= record.kind %>
+          <%= badge(record.ok.nil? ? "Check with your provider" : (record.ok ? "Looks good" : "Missing or incomplete"), color: record.ok.nil? ? "gray" : (record.ok ? "green" : "amber")) %>
+        </p>
+        <p class="mt-1 text-gray-600">TXT record on <code><%= record.name %></code></p>
+        <code class="mt-1 block break-all rounded bg-gray-50 p-2 text-xs ring-1 ring-gray-200"><%= record.expected %></code>
+        <% if record.found.present? && !record.ok %><p class="mt-1 text-xs text-gray-500">Found: <code><%= record.found %></code></p><% end %>
+      </li>
+    <% end %>
+  </ul>
+  <p class="mt-4 text-xs text-gray-500">DNS changes can take a few hours to show up. If you already have an SPF record, add the include to it rather than creating a second one.</p>
+<% end %>

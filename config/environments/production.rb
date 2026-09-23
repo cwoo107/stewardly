@@ -60,7 +60,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: config.x.app_domain, protocol: "https" }
 
   # Outgoing SMTP until Phase 6 routes mail through each church's Email::DeliveryProvider.
-  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.delivery_method = :church
   config.action_mailer.smtp_settings = {
     address: ENV["SMTP_ADDRESS"],
     port: ENV.fetch("SMTP_PORT", 587).to_i,
@@ -81,11 +81,13 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # The platform console lives on the bare domain; churches on its subdomains.
-  # Custom church website domains arrive in Phase 10.
+  # The platform console lives on the bare domain; churches on its subdomains; church
+  # websites on the sites domain and on verified custom domains (SiteDomain.verified_host?).
   config.hosts = [
     config.x.app_domain,
-    /\A[a-z0-9-]+\.#{Regexp.escape(config.x.app_domain)}\z/
+    /[a-z0-9-]+\.#{Regexp.escape(config.x.app_domain)}/, # Rails adds the anchors (and an optional port)
+    /[a-z0-9-]+\.#{Regexp.escape(config.x.sites_domain)}/,
+    ->(host) { SiteDomain.verified_host?(host.to_s.split(":").first) }
   ]
 
   # Skip DNS rebinding protection for the default health check endpoint.

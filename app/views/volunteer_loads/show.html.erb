@@ -1,0 +1,55 @@
+<% content_for :title, "Volunteer load" %>
+<%= render "shared/page_header", title: "Volunteer load", subtitle: "Who's serving too much, and who'd like to serve more." %>
+
+<nav class="mb-6 flex flex-wrap gap-2" aria-label="Load">
+  <%= link_to "Everyone (#{@level_counts.values.sum})", volunteer_load_path(team_id: params[:team_id]),
+        class: "rounded-full px-3 py-1 text-sm #{@level.nil? ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200"}" %>
+  <% Volunteering::LoadAssessment::LEVELS.reverse_each do |level| %>
+    <%= link_to "#{Volunteering::LoadAssessment::LEVEL_LABELS[level]} (#{@level_counts[level].to_i})", volunteer_load_path(level:, team_id: params[:team_id]),
+          class: "rounded-full px-3 py-1 text-sm #{@level == level ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200"}" %>
+  <% end %>
+</nav>
+
+<%= form_with url: volunteer_load_path, method: :get, class: "mb-6 flex gap-3", data: { turbo_action: "replace" } do |form| %>
+  <%= hidden_field_tag :level, @level if @level %>
+  <%= form.select :team_id, options_from_collection_for_select(@teams, :id, :name, params[:team_id]), { include_blank: "All teams" }, class: select_classes, aria: { label: "Team" } %>
+  <%= form.submit "Filter", class: button_classes(:secondary) %>
+<% end %>
+
+<div class="overflow-x-auto rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-500">
+      <tr><th class="px-4 py-3">Person</th><th class="px-4 py-3">Teams</th><th class="px-4 py-3">Load</th><th class="px-4 py-3 text-right">Weeks in a row</th><th class="px-4 py-3 text-right">A week (8 wks)</th><th class="px-4 py-3 text-right">Declined</th><th class="px-4 py-3 text-right">Last served</th></tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @rows.each do |person, teams, load| %>
+        <tr>
+          <td class="px-4 py-2"><%= link_to person.name, person, class: "font-medium hover:underline" %></td>
+          <td class="px-4 py-2 text-gray-600"><%= teams.map(&:name).to_sentence %></td>
+          <td class="px-4 py-2"><%= render "shared/load_badge", load: %> <span class="text-xs text-gray-500"><%= load.reasons.to_sentence %></span></td>
+          <td class="px-4 py-2 text-right tabular-nums"><%= load.consecutive_weeks %></td>
+          <td class="px-4 py-2 text-right tabular-nums"><%= load.per_week %></td>
+          <td class="px-4 py-2 text-right tabular-nums"><%= load.decline_rate ? "#{(load.decline_rate * 100).round}%" : "—" %></td>
+          <td class="px-4 py-2 text-right text-gray-600"><%= load.weeks_since_served ? (load.weeks_since_served.zero? ? "This week" : "#{pluralize(load.weeks_since_served, "week")} ago") : "Never" %></td>
+        </tr>
+      <% end %>
+      <% if @rows.empty? %><tr><td colspan="7" class="px-4 py-6 text-gray-500">No one here.</td></tr><% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if policy(:volunteer_load).update? %>
+  <details class="mt-6 <%= card_classes %>">
+    <summary class="cursor-pointer font-semibold">Thresholds</summary>
+    <%= form_with url: volunteer_load_path, method: :patch, class: "mt-4 grid gap-4 sm:grid-cols-3" do |form| %>
+      <% thresholds = Current.church.load_thresholds %>
+      <% Volunteering::LoadAssessment::THRESHOLD_LABELS.each do |key, label| %>
+        <div>
+          <%= label_tag "thresholds_#{key}", label, class: label_classes %>
+          <%= number_field_tag "thresholds[#{key}]", thresholds[key], id: "thresholds_#{key}", step: "any", min: 0, class: input_classes %>
+        </div>
+      <% end %>
+      <div class="sm:col-span-3"><%= form.submit "Save thresholds", class: button_classes(:primary) %></div>
+    <% end %>
+  </details>
+<% end %>

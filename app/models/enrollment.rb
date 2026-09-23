@@ -1,4 +1,6 @@
 class Enrollment < ApplicationRecord
+  include AffectsPathway
+
   belongs_to :course_offering
   belongs_to :person
   # Declared after belongs_to so acts_as_tenant also validates those associations belong to this church.

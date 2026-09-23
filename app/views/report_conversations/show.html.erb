@@ -1,0 +1,15 @@
+<% content_for :title, @conversation.title %>
+<%= render "shared/page_header", title: @conversation.title %>
+<%= render "shared/reports_nav" %>
+
+<div class="space-y-4">
+  <% @conversation.messages.each do |message| %>
+    <%= render "report_messages/message", message: %>
+  <% end %>
+</div>
+
+<%= form_with url: report_conversation_messages_path(@conversation), class: "mt-8 #{card_classes} space-y-3" do %>
+  <%= label_tag :question, "Ask a follow-up", class: label_classes %>
+  <%= text_area_tag :question, nil, rows: 2, class: input_classes %>
+  <%= submit_tag "Ask", class: button_classes(:primary) %>
+<% end %>

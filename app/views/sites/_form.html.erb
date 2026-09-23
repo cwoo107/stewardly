@@ -1,0 +1,11 @@
+<%# A public form embedded on a church website: same fields, honeypot, and endpoint as /f/:slug. %>
+<%= form_with url: "/f/#{form.slug}", multipart: true, class: "space-y-6", data: { turbo: false } do |builder| %>
+  <% form.fields.each do |field| %>
+    <%= render "public_forms/field", field:, value: nil, error: nil %>
+  <% end %>
+  <div class="hidden" aria-hidden="true">
+    <label>Leave this empty <input type="text" name="<%= PublicSubmissionProtection::HONEYPOT %>" tabindex="-1" autocomplete="off"></label>
+  </div>
+  <%= hidden_field_tag :started_at, PublicSubmissionProtection.started_at_token, id: nil %>
+  <button type="submit" class="site-button bg-(--site-brand) px-6 py-3 font-semibold text-white">Submit</button>
+<% end %>

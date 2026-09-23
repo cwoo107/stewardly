@@ -1,1 +1,1 @@
-<%= turbo_stream.append "segment_conditions", partial: "segments/condition", locals: { condition: @condition, index: @index } %>
+<%= turbo_stream.append "segment_conditions", partial: "segments/condition", locals: { condition: @condition, index: @index, prefix: @prefix } %>

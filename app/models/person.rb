@@ -20,6 +20,15 @@ class Person < ApplicationRecord
   has_many :enrollments, dependent: :destroy
   has_many :group_join_requests, dependent: :delete_all
   has_many :attendances, dependent: :delete_all
+  has_many :email_preferences, dependent: :delete_all
+  has_many :deliveries, dependent: :delete_all
+  has_many :message_drafts, dependent: :delete_all
+  has_many :donations, dependent: :nullify
+  has_many :donor_links, dependent: :delete_all
+  has_many :benevolence_cases, dependent: :restrict_with_error
+  has_many :workflow_runs, dependent: :destroy
+  has_one :pathway_placement, dependent: :delete
+  has_many :pathway_transitions, -> { order(occurred_at: :desc, id: :desc) }, dependent: :delete_all
   # Records merged into this person are history of this person, so they go with it.
   has_many :merged_people, class_name: "Person", foreign_key: :merged_into_id, inverse_of: :merged_into, dependent: :destroy
   has_many :duplicate_dismissals, dependent: :delete_all
@@ -38,6 +47,8 @@ class Person < ApplicationRecord
   validate :custom_fields_match_definitions
 
   after_destroy :audit_deletion
+  after_create_commit { Workflow::Events.publish("person_created", person: self, subject: self) }
+  after_commit :place_on_pathway, on: :update, if: -> { saved_change_to_membership_status? }
 
   # Merged-away records stay for history but are hidden from every list and search.
   scope :unmerged, -> { where(merged_into_id: nil) }
@@ -74,6 +85,11 @@ class Person < ApplicationRecord
     [ email, user&.id ]
   end
 
+  # The email preference center link. Stays valid until the email address changes.
+  generates_token_for :email_preferences do
+    email
+  end
+
   def blocked_out_on?(date)
     blockouts.any? { |blockout| blockout.covers?(date) }
   end
@@ -106,6 +122,10 @@ class Person < ApplicationRecord
   private
     def custom_fields_match_definitions
       Array(@custom_field_errors).each { |message| errors.add(:custom_fields, message) }
+    end
+
+    def place_on_pathway
+      PathwayPlacementJob.perform_later(self)
     end
 
     def audit_deletion

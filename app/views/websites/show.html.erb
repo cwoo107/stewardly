@@ -1,0 +1,83 @@
+<% content_for :title, "Website" %>
+<%= render "shared/page_header", title: "Website", subtitle: "Your public site at #{@site.host}. Visitors only see published pages." do %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= badge(@site.published? ? "Live" : "Not live yet", color: @site.published? ? "green" : "amber") %>
+    <%= link_to "Open site", @site.base_url, target: "_blank", rel: "noopener", class: button_classes(:outline) if @site.published? %>
+    <%= button_to @site.published? ? "Take site offline" : "Put site live", website_path, method: :patch, params: { site: { published: !@site.published? } },
+          class: button_classes(@site.published? ? :outline : :primary), form: { data: { turbo_confirm: @site.published? ? "Take the whole site offline?" : "Make published pages visible to everyone at #{@site.host}?" } } %>
+  </div>
+<% end %>
+<%= render "shared/website_nav" %>
+
+<div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
+  <section aria-labelledby="pages_heading">
+    <div class="mb-3 flex items-center justify-between">
+      <h2 id="pages_heading" class="font-semibold">Pages</h2>
+      <%= link_to "New page", new_website_page_path, class: button_classes(:outline) %>
+    </div>
+    <ol class="space-y-2" data-controller="sortable">
+      <% @pages.each do |page| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-5 py-4 shadow-sm ring-1 ring-gray-200 cursor-grab" data-move-url="<%= move_website_page_path(page) %>">
+          <div>
+            <%= link_to page.title, website_page_path(page), class: "font-medium hover:underline" %>
+            <span class="text-sm text-gray-500"><%= page.path %></span>
+            <p class="mt-1 flex flex-wrap gap-2 text-xs">
+              <%= page.published? ? badge("Published", color: "green") : badge("Draft only") %>
+              <%= badge("Unpublished changes", color: "amber") if page.published? && page.unpublished_changes? %>
+              <%= badge("Not in menu") unless page.show_in_nav %>
+            </p>
+          </div>
+          <%= link_to "Edit", website_page_path(page), class: button_classes(:outline) %>
+        </li>
+      <% end %>
+    </ol>
+    <p class="mt-2 text-xs text-gray-500">Drag to reorder the site menu.</p>
+  </section>
+
+  <div class="space-y-6">
+    <%= form_with model: @site, url: website_path, method: :patch, class: "space-y-3 #{card_classes}" do |form| %>
+      <h2 class="font-semibold">Site name</h2>
+      <%= form.text_field :name, class: input_classes, aria: { label: "Site name" } %>
+      <%= form.submit "Save", class: button_classes(:outline) %>
+    <% end %>
+
+    <section class="<%= card_classes %> space-y-4" id="domains" aria-labelledby="domains_heading">
+      <h2 id="domains_heading" class="font-semibold">Addresses</h2>
+      <p class="text-sm"><span class="font-medium"><%= @site.default_host %></span> <span class="text-gray-500">(always works)</span></p>
+      <ul role="list" class="space-y-3 text-sm">
+        <% @domains.each do |domain| %>
+          <li class="rounded-xl bg-gray-50 p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-medium"><%= domain.hostname %></span>
+              <span class="flex gap-1"><%= badge(domain.status.humanize, color: { "verified" => "green", "pending" => "amber", "failed" => "rose" }.fetch(domain.status)) %><%= badge("Main", color: "cyan") if domain.primary? %></span>
+            </div>
+            <% if domain.last_check_result %><p class="mt-1 text-xs text-gray-500"><%= domain.last_check_result %> (checked <%= time_ago_in_words(domain.last_checked_at) %> ago)</p><% end %>
+            <% if policy(:website).develop? %>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <%= button_to "Check now", check_website_domain_path(domain), class: button_classes(:outline) unless domain.verified? %>
+                <%= button_to "Make main address", primary_website_domain_path(domain), method: :patch, class: button_classes(:outline) if domain.verified? && !domain.primary? %>
+                <%= button_to "Remove", website_domain_path(domain), method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Remove #{domain.hostname}?" } } %>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+      <% if policy(:website).develop? %>
+        <%= form_with model: SiteDomain.new, url: website_domains_path, class: "flex gap-2" do |form| %>
+          <%= form.text_field :hostname, placeholder: "www.gracechurch.org", class: input_classes, aria: { label: "Your domain" } %>
+          <%= form.submit "Add", class: button_classes(:secondary) %>
+        <% end %>
+        <div class="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+          <p class="font-semibold text-gray-900">Pointing your domain here</p>
+          <p class="mt-1">For <strong>www.yourchurch.org</strong>, add a <strong>CNAME</strong> record for <code>www</code> pointing to <code><%= Rails.configuration.x.sites_cname_target %></code>.</p>
+          <% if Rails.configuration.x.sites_apex_ips.any? %>
+            <p class="mt-1">For the bare domain (<strong>yourchurch.org</strong>), add <strong>A</strong> records for <code>@</code> pointing to <code><%= Rails.configuration.x.sites_apex_ips.join(", ") %></code>.</p>
+          <% end %>
+          <p class="mt-1">Once it's verified, HTTPS is set up automatically the first time someone visits.</p>
+        </div>
+      <% else %>
+        <p class="text-xs text-gray-500">A church admin can connect your own domain.</p>
+      <% end %>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<%= turbo_frame_tag "email_preview" do %>
+  <% if @error %>
+    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">This template couldn't be rendered: <%= @error %></div>
+  <% else %>
+    <div class="overflow-x-auto rounded-2xl bg-gray-100 p-4">
+      <iframe srcdoc="<%= @html %>" sandbox="" title="Email preview" class="mx-auto block h-[720px] rounded-lg bg-white shadow-sm" style="width: <%= @width %>px; max-width: 100%"></iframe>
+    </div>
+    <p class="mt-2 text-xs text-gray-500">Shown for <%= Current.user.person&.name || Current.user.name %>, at <%= @width == 375 ? "phone" : "desktop" %> width. Links in the preview don't open.</p>
+  <% end %>
+<% end %>

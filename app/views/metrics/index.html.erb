@@ -1,0 +1,11 @@
+<% content_for :title, "Metrics" %>
+<%= render "shared/page_header", title: "Metrics", subtitle: "The same numbers the report assistant uses. Run any of them yourself." %>
+<%= render "shared/reports_nav" %>
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <% @tools.each do |tool| %>
+    <%= link_to metric_path(tool.tool_name), class: "block #{card_classes} hover:ring-cyan-500" do %>
+      <h2 class="font-semibold"><%= tool.title %></h2>
+      <p class="mt-1 text-sm text-gray-600"><%= tool.description %></p>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,12 @@
+<% links = [
+     [ "Dashboard", giving_path, policy(Donation).index? ],
+     [ "Donations", donations_path, policy(Donation).index? ],
+     [ "Review queue", donation_matches_path, policy(Donation).match? ],
+     [ "Funds", funds_path, policy(Fund).index? ],
+     [ "Settings", giving_settings_path, policy(:giving_settings).show? ]
+   ].select(&:last) %>
+<nav class="mb-8 flex flex-wrap gap-2" aria-label="Giving">
+  <% links.each do |label, path, _| %>
+    <%= link_to label, path, class: "rounded-full px-3 py-1 text-sm #{request.path == path ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>

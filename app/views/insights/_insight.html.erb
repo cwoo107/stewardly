@@ -1,0 +1,36 @@
+<%# One insight with its actions. Locals: insight, reason: nil %>
+<li class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200" id="<%= dom_id(insight) %>">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0 flex-1">
+      <p class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+        <%= severity_badge(insight) %> <span><%= insight.label %></span>
+        <% if insight.mine?(Current.user) %><%= badge "Yours", color: "cyan" %><% end %>
+        <span>· <%= insight.age_days.zero? ? "new today" : "#{pluralize(insight.age_days, "day")} old" %></span>
+      </p>
+      <p class="mt-2 font-medium text-gray-900"><%= insight.title %></p>
+      <% if local_assigns[:reason].present? %><p class="mt-1 text-sm text-cyan-800"><%= reason %></p><% end %>
+      <% if insight.detail.present? %><p class="mt-1 text-sm text-gray-600"><%= insight.detail %></p><% end %>
+      <% if insight.task %><p class="mt-1 text-sm text-gray-600">Task: <%= link_to insight.task.title, edit_task_path(insight.task), class: "underline" %> (<%= insight.task.owner&.name %>)</p><% end %>
+    </div>
+    <% if insight.action_path %><%= link_to insight.action_label || "Open", insight.action_path, class: button_classes(:outline) %><% end %>
+  </div>
+  <% if insight.live? && policy(insight).update? %>
+    <div class="mt-4 flex flex-wrap items-start gap-2 border-t border-gray-100 pt-4 text-sm">
+      <%= button_to "Done", resolve_insight_path(insight), method: :patch, class: button_classes(:outline) %>
+      <%= button_to "Snooze a week", snooze_insight_path(insight), method: :patch, params: { days: 7 }, class: button_classes(:outline) %>
+      <details class="group">
+        <summary class="<%= button_classes(:outline) %> list-none">More</summary>
+        <div class="mt-2 flex flex-wrap items-center gap-2">
+          <%= button_to "Snooze a day", snooze_insight_path(insight), method: :patch, params: { days: 1 }, class: button_classes(:outline) %>
+          <%= button_to "Dismiss", dismiss_insight_path(insight), method: :patch, class: button_classes(:outline), form: { data: { turbo_confirm: "Dismiss this? It won't come back while the situation stays the same." } } %>
+          <% unless insight.task %>
+            <%= form_with url: assign_insight_path(insight), class: "flex items-center gap-2" do %>
+              <%= select_tag :owner_id, options_for_select(assignable_users, Current.user.id), id: "owner_#{insight.id}", class: select_classes, aria: { label: "Assign to" } %>
+              <%= submit_tag "Make a task", class: button_classes(:outline), name: nil %>
+            <% end %>
+          <% end %>
+        </div>
+      </details>
+    </div>
+  <% end %>
+</li>

@@ -1,0 +1,19 @@
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24">
+  <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+  {% if settings.intro != blank %}<p class="mt-4 text-lg text-(--site-muted)">{{ settings.intro | escape }}</p>{% endif %}
+  <ul class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for group in groups %}
+      {% if settings.group_type == 'all' or settings.group_type == group.type_key %}
+        <li class="site-card flex flex-col p-6">
+          <p class="text-sm font-semibold uppercase tracking-wide text-(--site-accent)">{{ group.type }}</p>
+          <p class="mt-2 text-xl font-semibold">{{ group.name | escape }}</p>
+          <p class="mt-1 text-(--site-muted)">{{ group.meets | escape }}{% if group.area != blank %} · {{ group.area | escape }}{% endif %}</p>
+          {% if group.description != blank %}<p class="mt-3">{{ group.description | escape | truncate: 160 }}</p>{% endif %}
+          {% if group.full %}<p class="mt-4 text-sm text-(--site-muted)">This group is full right now.</p>{% else %}<a href="{{ group.join_url }}" class="mt-4 text-sm font-semibold text-(--site-brand)">Ask to join →</a>{% endif %}
+        </li>
+      {% endif %}
+    {% else %}
+      <li class="text-(--site-muted)">Groups are forming. Contact us to find one.</li>
+    {% endfor %}
+  </ul>
+</section>

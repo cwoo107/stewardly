@@ -1,0 +1,10 @@
+<div class="grid gap-4 sm:grid-cols-2">
+  <%= render "workflow_steps/forms/field", key: "email_template_id", label: local_assigns.fetch(:template_label, "Template") do %>
+    <%= select_tag "config[email_template_id]", options_from_collection_for_select(EmailTemplate.alphabetical, :id, :name, config["email_template_id"]),
+          include_blank: local_assigns[:template_blank] || "Choose a template", id: "config_email_template_id", class: select_classes %>
+  <% end %>
+  <%= render "workflow_steps/forms/field", key: "email_topic_id", label: "Topic", hint: "People who turned this topic off won't get it." do %>
+    <%= select_tag "config[email_topic_id]", options_from_collection_for_select(EmailTopic.alphabetical, :id, :name, config["email_topic_id"]),
+          include_blank: "Choose a topic", id: "config_email_topic_id", class: select_classes %>
+  <% end %>
+</div>

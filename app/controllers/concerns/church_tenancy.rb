@@ -1,5 +1,6 @@
-# Resolves the church from the request subdomain, scopes every tenant model to
-# it, and runs the request in the church's time zone.
+# Resolves the church from the request host (a church subdomain, or a church website's
+# host for forms and events served there), scopes every tenant model to it, and runs
+# the request in the church's time zone.
 module ChurchTenancy
   extend ActiveSupport::Concern
 
@@ -11,7 +12,9 @@ module ChurchTenancy
 
   private
     def set_current_church
-      church = Church.find_by_host_subdomain(request.subdomain)
+      site = Site.for_host(request.host) if SiteHost.site_host_name?(request.host)
+      Current.site = site
+      church = site ? site.church : Church.find_by_host_subdomain(request.subdomain)
       return render(file: Rails.public_path.join("404.html"), status: :not_found, layout: false) unless church
 
       set_current_tenant(church)

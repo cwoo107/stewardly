@@ -1,0 +1,10 @@
+<section class="site-section grid items-center gap-10 px-6 py-16 sm:px-12 lg:grid-cols-2 lg:px-24">
+  <div class="{% if settings.image_side == 'right' %}lg:order-2{% endif %}">
+    {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="site-radius w-full object-cover" loading="lazy">{% else %}<div class="site-radius aspect-video bg-(--site-surface)"></div>{% endif %}
+  </div>
+  <div>
+    <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+    <div class="site-prose mt-4">{{ settings.body | markdown }}</div>
+    {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button mt-6 inline-block bg-(--site-brand) px-5 py-3 font-semibold text-white">{{ settings.button_label | escape }}</a>{% endif %}
+  </div>
+</section>

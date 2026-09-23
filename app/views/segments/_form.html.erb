@@ -12,7 +12,7 @@
     <div>
       <label for="segment_match" class="<%= label_classes %>">Include people who match</label>
       <%= select_tag "segment[definition][match]", options_for_select([ [ "All of these conditions", "all" ], [ "Any of these conditions", "any" ] ], segment.match),
-            id: "segment_match", class: "max-w-xs #{select_classes}" %>
+            id: "segment_match", class: "#{select_classes}" %>
     </div>
 
     <div id="segment_conditions" class="space-y-4">

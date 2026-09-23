@@ -8,7 +8,7 @@
   </div>
 <% end %>
 
-<section class="<%= card_classes %> max-w-2xl">
+<section class="<%= card_classes %>">
   <dl class="grid gap-4 text-sm sm:grid-cols-3">
     <div><dt class="text-gray-500">Owner</dt><dd><%= @task.owner&.name || "Unassigned" %></dd></div>
     <div><dt class="text-gray-500">Due</dt><dd><%= @task.due_on ? l(@task.due_on, format: :long) : "—" %></dd></div>

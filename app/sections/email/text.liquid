@@ -1,0 +1,6 @@
+<mj-section background-color="{{ theme.content_background }}" padding="8px 24px">
+  <mj-column>
+    {% if settings.heading != blank %}<mj-text font-size="20px" font-weight="600" align="{{ settings.align | default: 'left' }}">{{ settings.heading | escape }}</mj-text>{% endif %}
+    <mj-text line-height="1.6" align="{{ settings.align | default: 'left' }}">{{ settings.body | markdown }}</mj-text>
+  </mj-column>
+</mj-section>

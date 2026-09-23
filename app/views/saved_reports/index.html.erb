@@ -1,0 +1,15 @@
+<% content_for :title, "Saved reports" %>
+<%= render "shared/page_header", title: "Saved reports", subtitle: "Re-run any time for today's numbers. Pinned reports show on your dashboard." %>
+<%= render "shared/reports_nav" %>
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @reports.each do |report| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div>
+        <%= link_to report.title, report, class: "font-medium hover:underline" %> <%= badge("Pinned", color: "cyan") if report.pinned? %>
+        <p class="text-sm text-gray-500"><%= report.last_run_at ? "Updated #{time_ago_in_words(report.last_run_at)} ago" : "Not run yet" %></p>
+      </div>
+      <%= button_to report.pinned? ? "Unpin" : "Pin to dashboard", saved_report_path(report), method: :patch, params: { saved_report: { pinned: !report.pinned? } }, class: button_classes(:outline) %>
+    </li>
+  <% end %>
+  <% if @reports.empty? %><li class="px-5 py-4 text-sm text-gray-500">Nothing saved yet. Save an answer from the assistant, or a metric.</li><% end %>
+</ul>

@@ -1,0 +1,13 @@
+<% content_for :title, "History of #{@page.title}" %>
+<%= render "shared/page_header", title: "History", subtitle: @page.title %>
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @revisions.each_with_index do |revision, index| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <span><span class="font-medium"><%= l(revision.published_at, format: :long) %></span>
+        <span class="text-sm text-gray-500"><%= "by #{revision.published_by.name}" if revision.published_by %> · <%= pluralize(revision.sections.size, "section") %><%= " · live now" if index.zero? && @page.published? %></span></span>
+      <%= button_to "Restore as draft", restore_website_page_revision_path(@page, revision), class: button_classes(:outline) %>
+    </li>
+  <% end %>
+  <% if @revisions.empty? %><li class="px-5 py-4 text-sm text-gray-500">Not published yet.</li><% end %>
+</ul>
+<p class="mt-4 text-sm"><%= link_to "Back to the page", website_page_path(@page), class: "underline" %></p>

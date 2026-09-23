@@ -1,4 +1,5 @@
 class Group < ApplicationRecord
+  include ExpiresSiteCache
   include Geocodable
 
   belongs_to :ministry, optional: true

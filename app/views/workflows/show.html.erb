@@ -1,0 +1,41 @@
+<% content_for :title, @workflow.name %>
+<%= render "header", workflow: @workflow %>
+
+<div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+  <p class="text-sm text-gray-700"><%= @workflow.published_definition&.trigger&.summary %></p>
+  <%= render "controls", workflow: @workflow %>
+</div>
+
+<dl class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
+  <% [ [ "In it now", @counts.values_at("active", "waiting").compact.sum ], [ "Completed", @counts["completed"].to_i ],
+       [ "Stopped", @counts.values_at("cancelled", "exited").compact.sum ], [ "Failed", @counts["failed"].to_i ],
+       [ "All time", @counts.values.sum ] ].each do |label, value| %>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+      <dt class="text-sm text-gray-600"><%= label %></dt>
+      <dd class="mt-1 text-2xl font-semibold tracking-tight"><%= number_with_delimiter(value) %></dd>
+    </div>
+  <% end %>
+</dl>
+
+<div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+  <section aria-labelledby="recent_runs">
+    <div class="mb-3 flex items-center justify-between">
+      <h2 id="recent_runs" class="font-semibold">Recent runs</h2>
+      <%= link_to "All runs", workflow_runs_path(@workflow), class: "text-sm underline" %>
+    </div>
+    <%= render "workflow_runs/table", workflow: @workflow, runs: @runs %>
+  </section>
+
+  <section class="<%= card_classes %> h-fit" aria-labelledby="versions_heading">
+    <h2 id="versions_heading" class="font-semibold">Versions</h2>
+    <ol class="mt-3 space-y-2 text-sm">
+      <% @workflow.versions.includes(:published_by).each do |version| %>
+        <li>
+          <span class="font-medium">Version <%= version.number %></span>
+          <%= badge("Live", color: "green") if version.id == @workflow.current_version_id %>
+          <span class="block text-gray-500"><%= l(version.published_at, format: :long) %><%= " by #{version.published_by.name}" if version.published_by %></span>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+</div>

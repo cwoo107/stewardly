@@ -58,4 +58,13 @@ RSpec.describe Scheduling::Candidates do
     expect(flagged.reasons.last).to include("also scheduled: 11am")
     expect(names(candidates.best(3))).to eq(%w[ Ben Cal ])
   end
+
+  it "ranks people who'd be at risk last, and says why" do
+    church.update!(volunteer_load_thresholds: { "at_risk_consecutive_weeks" => 2 })
+    served(ann, 1)
+
+    candidates = described_class.new(occurrence:, position:).all
+    expect(names(candidates).last).to eq("Ann")
+    expect(candidates.last.reasons.first).to include("would be at risk: 2 weeks in a row")
+  end
 end

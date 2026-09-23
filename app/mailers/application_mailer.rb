@@ -1,8 +1,8 @@
-# Church mail goes out as "<Church name>" from a no-reply address on the app
-# domain, with replies going to the church's contact email. Phase 6 moves
-# delivery behind Email::DeliveryProvider.
+# Church mail goes out as "<Church name>" from the church's sending domain (or a
+# no-reply address on the app domain), with replies going to the church's contact
+# email. Delivery goes through the church's provider (Email::ChurchDeliveryMethod).
 class ApplicationMailer < ActionMailer::Base
-  default from: -> { email_address_with_name("no-reply@#{Rails.configuration.x.mail_domain}", church&.name || "Stewardly") },
+  default from: -> { email_address_with_name(church&.email_from_address || "no-reply@#{Rails.configuration.x.mail_domain}", church&.name || "Stewardly") },
     reply_to: -> { church&.contact_email.presence }
   layout "mailer"
 

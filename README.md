@@ -35,10 +35,28 @@ The member area is at http://grace.localhost:3000/me (`member@grace.test` / `pas
 | `REDIS_CACHE_URL` | `redis://localhost:6379/2` | Rails cache (`allkeys-lru` in production) |
 | `SIDEKIQ_CONCURRENCY` | `5` | Sidekiq threads |
 | `MAIL_DOMAIN` | app domain (`stewardly.test` locally) | Mail is sent from `no-reply@MAIL_DOMAIN` as the church's name |
-| `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | none | Production mail delivery (until Phase 6's delivery providers) |
+| `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | none | The platform's own mail delivery, used when a church hasn't connected a provider |
 | `GEOCODER_LOOKUP` | `nominatim` | Geocoding provider (use a commercial one such as `mapbox` or `google` in production) |
 | `GEOCODER_API_KEY` | none | Provider API key |
 | `GEOCODER_CONTACT_EMAIL` | `geocoding@example.com` | Sent in the User-Agent (required by Nominatim) |
+| `OLLAMA_URL` | `http://localhost:11434` (development) | The self-hosted Ollama server all AI goes through |
+| `AI_MODEL` | `gpt-oss:20b` (development) | The Ollama model. It must support tool calling for the report assistant (gpt-oss, Llama 3.1, and Qwen 2.5 do) |
+| `AI_THINK` | `low` (development) | How much a reasoning model thinks first (`low`/`medium`/`high`). Unset it for models without reasoning |
+| `OLLAMA_API_KEY` | none | Only if the Ollama server sits behind an authenticating proxy |
+
+### AI in development
+1. Install and start Ollama: the macOS app (`open -a Ollama`), or `brew install ollama && ollama serve`.
+2. Pull the model: `ollama pull gpt-oss:20b` (about 13 GB). For a smaller download, use `ollama pull qwen2.5:7b` (about 4.7 GB) and start the app with `AI_MODEL=qwen2.5:7b AI_THINK= bin/dev`.
+3. Restart `bin/dev`, so the web server *and* Sidekiq pick up the settings.
+4. Turn AI on for the church in Settings. The seeded Grace church already has it on.
+
+Every AI call is logged as an `AiRequest` and counts toward the church's monthly limit.
+
+What uses AI:
+- the dashboard's daily brief (Refresh);
+- Reports → Ask (answers run in Sidekiq);
+- workflow AI drafts in the approval queue;
+- "Polish with AI" on social posts.
 
 ## Tasks
 ```sh

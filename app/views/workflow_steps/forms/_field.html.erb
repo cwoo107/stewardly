@@ -1,0 +1,6 @@
+<%# A labelled field for a step setting. Usage: render "workflow_steps/forms/field", key:, label:, hint: nil do ... end %>
+<div>
+  <label for="config_<%= key %>" class="<%= label_classes %>"><%= label %></label>
+  <%= yield %>
+  <% if local_assigns[:hint] %><p class="mt-2 text-sm text-gray-500"><%= hint %></p><% end %>
+</div>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {{ head }}
+</head>
+<body class="site site-modern">
+  <header class="site-header flex flex-wrap items-center justify-between gap-4 px-6 py-5 sm:px-12 lg:px-24">
+    <a href="/" class="flex items-center gap-3 text-xl font-semibold">
+      {% if site.logo_url != blank %}<img src="{{ site.logo_url }}" alt="{{ site.name | escape }}" style="width: {{ site.logo_width }}px">{% else %}{{ site.name | escape }}{% endif %}
+    </a>
+    <nav aria-label="Main">
+      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
+        {% for link in site.nav %}<li><a href="{{ link.url }}" class="site-nav-link{% if link.current %} is-current{% endif %}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>{% endfor %}
+      </ul>
+    </nav>
+  </header>
+  <main>{{ content_for_layout }}</main>
+  <footer class="site-footer grid gap-6 px-6 py-12 text-sm sm:px-12 md:grid-cols-3 lg:px-24">
+    <div><p class="text-lg font-semibold">{{ site.name | escape }}</p>{% if site.tagline != blank %}<p class="mt-1 opacity-80">{{ site.tagline | escape }}</p>{% endif %}</div>
+    <div class="whitespace-pre-line opacity-80">{{ site.footer_text | escape }}</div>
+    <ul class="flex gap-4 md:justify-end">
+      {% if site.facebook_url != blank %}<li><a href="{{ site.facebook_url | escape }}">Facebook</a></li>{% endif %}
+      {% if site.instagram_url != blank %}<li><a href="{{ site.instagram_url | escape }}">Instagram</a></li>{% endif %}
+      {% if site.youtube_url != blank %}<li><a href="{{ site.youtube_url | escape }}">YouTube</a></li>{% endif %}
+    </ul>
+    <p class="opacity-60 md:col-span-3">© {{ site.year }} {{ church.name | escape }}</p>
+  </footer>
+</body>
+</html>

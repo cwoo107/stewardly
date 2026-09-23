@@ -1,0 +1,11 @@
+<mj-section background-color="{{ theme.content_background }}" padding="8px 24px">
+  <mj-column>
+    {% if settings.heading != blank %}<mj-text font-size="20px" font-weight="600">{{ settings.heading | escape }}</mj-text>{% endif %}
+    {% for event in events limit: settings.count %}
+      <mj-text padding-bottom="0"><a href="{{ event.url }}" style="color: {{ theme.brand_color }}; font-weight: 600; text-decoration: none;">{{ event.title | escape }}</a></mj-text>
+      <mj-text padding-top="2px" color="#6b7280">{{ event.date }} · {{ event.time }}{% if event.location != blank %} · {{ event.location | escape }}{% endif %}</mj-text>
+    {% else %}
+      <mj-text color="#6b7280">No upcoming events right now.</mj-text>
+    {% endfor %}
+  </mj-column>
+</mj-section>

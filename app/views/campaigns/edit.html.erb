@@ -1,0 +1,3 @@
+<% content_for :title, "Edit #{@campaign.name}" %>
+<%= render "shared/page_header", title: "Edit campaign", subtitle: @campaign.name %>
+<%= render "form", campaign: @campaign %>

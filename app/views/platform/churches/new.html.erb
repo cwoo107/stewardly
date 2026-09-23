@@ -1,7 +1,7 @@
 <% content_for :title, "New church" %>
 <%= render "shared/page_header", title: "New church", subtitle: "Creates the church, its default roles, and its first church admin." %>
 
-<%= form_with scope: :church, url: platform_churches_path, class: "max-w-xl space-y-6 rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200" do |form| %>
+<%= form_with scope: :church, url: platform_churches_path, class: "space-y-6 rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200" do |form| %>
   <%= render "shared/form_errors", messages: @errors || [] %>
 
   <div>

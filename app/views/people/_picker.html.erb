@@ -1,7 +1,10 @@
-<%# Finds a person and offers an Add button for the given target ("group:ID" or "team:ID"). %>
-<%= form_with url: search_people_path, method: :get, data: { turbo_frame: "person_search" }, class: "flex gap-2" do |form| %>
-  <%= hidden_field_tag :for, target %>
-  <%= form.search_field :q, placeholder: "Find someone to add", class: input_classes, aria: { label: "Find someone to add" } %>
+<%# Finds a person and offers an action for the given target ("group:ID", "team:ID", "donation:ID", or "benevolence"). %>
+<% frame = local_assigns[:frame] || "person_search" %>
+<%= form_with url: search_people_path, method: :get, data: { turbo_frame: frame }, class: "flex gap-2" do |form| %>
+  <%= hidden_field_tag :for, target, id: nil %>
+  <%= hidden_field_tag :frame, frame, id: nil %>
+  <% prompt = local_assigns[:prompt] || "Find someone to add" %>
+  <%= form.search_field :q, id: "#{frame}_q", placeholder: prompt, class: input_classes, aria: { label: prompt } %>
   <%= form.submit "Search", class: button_classes(:secondary) %>
 <% end %>
-<%= turbo_frame_tag "person_search" %>
+<%= turbo_frame_tag frame %>

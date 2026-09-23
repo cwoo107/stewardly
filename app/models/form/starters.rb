@@ -1,4 +1,5 @@
-# Ready-made draft forms every church starts with: a connect card and a prayer request form.
+# Ready-made draft forms every church starts with: a connect card, a prayer request
+# form, and a request for financial help.
 module Form::Starters
   DEFINITIONS = [
     {
@@ -31,12 +32,31 @@ module Form::Starters
         { key: "share", label: "It's OK to share this with our prayer team", field_type: "checkbox",
           maps_to: "prayer_request.share_with_prayer_team" }
       ]
+    },
+    {
+      name: "Request financial help", slug: "help", purpose: "benevolence_request",
+      description: "If you're facing a financial hardship, let us know how we can help. Requests are kept private and only seen by our care team.",
+      confirmation_message: "Thank you for reaching out. Someone from our care team will contact you soon.",
+      fields: [
+        { key: "first_name", label: "First name", field_type: "text", required: true, maps_to: "person.first_name" },
+        { key: "last_name", label: "Last name", field_type: "text", required: true, maps_to: "person.last_name" },
+        { key: "email", label: "Email", field_type: "email", required: true, maps_to: "person.email" },
+        { key: "phone", label: "Phone", field_type: "phone", maps_to: "person.phone" },
+        { key: "address", label: "Home address", field_type: "address", maps_to: "household.address" },
+        { key: "need", label: "What kind of help do you need?", field_type: "select", required: true, maps_to: "benevolence.need_category",
+          options: [ "Rent or mortgage", "Utilities", "Food", "Transportation", "Medical", "Other" ] },
+        { key: "summary", label: "Briefly, what do you need help with?", field_type: "text", required: true, maps_to: "benevolence.summary" },
+        { key: "amount", label: "About how much do you need? (optional)", field_type: "number", maps_to: "benevolence.amount" },
+        { key: "circumstances", label: "Tell us a little about your situation", field_type: "paragraph", maps_to: "benevolence.circumstances" }
+      ]
     }
   ].freeze
 
-  def self.install!
+  # only: install just these slugs (e.g. the benevolence form for churches set up before it existed).
+  def self.install!(only: nil)
     DEFINITIONS.each do |definition|
-      next if Form.exists?(slug: definition[:slug])
+      next if only && Array(only).exclude?(definition[:slug])
+      next if Form.exists?(slug: definition[:slug]) || (definition[:purpose] == "benevolence_request" && Form.benevolence_request_form.exists?)
 
       form = Form.create!(definition.except(:fields))
       definition[:fields].each { |field| form.fields.create!(field) }

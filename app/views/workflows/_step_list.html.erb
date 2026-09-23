@@ -1,0 +1,13 @@
+<ol class="space-y-3" data-controller="sortable" id="steps_<%= parent_id || "root" %>_<%= branch %>">
+  <% steps.each do |step| %>
+    <%= render "workflows/step", workflow:, step: %>
+  <% end %>
+</ol>
+<%= form_with url: workflow_steps_path(workflow), class: "flex flex-wrap items-center gap-2" do %>
+  <%= hidden_field_tag :parent_id, parent_id, id: nil %>
+  <%= hidden_field_tag :branch, branch, id: nil %>
+  <% select_id = "add_step_#{parent_id || "root"}_#{branch}" %>
+  <label for="<%= select_id %>" class="sr-only">Step to add</label>
+  <%= select_tag :type, options_for_select(Workflow::Steps.types.map { |type, klass| [ klass.label, type ] }), id: select_id, class: "#{select_classes}" %>
+  <%= submit_tag "+ Add step", class: button_classes(:outline), name: nil %>
+<% end %>

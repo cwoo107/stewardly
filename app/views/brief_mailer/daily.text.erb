@@ -1,0 +1,8 @@
+<%= @brief.summary %>
+
+<% @brief.insights.first(8).each_with_index do |insight, index| %>
+<%= index + 1 %>. <%= insight.title %><% if (reason = @brief.reason_for(insight)) %> (<%= reason %>)<% end %>
+<% if insight.action_path %>   <%= Email::Tracking.base_url(@brief.church) %><%= insight.action_path %><% end %>
+<% end %>
+
+Your dashboard: <%= root_url %>

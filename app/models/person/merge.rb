@@ -25,6 +25,7 @@ class Person::Merge
       move_unique(TeamMembership, :team_id)
       Touchpoint.where(person: duplicate).update_all(person_id: survivor.id)
       PrayerRequest.where(person: duplicate).update_all(person_id: survivor.id)
+      [ Donation, DonorLink, BenevolenceCase ].each { |model| model.where(person: duplicate).update_all(person_id: survivor.id) }
       # update_all, then reset: saving `duplicate` would otherwise re-save its cached
       # has_one :user and point the login back at the duplicate.
       User.where(person_id: duplicate.id).update_all(person_id: survivor.id)

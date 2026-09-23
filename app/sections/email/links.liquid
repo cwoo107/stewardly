@@ -1,0 +1,8 @@
+<mj-section background-color="{{ theme.content_background }}" padding="8px 24px">
+  <mj-column>
+    {% if settings.heading != blank %}<mj-text font-size="18px" font-weight="600">{{ settings.heading | escape }}</mj-text>{% endif %}
+    {% for block in settings.blocks %}
+      <mj-text padding="4px 25px"><a href="{{ block.url }}" style="color: {{ theme.brand_color }};">{{ block.label | escape }}</a></mj-text>
+    {% endfor %}
+  </mj-column>
+</mj-section>

@@ -1,0 +1,6 @@
+<mj-section background-color="{{ settings.background_color | default: theme.brand_color }}" padding="24px">
+  <mj-column>
+    {% if settings.logo_url != blank %}<mj-image src="{{ settings.logo_url | escape }}" alt="{{ church.name | escape }}" width="{{ settings.logo_width | default: 160 }}px" padding="0" />{% endif %}
+    {% if settings.title != blank %}<mj-text align="center" color="{{ settings.text_color | default: '#ffffff' }}" font-size="24px" font-weight="600">{{ settings.title | escape }}</mj-text>{% endif %}
+  </mj-column>
+</mj-section>

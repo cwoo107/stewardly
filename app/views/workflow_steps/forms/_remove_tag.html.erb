@@ -1,0 +1,3 @@
+<%= render "workflow_steps/forms/field", key: "tag_id", label: "Tag" do %>
+  <%= select_tag "config[tag_id]", options_from_collection_for_select(Tag.alphabetical, :id, :name, config["tag_id"]), include_blank: "Choose a tag", id: "config_tag_id", class: select_classes %>
+<% end %>

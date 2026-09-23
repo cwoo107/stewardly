@@ -1,0 +1,18 @@
+<% content_for :title, @report.title %>
+<%= render "shared/page_header", title: @report.title, subtitle: @report.last_run_at && "Numbers as of #{l(@report.last_run_at, format: :long)}" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= button_to "Update now", rerun_saved_report_path(@report), class: button_classes(:outline) %>
+    <%= button_to @report.pinned? ? "Unpin" : "Pin to dashboard", saved_report_path(@report), method: :patch, params: { saved_report: { pinned: !@report.pinned? } }, class: button_classes(:outline) %>
+    <%= button_to "Delete", saved_report_path(@report), method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete this report?" } } %>
+  </div>
+<% end %>
+<%= render "shared/reports_nav" %>
+
+<% if @report.summary.present? %>
+  <section class="mb-6 <%= card_classes %>">
+    <p class="text-xs uppercase tracking-wide text-gray-500">The answer when you saved it<%= " (#{@report.question})" if @report.question %></p>
+    <p class="mt-2 whitespace-pre-line"><%= @report.summary %></p>
+    <p class="mt-3 text-xs text-gray-500">The numbers below are re-run fresh; the answer above isn't rewritten. <%= link_to "Ask again", report_conversations_path, class: "underline" %> for a new one.</p>
+  </section>
+<% end %>
+<div class="space-y-4"><% @report.results.each do |call| %><%= render "reports/result", call: %><% end %></div>

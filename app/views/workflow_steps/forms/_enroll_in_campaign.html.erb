@@ -1,0 +1,4 @@
+<%= render "workflow_steps/forms/field", key: "campaign_id", label: "Campaign", hint: "Only campaigns that haven't gone out yet. If it has already been sent by the time someone reaches this step, the step is skipped." do %>
+  <%= select_tag "config[campaign_id]", options_from_collection_for_select(Campaign.where(status: %w[ draft scheduled ]).order(:name), :id, :name, config["campaign_id"]),
+        include_blank: "Choose a campaign", id: "config_campaign_id", class: select_classes %>
+<% end %>

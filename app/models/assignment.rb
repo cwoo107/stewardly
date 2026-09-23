@@ -1,5 +1,7 @@
 # A person scheduled to a position at a service or event occurrence.
 class Assignment < ApplicationRecord
+  include AffectsPathway
+
   SCHEDULABLE_TYPES = %w[ ServiceOccurrence EventOccurrence ].freeze
 
   belongs_to :schedulable, polymorphic: true

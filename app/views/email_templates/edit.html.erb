@@ -1,0 +1,6 @@
+<% content_for :title, "Edit #{@template.name}" %>
+<%= render "shared/page_header", title: "Template details", subtitle: @template.name %>
+<%= render "form", template: @template %>
+<% if policy(@template).destroy? %>
+  <%= button_to "Delete template", @template, method: :delete, class: "mt-6 #{button_classes(:danger)}", form: { data: { turbo_confirm: "Delete #{@template.name}?" } } %>
+<% end %>

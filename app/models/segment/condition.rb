@@ -12,8 +12,16 @@ class Segment::Condition
     "age" => "Age",
     "custom_field" => "Custom field",
     "distance" => "Lives within a distance",
-    "no_touchpoint" => "No contact recently"
+    "no_touchpoint" => "No contact recently",
+    "course" => "Courses",
+    "attendance" => "Attended services",
+    "serving" => "Served recently",
+    "pathway_stage" => "Pathway stage",
+    "stuck" => "Stuck on the pathway"
   }.freeze
+
+  # Pathway stage rules can't depend on the pathway itself.
+  PATHWAY_TYPES = %w[ pathway_stage stuck ].freeze
 
   ATTRIBUTES = {
     "tag" => %w[ operator tag_ids ],
@@ -23,10 +31,15 @@ class Segment::Condition
     "age" => %w[ min max ],
     "custom_field" => %w[ key value ],
     "distance" => %w[ miles campus_id latitude longitude ],
-    "no_touchpoint" => %w[ days ]
+    "no_touchpoint" => %w[ days ],
+    "course" => %w[ operator course_ids ],
+    "attendance" => %w[ times days ],
+    "serving" => %w[ times days team_ids ],
+    "pathway_stage" => %w[ stage_ids ],
+    "stuck" => %w[ value ]
   }.freeze
 
-  LIST_ATTRIBUTES = %w[ tag_ids statuses group_ids team_ids ].freeze
+  LIST_ATTRIBUTES = %w[ tag_ids statuses group_ids team_ids course_ids stage_ids ].freeze
 
   attr_reader :type, :attributes
 
@@ -74,6 +87,15 @@ class Segment::Condition
       from = self["campus_id"].present? ? Campus.find_by(id: self["campus_id"])&.name : "the chosen point"
       "Lives within #{self["miles"]} miles of #{from}"
     when "no_touchpoint" then "No contact in the last #{self["days"]} days"
+    when "course"
+      courses = self["course_ids"].any? ? Course.where(id: ids("course_ids")).pluck(:name).to_sentence(last_word_connector: ", or ", two_words_connector: " or ") : "any course"
+      operator(%w[ enrolled completed ], "enrolled") == "completed" ? "Completed #{courses}" : "Enrolled in or completed #{courses}"
+    when "attendance" then "Checked in at least #{times} #{"time".pluralize(times)} in the last #{self["days"]} days"
+    when "serving"
+      teams = self["team_ids"].any? ? " on #{Team.where(id: ids("team_ids")).pluck(:name).to_sentence}" : ""
+      "Served at least #{times} #{"time".pluralize(times)}#{teams} in the last #{self["days"]} days"
+    when "pathway_stage" then "At #{PathwayStage.where(id: ids("stage_ids")).order(:position).pluck(:name).to_sentence(last_word_connector: ", or ", two_words_connector: " or ")}"
+    when "stuck" then self["value"] == "no" ? "Not stuck on the pathway" : "Stuck on the pathway"
     else label
     end
   end
@@ -233,6 +255,63 @@ class Segment::Condition
 
     def no_touchpoint_errors
       integer("days")&.positive? ? [] : [ "needs a number of days" ]
+    end
+
+    def times = [ integer("times") || 1, 1 ].max
+    def today = ActsAsTenant.current_tenant.today
+
+    # --- course: operator enrolled (currently enrolled or completed) | completed, course_ids (blank = any)
+
+    def course_errors = []
+
+    def course_relation
+      enrollments = Enrollment.joins(:course_offering).where("enrollments.person_id = people.id")
+      enrollments = enrollments.where(course_offerings: { course_id: ids("course_ids") }) if self["course_ids"].any?
+      statuses = operator(%w[ enrolled completed ], "enrolled") == "completed" ? %w[ completed ] : %w[ enrolled completed ]
+      people.where(enrollments.where(status: statuses).arel.exists)
+    end
+
+    # --- attendance: checked in at least `times` in the last `days` days
+
+    def attendance_errors
+      integer("days")&.positive? ? [] : [ "needs a number of days" ]
+    end
+
+    def attendance_relation
+      checked_in = Attendance.joins(:service_occurrence).where("attendances.person_id = people.id")
+        .where(service_occurrences: { local_date: (today - integer("days"))..today }).select(Arel.sql("count(*)"))
+      people.where("(#{checked_in.to_sql}) >= ?", times)
+    end
+
+    # --- serving: accepted assignments at least `times` in the last `days` days (optionally on teams)
+
+    def serving_errors
+      integer("days")&.positive? ? [] : [ "needs a number of days" ]
+    end
+
+    def serving_relation
+      served = Assignment.accepted.where("assignments.person_id = people.id").where(local_date: (today - integer("days"))...today)
+      served = served.joins(:position).where(positions: { team_id: ids("team_ids") }) if self["team_ids"].any?
+      people.where("(#{served.select(Arel.sql("count(*)")).to_sql}) >= ?", times)
+    end
+
+    # --- pathway_stage: stage_ids
+
+    def pathway_stage_errors
+      self["stage_ids"].empty? ? [ "choose at least one stage" ] : []
+    end
+
+    def pathway_stage_relation
+      people.where(PathwayPlacement.where("pathway_placements.person_id = people.id").where(pathway_stage_id: ids("stage_ids")).arel.exists)
+    end
+
+    # --- stuck: value yes | no. Stuck = longer than the stage's limit without moving on.
+
+    def stuck_errors = []
+
+    def stuck_relation
+      stuck = PathwayPlacement.stuck.where("pathway_placements.person_id = people.id")
+      self["value"] == "no" ? people.where.not(stuck.arel.exists) : people.where(stuck.arel.exists)
     end
 
     def no_touchpoint_relation

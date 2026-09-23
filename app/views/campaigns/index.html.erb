@@ -1,0 +1,36 @@
+<% content_for :title, "Email campaigns" %>
+<%= render "shared/page_header", title: "Email", subtitle: "Campaigns go to a segment, minus anyone who unsubscribed or whose address bounced." do %>
+  <%= link_to "New campaign", new_campaign_path, class: button_classes(:primary) if policy(Campaign).create? %>
+<% end %>
+<%= render "shared/email_nav" %>
+
+<div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th scope="col" class="px-4 py-3 font-semibold">Campaign</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Audience</th>
+        <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+        <th scope="col" class="px-4 py-3 font-semibold">When</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @campaigns.each do |campaign| %>
+        <tr>
+          <td class="px-4 py-3">
+            <%= link_to campaign.name, campaign, class: "font-medium text-gray-900 hover:underline" %>
+            <p class="text-gray-500"><%= campaign.subject %></p>
+          </td>
+          <td class="px-4 py-3 text-gray-700"><%= campaign.segment&.name || "—" %></td>
+          <td class="px-4 py-3"><%= render "status_badge", campaign: %></td>
+          <td class="px-4 py-3 text-gray-700">
+            <% time = campaign.sent_at || campaign.sending_at || campaign.scheduled_at %>
+            <%= time ? l(time, format: :short) : "Not scheduled" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @campaigns.empty? %><p class="px-4 py-6 text-sm text-gray-500">No campaigns yet.</p><% end %>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

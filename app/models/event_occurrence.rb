@@ -1,4 +1,5 @@
 class EventOccurrence < ApplicationRecord
+  include ExpiresSiteCache
   include Waitlistable
 
   belongs_to :event, inverse_of: :occurrences

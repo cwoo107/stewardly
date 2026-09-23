@@ -16,6 +16,8 @@
                 aria: { label: "Remove #{assignment.person.name}" }, form: { data: { turbo_stream: true } } %>
         </div>
         <%= badge(assignment.status.humanize, color: { "pending" => "amber", "accepted" => "green", "declined" => "rose" }.fetch(assignment.status)) %>
+        <% load = board.load_for(assignment) %>
+        <% if load.level.in?(%w[ elevated at_risk ]) && !assignment.declined? %><%= render "shared/load_badge", load: %><% end %>
         <% if assignment.pending? && assignment.requested_at.nil? %><span class="text-xs text-gray-400">not sent</span><% end %>
       </li>
     <% end %>

@@ -6,6 +6,8 @@
 <%= form_with url: map_path, method: :get, class: "mb-4 flex flex-wrap items-end gap-3", data: { turbo_action: "replace" } do |form| %>
   <%= form.select :segment_id, options_from_collection_for_select(@segments, :id, :name, params[:segment_id]),
         { include_blank: "Everyone" }, class: select_classes, aria: { label: "Segment" } %>
+  <%= form.select :stage_id, options_from_collection_for_select(@stages, :id, :name, params[:stage_id]),
+        { include_blank: "Any pathway stage" }, class: select_classes, aria: { label: "Pathway stage" } %>
   <%= form.select :group_type, options_for_select(Group.group_types.keys.map { |t| [ t.humanize, t ] }, params[:group_type]),
         { include_blank: "All group types" }, class: select_classes, aria: { label: "Group type" } %>
   <label class="inline-flex items-center gap-2 text-sm">

@@ -1,0 +1,42 @@
+<% content_for :title, "Edit #{@page.title}" %>
+<%= render "shared/page_header", title: @page.title, subtitle: "#{@site.host}#{@page.path}" do %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= @page.published? ? badge("Published #{time_ago_in_words(@page.published_at)} ago", color: "green") : badge("Never published") %>
+    <% if @page.unpublished_changes? %>
+      <%= button_to "Publish", publish_website_page_path(@page), method: :patch, class: button_classes(:primary) %>
+      <%= button_to "Discard changes", discard_website_page_path(@page), method: :patch, class: button_classes(:outline), form: { data: { turbo_confirm: "Throw away your draft changes?" } } if @page.published? %>
+    <% end %>
+    <%= link_to "Page settings", edit_website_page_path(@page), class: button_classes(:outline) %>
+    <%= link_to "History", website_page_revisions_path(@page), class: button_classes(:outline) %>
+    <%= button_to "Unpublish", unpublish_website_page_path(@page), method: :patch, class: button_classes(:outline), form: { data: { turbo_confirm: "Hide this page from visitors?" } } if @page.published? && !@page.home? %>
+  </div>
+<% end %>
+<%= render "shared/website_nav" %>
+
+<div class="grid gap-8 xl:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+  <section aria-labelledby="sections_heading">
+    <h2 id="sections_heading" class="mb-3 text-sm font-semibold text-gray-900">Sections</h2>
+    <ol class="space-y-2" data-controller="sortable">
+      <% definitions = @definitions.index_by(&:key) %>
+      <% @page.section_list.each do |section| %>
+        <li class="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-gray-200 cursor-grab" data-move-url="<%= move_website_page_section_path(@page, section["id"]) %>">
+          <span class="text-sm font-medium"><span class="mr-2 text-gray-300" aria-hidden="true">⋮⋮</span><%= definitions[section["key"]]&.name || section["key"].humanize %></span>
+          <span class="flex gap-2">
+            <%= link_to "Edit", edit_website_page_section_path(@page, section["id"]), class: "text-sm text-cyan-700 underline hover:no-underline" %>
+            <%= button_to "Remove", website_page_section_path(@page, section["id"]), method: :delete, class: "text-sm text-gray-500 underline hover:no-underline cursor-pointer", form: { data: { turbo_confirm: "Remove this section?" } } %>
+          </span>
+        </li>
+      <% end %>
+    </ol>
+    <% if @page.section_list.empty? %><p class="rounded-2xl border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">No sections yet.</p><% end %>
+    <p class="mt-2 text-xs text-gray-500">Drag to reorder. Changes go into the draft until you publish.</p>
+
+    <h3 class="mt-8 mb-3 text-sm font-semibold text-gray-900">Add a section</h3>
+    <div class="flex flex-wrap gap-2">
+      <% @definitions.each do |definition| %>
+        <%= button_to "+ #{definition.name}", website_page_sections_path(@page), params: { key: definition.key }, class: button_classes(:outline) %>
+      <% end %>
+    </div>
+  </section>
+  <section><%= render "website/pages/preview_frame", page: @page %></section>
+</div>

@@ -1,0 +1,14 @@
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24">
+  <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+  <ul class="mt-8 divide-y divide-(--site-border)">
+    {% for sermon in settings.blocks %}
+      <li class="flex flex-wrap items-baseline justify-between gap-3 py-4">
+        <span>{% if sermon.url != blank %}<a href="{{ sermon.url | escape }}" class="text-lg font-semibold hover:underline">{{ sermon.title | escape }}</a>{% else %}<span class="text-lg font-semibold">{{ sermon.title | escape }}</span>{% endif %}
+          {% if sermon.speaker != blank %}<span class="text-(--site-muted)"> · {{ sermon.speaker | escape }}</span>{% endif %}</span>
+        <span class="text-sm text-(--site-muted)">{{ sermon.date | escape }}</span>
+      </li>
+    {% else %}
+      <li class="py-4 text-(--site-muted)">Sermons will be posted here.</li>
+    {% endfor %}
+  </ul>
+</section>

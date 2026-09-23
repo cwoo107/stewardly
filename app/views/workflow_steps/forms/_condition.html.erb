@@ -1,0 +1,19 @@
+<% rules = Segment.new(definition: config) %>
+<div>
+  <label for="condition_match" class="<%= label_classes %>">Continue down “If yes” when the person matches</label>
+  <%= select_tag "workflow_condition[definition][match]", options_for_select([ [ "All of these", "all" ], [ "Any of these", "any" ] ], rules.match),
+        id: "condition_match", class: "#{select_classes}" %>
+</div>
+<div id="segment_conditions" class="space-y-4">
+  <% rules.conditions.each_with_index do |condition, index| %>
+    <%= render "segments/condition", condition:, index:, prefix: "workflow_condition" %>
+  <% end %>
+</div>
+<div class="flex flex-wrap items-end gap-3">
+  <div>
+    <label for="new_condition_type" class="<%= label_classes %>">Add a rule</label>
+    <%= select_tag :new_condition_type, options_for_select(Segment::Condition::TYPES.invert), id: "new_condition_type", class: select_classes,
+          data: { segment_builder_target: "type" }, form: "none" %>
+  </div>
+  <button type="button" class="<%= button_classes(:secondary) %>" data-action="segment-builder#add">Add</button>
+</div>

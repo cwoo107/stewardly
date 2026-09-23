@@ -1,0 +1,14 @@
+<% content_for :title, "Section code" %>
+<%= render "shared/page_header", title: "Section code", subtitle: "Advanced: the Liquid and settings behind each section. Changes apply to every page that uses the section." do %>
+  <%= link_to "New custom section", new_website_section_path, class: button_classes(:primary) %>
+<% end %>
+<%= render "shared/website_nav" %>
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @definitions.each do |definition| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <span><span class="font-medium"><%= definition.name %></span> <code class="text-xs text-gray-500"><%= definition.key %></code>
+        <%= badge(definition.system? ? (definition.customized? ? "Built-in, edited" : "Built-in") : "Custom", color: definition.system? ? (definition.customized? ? "amber" : "gray") : "violet") %></span>
+      <%= link_to "Edit code", edit_website_section_path(definition), class: button_classes(:outline) %>
+    </li>
+  <% end %>
+</ul>

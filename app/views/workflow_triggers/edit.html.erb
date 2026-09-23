@@ -1,0 +1,75 @@
+<% content_for :title, "Trigger for #{@workflow.name}" %>
+<%= render "workflows/header", workflow: @workflow %>
+
+<%= form_with url: edit_workflow_trigger_path(@workflow), method: :get, class: "mb-6 #{card_classes}", data: { controller: "auto-submit" } do %>
+  <label for="type" class="<%= label_classes %>">Start this workflow when</label>
+  <%= select_tag :type, options_for_select(Workflow::Trigger::TYPES.invert, @trigger.type), include_blank: "Choose a trigger", class: select_classes,
+        data: { action: "change->auto-submit#submit" } %>
+  <noscript><%= submit_tag "Choose", class: "mt-3 #{button_classes(:outline)}", name: nil %></noscript>
+<% end %>
+
+<% if @trigger.type %>
+  <%= form_with url: workflow_trigger_path(@workflow), method: :patch, class: "space-y-6",
+        data: { controller: "segment-builder", segment_builder_condition_url_value: condition_segments_path(prefix: "workflow_entry") } do %>
+    <%= hidden_field_tag "trigger[type]", @trigger.type, id: nil %>
+    <div class="<%= card_classes %> space-y-4">
+      <h2 class="font-semibold"><%= @trigger.label %></h2>
+      <% case @trigger.type %>
+      <% when "form_submitted" %>
+        <%= select_tag "trigger[config][form_id]", options_from_collection_for_select(Form.where.not(purpose: "benevolence_request").order(:name), :id, :name, @trigger["form_id"]), include_blank: "Choose a form", class: select_classes, aria: { label: "Form" } %>
+      <% when "tag_added" %>
+        <%= select_tag "trigger[config][tag_id]", options_from_collection_for_select(Tag.alphabetical, :id, :name, @trigger["tag_id"]), include_blank: "Choose a tag", class: select_classes, aria: { label: "Tag" } %>
+      <% when "group_joined" %>
+        <%= select_tag "trigger[config][group_id]", options_from_collection_for_select(Group.order(:name), :id, :name, @trigger["group_id"]), include_blank: "Any group", class: select_classes, aria: { label: "Group" } %>
+      <% when "pathway_stage_changed" %>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <%= select_tag "trigger[config][direction]", options_for_select(Workflow::Trigger::DIRECTIONS.invert, @trigger["direction"]), class: select_classes, aria: { label: "Direction" } %>
+          <%= select_tag "trigger[config][stage_id]", options_from_collection_for_select(Pathway.current.stages, :id, :name, @trigger["stage_id"]), include_blank: "To any stage", class: select_classes, aria: { label: "Stage" } %>
+        </div>
+      <% when "missed_weeks" %>
+        <div class="flex items-center gap-2 text-sm">
+          Hasn't attended for <%= number_field_tag "trigger[config][weeks]", @trigger["weeks"] || 3, min: 1, max: 52, class: "w-20 #{input_classes}", aria: { label: "Weeks" } %> weeks in a row
+        </div>
+        <p class="text-sm text-gray-500">Only people who had come at least twice before. Checked every morning at 6am; each absence starts one run.</p>
+      <% when "date_relative" %>
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <%= number_field_tag "trigger[config][days]", @trigger["days"] || 0, min: -365, max: 365, class: "w-24 #{input_classes}", aria: { label: "Days" } %>
+          days after (negative for before) their
+          <%= select_tag "trigger[config][date_field]", options_for_select(Workflow::DateFields.options, @trigger["date_field"]), class: "w-48 #{select_classes}", aria: { label: "Date" } %>
+        </div>
+        <p class="text-sm text-gray-500">Checked every morning at 6am. Birthdays repeat every year.</p>
+      <% when "first_visit" %>
+        <p class="text-sm text-gray-600">When someone is checked in to a service for the first time.</p>
+      <% when "person_created" %>
+        <p class="text-sm text-gray-600">When anyone is added: by staff, an import, a form, or an event registration.</p>
+      <% end %>
+    </div>
+
+    <div class="<%= card_classes %> space-y-4">
+      <div>
+        <h2 class="font-semibold">Only for people who match (optional)</h2>
+        <p class="text-sm text-gray-600">Leave empty to include everyone the trigger fires for.</p>
+      </div>
+      <%= select_tag "workflow_entry[definition][match]", options_for_select([ [ "All of these", "all" ], [ "Any of these", "any" ] ], @entry.match),
+            class: "#{select_classes}", aria: { label: "Match" } %>
+      <div id="segment_conditions" class="space-y-4">
+        <% @entry.conditions.each_with_index do |condition, index| %>
+          <%= render "segments/condition", condition:, index:, prefix: "workflow_entry" %>
+        <% end %>
+      </div>
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label for="new_condition_type" class="<%= label_classes %>">Add a condition</label>
+          <%= select_tag :new_condition_type, options_for_select(Segment::Condition::TYPES.invert), id: "new_condition_type", class: select_classes,
+                data: { segment_builder_target: "type" }, form: "none" %>
+        </div>
+        <button type="button" class="<%= button_classes(:secondary) %>" data-action="segment-builder#add">Add</button>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <%= submit_tag "Save trigger", class: button_classes(:primary) %>
+      <%= link_to "Back to builder", edit_workflow_path(@workflow), class: button_classes(:outline) %>
+    </div>
+  <% end %>
+<% end %>

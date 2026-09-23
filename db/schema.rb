@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_23_200100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -43,6 +43,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "ai_requests", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.text "error"
+    t.integer "input_tokens", default: 0, null: false
+    t.string "model"
+    t.integer "output_tokens", default: 0, null: false
+    t.jsonb "prompt", default: {}, null: false
+    t.string "provider", null: false
+    t.string "purpose", null: false
+    t.jsonb "response", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "tool_calls", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["church_id", "created_at"], name: "index_ai_requests_on_church_id_and_created_at"
+    t.index ["church_id"], name: "index_ai_requests_on_church_id"
+    t.index ["user_id"], name: "index_ai_requests_on_user_id"
   end
 
   create_table "announcements", force: :cascade do |t|
@@ -144,6 +164,85 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["church_id", "created_at"], name: "index_audit_events_on_church_id_and_created_at"
   end
 
+  create_table "benevolence_approvals", force: :cascade do |t|
+    t.integer "amount_cents"
+    t.bigint "benevolence_case_id", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "decision", null: false
+    t.text "note"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["benevolence_case_id", "user_id"], name: "index_benevolence_approvals_on_benevolence_case_id_and_user_id", unique: true
+    t.index ["church_id"], name: "index_benevolence_approvals_on_church_id"
+    t.index ["user_id"], name: "index_benevolence_approvals_on_user_id"
+  end
+
+  create_table "benevolence_cases", force: :cascade do |t|
+    t.integer "approved_cents"
+    t.bigint "assigned_to_id"
+    t.bigint "church_id", null: false
+    t.text "circumstances"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.string "currency", default: "USD", null: false
+    t.datetime "decided_at"
+    t.bigint "decided_by_id"
+    t.text "decision_note"
+    t.bigint "form_submission_id"
+    t.datetime "fulfilled_at"
+    t.bigint "household_id"
+    t.string "need_category", default: "other", null: false
+    t.bigint "person_id", null: false
+    t.integer "requested_cents", default: 0, null: false
+    t.string "source", default: "staff", null: false
+    t.string "status", default: "submitted", null: false
+    t.text "summary"
+    t.datetime "updated_at", null: false
+    t.index ["assigned_to_id"], name: "index_benevolence_cases_on_assigned_to_id"
+    t.index ["church_id", "created_at"], name: "index_benevolence_cases_on_church_id_and_created_at"
+    t.index ["church_id", "status"], name: "index_benevolence_cases_on_church_id_and_status"
+    t.index ["church_id"], name: "index_benevolence_cases_on_church_id"
+    t.index ["created_by_id"], name: "index_benevolence_cases_on_created_by_id"
+    t.index ["decided_by_id"], name: "index_benevolence_cases_on_decided_by_id"
+    t.index ["form_submission_id"], name: "index_benevolence_cases_on_form_submission_id", unique: true
+    t.index ["household_id"], name: "index_benevolence_cases_on_household_id"
+    t.index ["person_id"], name: "index_benevolence_cases_on_person_id"
+  end
+
+  create_table "benevolence_disbursements", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.bigint "benevolence_case_id", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "USD", null: false
+    t.bigint "fund_id"
+    t.string "method", null: false
+    t.date "paid_on", null: false
+    t.string "payee_name", null: false
+    t.string "payee_type", null: false
+    t.bigint "recorded_by_id"
+    t.text "reference"
+    t.datetime "updated_at", null: false
+    t.index ["benevolence_case_id"], name: "index_benevolence_disbursements_on_benevolence_case_id"
+    t.index ["church_id", "paid_on"], name: "index_benevolence_disbursements_on_church_id_and_paid_on"
+    t.index ["church_id"], name: "index_benevolence_disbursements_on_church_id"
+    t.index ["fund_id"], name: "index_benevolence_disbursements_on_fund_id"
+    t.index ["recorded_by_id"], name: "index_benevolence_disbursements_on_recorded_by_id"
+  end
+
+  create_table "benevolence_notes", force: :cascade do |t|
+    t.bigint "author_id"
+    t.bigint "benevolence_case_id", null: false
+    t.text "body", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_benevolence_notes_on_author_id"
+    t.index ["benevolence_case_id"], name: "index_benevolence_notes_on_benevolence_case_id"
+    t.index ["church_id"], name: "index_benevolence_notes_on_church_id"
+  end
+
   create_table "blockouts", force: :cascade do |t|
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
@@ -153,6 +252,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.date "starts_on", null: false
     t.datetime "updated_at", null: false
     t.index ["church_id", "person_id", "starts_on"], name: "index_blockouts_on_church_id_and_person_id_and_starts_on"
+  end
+
+  create_table "campaign_extra_recipients", force: :cascade do |t|
+    t.bigint "campaign_id", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["campaign_id", "person_id"], name: "index_campaign_extra_recipients_on_campaign_id_and_person_id", unique: true
+    t.index ["church_id"], name: "index_campaign_extra_recipients_on_church_id"
+    t.index ["person_id"], name: "index_campaign_extra_recipients_on_person_id"
+  end
+
+  create_table "campaigns", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.bigint "email_template_id"
+    t.bigint "email_topic_id"
+    t.string "from_name"
+    t.text "html_snapshot"
+    t.string "name", null: false
+    t.string "preheader"
+    t.string "reply_to"
+    t.datetime "scheduled_at"
+    t.bigint "segment_id"
+    t.datetime "sending_at"
+    t.datetime "sent_at"
+    t.string "status", default: "draft", null: false
+    t.string "subject"
+    t.boolean "track_engagement", default: true, null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "status", "scheduled_at"], name: "index_campaigns_on_church_id_and_status_and_scheduled_at"
+    t.index ["created_by_id"], name: "index_campaigns_on_created_by_id"
+    t.index ["email_template_id"], name: "index_campaigns_on_email_template_id"
+    t.index ["email_topic_id"], name: "index_campaigns_on_email_topic_id"
+    t.index ["segment_id"], name: "index_campaigns_on_segment_id"
   end
 
   create_table "campuses", force: :cascade do |t|
@@ -176,16 +312,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   end
 
   create_table "churches", force: :cascade do |t|
+    t.boolean "ai_enabled", default: false, null: false
+    t.integer "ai_monthly_token_cap", default: 200000, null: false
+    t.boolean "ai_private_totals", default: false, null: false
     t.string "attendance_categories", default: ["Adults", "Kids", "Online"], null: false, array: true
+    t.integer "benevolence_annual_limit_cents", default: 100000, null: false
+    t.integer "benevolence_approval_threshold_cents", default: 50000, null: false
+    t.integer "benevolence_approvals_required", default: 1, null: false
+    t.string "benevolence_limit_scope", default: "household", null: false
     t.string "contact_email"
     t.datetime "created_at", null: false
+    t.string "email_from_domain"
     t.string "giving_url"
     t.integer "group_coverage_miles", default: 3, null: false
+    t.text "mailing_address"
     t.string "name", null: false
+    t.integer "no_contact_days", default: 60, null: false
     t.integer "reminder_days_before", default: 3, null: false
+    t.boolean "social_event_promos", default: true, null: false
     t.citext "subdomain", null: false
     t.string "time_zone", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "volunteer_load_thresholds", default: {}, null: false
+    t.integer "workflow_daily_send_limit", default: 500, null: false
     t.index ["subdomain"], name: "index_churches_on_subdomain", unique: true
   end
 
@@ -243,6 +392,97 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["church_id", "position"], name: "index_custom_fields_on_church_id_and_position"
   end
 
+  create_table "daily_briefs", force: :cascade do |t|
+    t.bigint "ai_request_id"
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.datetime "emailed_at"
+    t.jsonb "items", default: [], null: false
+    t.string "source", default: "rules", null: false
+    t.text "summary"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["ai_request_id"], name: "index_daily_briefs_on_ai_request_id"
+    t.index ["church_id"], name: "index_daily_briefs_on_church_id"
+    t.index ["user_id", "date"], name: "index_daily_briefs_on_user_id_and_date", unique: true
+    t.index ["user_id"], name: "index_daily_briefs_on_user_id"
+  end
+
+  create_table "deliveries", force: :cascade do |t|
+    t.bigint "campaign_id"
+    t.bigint "church_id", null: false
+    t.integer "click_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "delivered_at"
+    t.string "email", null: false
+    t.bigint "email_topic_id"
+    t.text "error"
+    t.datetime "first_clicked_at"
+    t.datetime "first_opened_at"
+    t.text "html_snapshot"
+    t.integer "open_count", default: 0, null: false
+    t.bigint "person_id", null: false
+    t.string "provider_message_id"
+    t.datetime "sent_at"
+    t.string "status", default: "queued", null: false
+    t.string "subject"
+    t.string "token", null: false
+    t.datetime "unsubscribed_at"
+    t.datetime "updated_at", null: false
+    t.bigint "workflow_step_execution_id"
+    t.index ["campaign_id", "person_id"], name: "index_deliveries_on_campaign_id_and_person_id", unique: true
+    t.index ["campaign_id", "status"], name: "index_deliveries_on_campaign_id_and_status"
+    t.index ["church_id", "provider_message_id"], name: "index_deliveries_on_church_id_and_provider_message_id"
+    t.index ["email_topic_id"], name: "index_deliveries_on_email_topic_id"
+    t.index ["person_id"], name: "index_deliveries_on_person_id"
+    t.index ["token"], name: "index_deliveries_on_token", unique: true
+    t.index ["workflow_step_execution_id"], name: "index_deliveries_on_workflow_step_execution_id", unique: true
+  end
+
+  create_table "donations", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "USD", null: false
+    t.text "donor_email"
+    t.string "donor_external_id"
+    t.text "donor_name"
+    t.string "external_id", null: false
+    t.bigint "fund_id"
+    t.date "given_on", null: false
+    t.string "match_status", default: "unmatched", null: false
+    t.datetime "matched_at"
+    t.bigint "matched_by_id"
+    t.string "method"
+    t.bigint "person_id"
+    t.string "provider", null: false
+    t.string "status", default: "succeeded", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "given_on"], name: "index_donations_on_church_id_and_given_on"
+    t.index ["church_id", "match_status"], name: "index_donations_on_church_id_and_match_status"
+    t.index ["church_id", "provider", "donor_external_id"], name: "idx_on_church_id_provider_donor_external_id_8df05a5d7e"
+    t.index ["church_id", "provider", "external_id"], name: "index_donations_on_church_id_and_provider_and_external_id", unique: true
+    t.index ["church_id"], name: "index_donations_on_church_id"
+    t.index ["fund_id"], name: "index_donations_on_fund_id"
+    t.index ["matched_by_id"], name: "index_donations_on_matched_by_id"
+    t.index ["person_id"], name: "index_donations_on_person_id"
+  end
+
+  create_table "donor_links", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.string "donor_external_id", null: false
+    t.bigint "person_id", null: false
+    t.string "provider", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "provider", "donor_external_id"], name: "idx_on_church_id_provider_donor_external_id_b705cf887c", unique: true
+    t.index ["church_id"], name: "index_donor_links_on_church_id"
+    t.index ["created_by_id"], name: "index_donor_links_on_created_by_id"
+    t.index ["person_id"], name: "index_donor_links_on_person_id"
+  end
+
   create_table "duplicate_dismissals", force: :cascade do |t|
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
@@ -254,6 +494,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["dismissed_by_id"], name: "index_duplicate_dismissals_on_dismissed_by_id"
     t.index ["other_person_id"], name: "index_duplicate_dismissals_on_other_person_id"
     t.index ["person_id", "other_person_id"], name: "index_duplicate_dismissals_on_person_id_and_other_person_id", unique: true
+  end
+
+  create_table "email_preferences", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "email_topic_id", null: false
+    t.bigint "person_id", null: false
+    t.boolean "subscribed", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_email_preferences_on_church_id"
+    t.index ["email_topic_id"], name: "index_email_preferences_on_email_topic_id"
+    t.index ["person_id", "email_topic_id"], name: "index_email_preferences_on_person_id_and_email_topic_id", unique: true
+  end
+
+  create_table "email_templates", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.string "preheader"
+    t.jsonb "sections", default: [], null: false
+    t.string "subject"
+    t.jsonb "theme", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "name"], name: "index_email_templates_on_church_id_and_name"
+  end
+
+  create_table "email_topics", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "default_subscribed", default: true, null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "name"], name: "index_email_topics_on_church_id_and_name", unique: true
   end
 
   create_table "enrollments", force: :cascade do |t|
@@ -371,6 +645,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["church_id", "slug"], name: "index_forms_on_church_id_and_slug", unique: true
   end
 
+  create_table "funds", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.boolean "benevolence", default: false, null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "external_id"
+    t.string "name", null: false
+    t.string "provider", default: "manual", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "name"], name: "index_funds_on_church_id_and_name"
+    t.index ["church_id", "provider", "external_id"], name: "index_funds_on_church_id_and_provider_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
+    t.index ["church_id"], name: "index_funds_on_church_id"
+  end
+
+  create_table "giving_sync_runs", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "created_count", default: 0, null: false
+    t.text "error"
+    t.datetime "finished_at"
+    t.bigint "integration_id", null: false
+    t.string "kind", null: false
+    t.integer "matched_count", default: 0, null: false
+    t.string "status", default: "running", null: false
+    t.integer "unmatched_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_count", default: 0, null: false
+    t.date "window_end"
+    t.date "window_start"
+    t.index ["church_id", "created_at"], name: "index_giving_sync_runs_on_church_id_and_created_at"
+    t.index ["church_id"], name: "index_giving_sync_runs_on_church_id"
+    t.index ["integration_id"], name: "index_giving_sync_runs_on_integration_id"
+  end
+
   create_table "group_join_requests", force: :cascade do |t|
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
@@ -447,6 +756,82 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["location"], name: "index_households_on_location", using: :gist
   end
 
+  create_table "insights", force: :cascade do |t|
+    t.string "action_label"
+    t.string "action_path"
+    t.string "audience_permission", null: false
+    t.bigint "audience_user_ids", default: [], null: false, array: true
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.text "detail"
+    t.datetime "detected_at", null: false
+    t.string "fingerprint", null: false
+    t.string "kind", null: false
+    t.datetime "last_seen_at", null: false
+    t.bigint "person_id"
+    t.string "resolution"
+    t.datetime "resolved_at"
+    t.bigint "resolved_by_id"
+    t.string "severity", default: "medium", null: false
+    t.date "snoozed_until"
+    t.string "status", default: "open", null: false
+    t.bigint "subject_id"
+    t.string "subject_type"
+    t.bigint "task_id"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audience_user_ids"], name: "index_insights_on_audience_user_ids", using: :gin
+    t.index ["church_id", "fingerprint"], name: "index_insights_one_live_per_fingerprint", unique: true, where: "((status)::text = ANY (ARRAY[('open'::character varying)::text, ('snoozed'::character varying)::text]))"
+    t.index ["church_id", "status", "severity"], name: "index_insights_on_church_id_and_status_and_severity"
+    t.index ["church_id"], name: "index_insights_on_church_id"
+    t.index ["person_id"], name: "index_insights_on_person_id"
+    t.index ["resolved_by_id"], name: "index_insights_on_resolved_by_id"
+    t.index ["subject_type", "subject_id"], name: "index_insights_on_subject"
+    t.index ["task_id"], name: "index_insights_on_task_id"
+  end
+
+  create_table "integrations", force: :cascade do |t|
+    t.string "category", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.text "credentials"
+    t.string "provider", null: false
+    t.jsonb "settings", default: {}, null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.string "webhook_token", null: false
+    t.index ["church_id", "category"], name: "index_integrations_one_active_per_category", unique: true, where: "((status)::text = 'active'::text)"
+    t.index ["webhook_token"], name: "index_integrations_on_webhook_token", unique: true
+  end
+
+  create_table "message_drafts", force: :cascade do |t|
+    t.bigint "ai_request_id"
+    t.boolean "auto_sent", default: false, null: false
+    t.text "body"
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "email_template_id"
+    t.bigint "email_topic_id"
+    t.string "note"
+    t.bigint "person_id", null: false
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.string "source", default: "ai", null: false
+    t.string "status", default: "pending", null: false
+    t.string "subject", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workflow_step_execution_id", null: false
+    t.index ["ai_request_id"], name: "index_message_drafts_on_ai_request_id"
+    t.index ["church_id", "status", "created_at"], name: "index_message_drafts_on_church_id_and_status_and_created_at"
+    t.index ["church_id"], name: "index_message_drafts_on_church_id"
+    t.index ["email_template_id"], name: "index_message_drafts_on_email_template_id"
+    t.index ["email_topic_id"], name: "index_message_drafts_on_email_topic_id"
+    t.index ["person_id"], name: "index_message_drafts_on_person_id"
+    t.index ["reviewed_by_id"], name: "index_message_drafts_on_reviewed_by_id"
+    t.index ["workflow_step_execution_id"], name: "index_message_drafts_on_workflow_step_execution_id", unique: true
+  end
+
   create_table "ministries", force: :cascade do |t|
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
@@ -465,6 +850,92 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["church_id"], name: "index_ministry_leaderships_on_church_id"
     t.index ["ministry_id", "user_id"], name: "index_ministry_leaderships_on_ministry_id_and_user_id", unique: true
     t.index ["user_id"], name: "index_ministry_leaderships_on_user_id"
+  end
+
+  create_table "page_revisions", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "page_id", null: false
+    t.datetime "published_at", null: false
+    t.bigint "published_by_id"
+    t.jsonb "sections", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_page_revisions_on_church_id"
+    t.index ["page_id"], name: "index_page_revisions_on_page_id"
+    t.index ["published_by_id"], name: "index_page_revisions_on_published_by_id"
+  end
+
+  create_table "pages", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "draft_sections", default: [], null: false
+    t.datetime "draft_updated_at"
+    t.string "kind", default: "custom", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "published_at"
+    t.jsonb "published_sections"
+    t.text "seo_description"
+    t.string "seo_title"
+    t.boolean "show_in_nav", default: true, null: false
+    t.bigint "site_id", null: false
+    t.string "slug", default: "", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_pages_on_church_id"
+    t.index ["site_id", "position"], name: "index_pages_on_site_id_and_position"
+    t.index ["site_id", "slug"], name: "index_pages_on_site_id_and_slug", unique: true
+    t.index ["site_id"], name: "index_pages_on_site_id"
+  end
+
+  create_table "pathway_placements", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "entered_at", null: false
+    t.datetime "evaluated_at", null: false
+    t.bigint "pathway_stage_id", null: false
+    t.bigint "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "pathway_stage_id", "entered_at"], name: "idx_on_church_id_pathway_stage_id_entered_at_678b7c2c1c"
+    t.index ["pathway_stage_id"], name: "index_pathway_placements_on_pathway_stage_id"
+    t.index ["person_id"], name: "index_pathway_placements_on_person_id", unique: true
+  end
+
+  create_table "pathway_stages", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "definition", default: {}, null: false
+    t.text "description"
+    t.string "name", null: false
+    t.bigint "pathway_id", null: false
+    t.integer "position", default: 0, null: false
+    t.integer "stuck_after_days"
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_pathway_stages_on_church_id"
+    t.index ["pathway_id", "position"], name: "index_pathway_stages_on_pathway_id_and_position"
+  end
+
+  create_table "pathway_transitions", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "direction", null: false
+    t.bigint "from_stage_id"
+    t.datetime "occurred_at", null: false
+    t.bigint "person_id", null: false
+    t.bigint "to_stage_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "occurred_at"], name: "index_pathway_transitions_on_church_id_and_occurred_at"
+    t.index ["from_stage_id"], name: "index_pathway_transitions_on_from_stage_id"
+    t.index ["person_id", "occurred_at"], name: "index_pathway_transitions_on_person_id_and_occurred_at"
+    t.index ["person_id"], name: "index_pathway_transitions_on_person_id"
+    t.index ["to_stage_id"], name: "index_pathway_transitions_on_to_stage_id"
+  end
+
+  create_table "pathways", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_pathways_on_church_id", unique: true
   end
 
   create_table "people", force: :cascade do |t|
@@ -627,6 +1098,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["person_id"], name: "index_registrations_on_person_id"
   end
 
+  create_table "report_conversations", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["church_id", "user_id", "updated_at"], name: "idx_on_church_id_user_id_updated_at_3fc965c170"
+    t.index ["church_id"], name: "index_report_conversations_on_church_id"
+    t.index ["user_id"], name: "index_report_conversations_on_user_id"
+  end
+
+  create_table "report_messages", force: :cascade do |t|
+    t.bigint "ai_request_id"
+    t.bigint "church_id", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.text "error"
+    t.bigint "report_conversation_id", null: false
+    t.string "role", null: false
+    t.string "status", default: "done", null: false
+    t.jsonb "tool_calls", default: [], null: false
+    t.jsonb "unverified_figures", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.index ["ai_request_id"], name: "index_report_messages_on_ai_request_id"
+    t.index ["church_id"], name: "index_report_messages_on_church_id"
+    t.index ["report_conversation_id"], name: "index_report_messages_on_report_conversation_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
@@ -638,6 +1137,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.datetime "updated_at", null: false
     t.index ["church_id", "key"], name: "index_roles_on_church_id_and_key", unique: true
     t.index ["church_id"], name: "index_roles_on_church_id"
+  end
+
+  create_table "saved_reports", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "last_result", default: [], null: false
+    t.datetime "last_run_at"
+    t.boolean "pinned", default: false, null: false
+    t.text "question"
+    t.text "summary"
+    t.string "title", null: false
+    t.jsonb "tool_calls", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["church_id", "user_id", "pinned"], name: "index_saved_reports_on_church_id_and_user_id_and_pinned"
+    t.index ["church_id"], name: "index_saved_reports_on_church_id"
+    t.index ["user_id"], name: "index_saved_reports_on_user_id"
+  end
+
+  create_table "section_definitions", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "customized", default: false, null: false
+    t.string "key", null: false
+    t.string "kind", default: "email", null: false
+    t.text "liquid", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.jsonb "schema", default: {}, null: false
+    t.boolean "system", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "kind", "key"], name: "index_section_definitions_on_church_id_and_kind_and_key", unique: true
   end
 
   create_table "segments", force: :cascade do |t|
@@ -688,6 +1219,95 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "site_domains", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "hostname", null: false
+    t.string "last_check_result"
+    t.datetime "last_checked_at"
+    t.boolean "primary", default: false, null: false
+    t.bigint "site_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "verified_at"
+    t.index ["church_id"], name: "index_site_domains_on_church_id"
+    t.index ["hostname"], name: "index_site_domains_on_hostname", unique: true
+    t.index ["site_id"], name: "index_site_domains_on_site_id"
+  end
+
+  create_table "sites", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.integer "content_version", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.text "layout_liquid"
+    t.string "name", null: false
+    t.boolean "published", default: false, null: false
+    t.datetime "published_at"
+    t.string "theme_key", default: "modern", null: false
+    t.jsonb "theme_settings", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_sites_on_church_id", unique: true
+  end
+
+  create_table "social_accounts", force: :cascade do |t|
+    t.text "access_token"
+    t.string "avatar_url"
+    t.datetime "checked_at"
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "external_id", null: false
+    t.string "handle"
+    t.bigint "integration_id", null: false
+    t.string "last_error"
+    t.string "name", null: false
+    t.string "network", null: false
+    t.string "status", default: "connected", null: false
+    t.datetime "token_expires_at"
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "network", "external_id"], name: "index_social_accounts_on_church_id_and_network_and_external_id", unique: true
+    t.index ["church_id"], name: "index_social_accounts_on_church_id"
+    t.index ["integration_id"], name: "index_social_accounts_on_integration_id"
+  end
+
+  create_table "social_post_targets", force: :cascade do |t|
+    t.integer "attempts", default: 0, null: false
+    t.text "caption"
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.text "error"
+    t.string "external_post_id"
+    t.datetime "next_attempt_at"
+    t.string "permalink"
+    t.datetime "published_at"
+    t.bigint "social_account_id", null: false
+    t.bigint "social_post_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id"], name: "index_social_post_targets_on_church_id"
+    t.index ["social_account_id"], name: "index_social_post_targets_on_social_account_id"
+    t.index ["social_post_id", "social_account_id"], name: "index_social_post_targets_uniqueness", unique: true
+    t.index ["status", "next_attempt_at"], name: "index_social_post_targets_on_status_and_next_attempt_at"
+  end
+
+  create_table "social_posts", force: :cascade do |t|
+    t.text "body", default: "", null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.bigint "event_id"
+    t.string "link_url"
+    t.datetime "published_at"
+    t.datetime "scheduled_at"
+    t.string "source", default: "staff", null: false
+    t.string "status", default: "draft", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "event_id"], name: "index_social_posts_one_promo_per_event", unique: true, where: "((source)::text = 'event_promo'::text)"
+    t.index ["church_id", "status", "scheduled_at"], name: "index_social_posts_on_church_id_and_status_and_scheduled_at"
+    t.index ["church_id"], name: "index_social_posts_on_church_id"
+    t.index ["created_by_id"], name: "index_social_posts_on_created_by_id"
+    t.index ["event_id"], name: "index_social_posts_on_event_id"
+  end
+
   create_table "special_sundays", force: :cascade do |t|
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
@@ -698,6 +1318,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.datetime "updated_at", null: false
     t.index ["church_id", "key"], name: "index_special_sundays_on_church_id_and_key"
     t.index ["church_id", "local_date"], name: "index_special_sundays_on_church_id_and_local_date", unique: true
+  end
+
+  create_table "suppressions", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.citext "email", null: false
+    t.bigint "email_topic_id"
+    t.text "note"
+    t.string "reason", null: false
+    t.string "source"
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "email", "email_topic_id"], name: "index_suppressions_uniqueness", unique: true, nulls_not_distinct: true
+    t.index ["church_id", "email"], name: "index_suppressions_on_church_id_and_email"
+    t.index ["email_topic_id"], name: "index_suppressions_on_email_topic_id"
   end
 
   create_table "taggings", force: :cascade do |t|
@@ -734,11 +1368,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.string "status", default: "todo", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.bigint "workflow_step_execution_id"
     t.index ["church_id", "due_on"], name: "index_tasks_on_church_id_and_due_on"
     t.index ["church_id", "status", "position"], name: "index_tasks_on_church_id_and_status_and_position"
     t.index ["created_by_id"], name: "index_tasks_on_created_by_id"
     t.index ["owner_id"], name: "index_tasks_on_owner_id"
     t.index ["project_id"], name: "index_tasks_on_project_id"
+    t.index ["workflow_step_execution_id"], name: "index_tasks_on_workflow_step_execution_id", unique: true
   end
 
   create_table "team_memberships", force: :cascade do |t|
@@ -796,6 +1432,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "brief_email", default: false, null: false
     t.bigint "church_id", null: false
     t.datetime "created_at", null: false
     t.citext "email_address", null: false
@@ -805,6 +1442,96 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
     t.index ["church_id", "email_address"], name: "index_users_on_church_id_and_email_address", unique: true
     t.index ["church_id"], name: "index_users_on_church_id"
     t.index ["person_id"], name: "index_users_on_person_id", unique: true
+  end
+
+  create_table "webhook_events", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.text "error"
+    t.jsonb "headers", default: {}, null: false
+    t.bigint "integration_id", null: false
+    t.datetime "processed_at"
+    t.string "provider", null: false
+    t.text "raw_body", null: false
+    t.string "status", default: "received", null: false
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "created_at"], name: "index_webhook_events_on_church_id_and_created_at"
+    t.index ["integration_id"], name: "index_webhook_events_on_integration_id"
+  end
+
+  create_table "workflow_runs", force: :cascade do |t|
+    t.boolean "allow_concurrent", default: false, null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.string "current_step_id"
+    t.string "exit_reason"
+    t.datetime "finished_at"
+    t.bigint "person_id", null: false
+    t.datetime "started_at", null: false
+    t.string "status", default: "active", null: false
+    t.bigint "trigger_subject_id"
+    t.string "trigger_subject_type"
+    t.datetime "updated_at", null: false
+    t.datetime "wake_at"
+    t.bigint "workflow_id", null: false
+    t.bigint "workflow_version_id", null: false
+    t.index ["church_id", "workflow_id", "status"], name: "index_workflow_runs_on_church_id_and_workflow_id_and_status"
+    t.index ["church_id"], name: "index_workflow_runs_on_church_id"
+    t.index ["person_id", "started_at"], name: "index_workflow_runs_on_person_id_and_started_at"
+    t.index ["person_id"], name: "index_workflow_runs_on_person_id"
+    t.index ["trigger_subject_type", "trigger_subject_id"], name: "index_workflow_runs_on_trigger_subject"
+    t.index ["workflow_id", "person_id"], name: "index_workflow_runs_one_in_flight", unique: true, where: "(((status)::text = ANY (ARRAY[('active'::character varying)::text, ('waiting'::character varying)::text])) AND (NOT allow_concurrent))"
+    t.index ["workflow_id"], name: "index_workflow_runs_on_workflow_id"
+    t.index ["workflow_version_id"], name: "index_workflow_runs_on_workflow_version_id"
+  end
+
+  create_table "workflow_step_executions", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.text "error"
+    t.datetime "executed_at"
+    t.jsonb "result", default: {}, null: false
+    t.string "status", default: "running", null: false
+    t.string "step_id", null: false
+    t.string "step_type", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "workflow_run_id", null: false
+    t.index ["church_id"], name: "index_workflow_step_executions_on_church_id"
+    t.index ["workflow_run_id", "step_id"], name: "index_workflow_step_executions_on_workflow_run_id_and_step_id", unique: true
+  end
+
+  create_table "workflow_versions", force: :cascade do |t|
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "definition", default: {}, null: false
+    t.integer "number", null: false
+    t.datetime "published_at", null: false
+    t.bigint "published_by_id"
+    t.datetime "updated_at", null: false
+    t.bigint "workflow_id", null: false
+    t.index ["church_id"], name: "index_workflow_versions_on_church_id"
+    t.index ["published_by_id"], name: "index_workflow_versions_on_published_by_id"
+    t.index ["workflow_id", "number"], name: "index_workflow_versions_on_workflow_id_and_number", unique: true
+    t.index ["workflow_id"], name: "index_workflow_versions_on_workflow_id"
+  end
+
+  create_table "workflows", force: :cascade do |t|
+    t.boolean "allow_reentry", default: false, null: false
+    t.bigint "church_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.bigint "current_version_id"
+    t.text "description"
+    t.jsonb "draft_definition", default: {}, null: false
+    t.string "name", null: false
+    t.string "starter_key"
+    t.string "status", default: "draft", null: false
+    t.string "trigger_type"
+    t.datetime "updated_at", null: false
+    t.index ["church_id", "starter_key"], name: "index_workflows_on_church_id_and_starter_key", unique: true, where: "(starter_key IS NOT NULL)"
+    t.index ["church_id", "status", "trigger_type"], name: "index_workflows_on_church_id_and_status_and_trigger_type"
+    t.index ["church_id"], name: "index_workflows_on_church_id"
+    t.index ["created_by_id"], name: "index_workflows_on_created_by_id"
   end
 
   create_table "worship_services", force: :cascade do |t|
@@ -823,6 +1550,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ai_requests", "churches"
+  add_foreign_key "ai_requests", "users"
   add_foreign_key "announcements", "churches"
   add_foreign_key "announcements", "users", column: "author_id"
   add_foreign_key "assignments", "churches"
@@ -839,8 +1568,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "attendances", "service_occurrences"
   add_foreign_key "attendances", "users", column: "checked_in_by_id"
   add_foreign_key "audit_events", "churches"
+  add_foreign_key "benevolence_approvals", "benevolence_cases"
+  add_foreign_key "benevolence_approvals", "churches"
+  add_foreign_key "benevolence_approvals", "users"
+  add_foreign_key "benevolence_cases", "churches"
+  add_foreign_key "benevolence_cases", "form_submissions"
+  add_foreign_key "benevolence_cases", "households"
+  add_foreign_key "benevolence_cases", "people"
+  add_foreign_key "benevolence_cases", "users", column: "assigned_to_id"
+  add_foreign_key "benevolence_cases", "users", column: "created_by_id"
+  add_foreign_key "benevolence_cases", "users", column: "decided_by_id"
+  add_foreign_key "benevolence_disbursements", "benevolence_cases"
+  add_foreign_key "benevolence_disbursements", "churches"
+  add_foreign_key "benevolence_disbursements", "funds"
+  add_foreign_key "benevolence_disbursements", "users", column: "recorded_by_id"
+  add_foreign_key "benevolence_notes", "benevolence_cases"
+  add_foreign_key "benevolence_notes", "churches"
+  add_foreign_key "benevolence_notes", "users", column: "author_id"
   add_foreign_key "blockouts", "churches"
   add_foreign_key "blockouts", "people"
+  add_foreign_key "campaign_extra_recipients", "campaigns"
+  add_foreign_key "campaign_extra_recipients", "churches"
+  add_foreign_key "campaign_extra_recipients", "people"
+  add_foreign_key "campaigns", "churches"
+  add_foreign_key "campaigns", "email_templates"
+  add_foreign_key "campaigns", "email_topics"
+  add_foreign_key "campaigns", "segments"
+  add_foreign_key "campaigns", "users", column: "created_by_id"
   add_foreign_key "campuses", "churches"
   add_foreign_key "course_offerings", "churches"
   add_foreign_key "course_offerings", "courses"
@@ -850,10 +1604,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "courses", "churches"
   add_foreign_key "courses", "ministries"
   add_foreign_key "custom_fields", "churches"
+  add_foreign_key "daily_briefs", "ai_requests"
+  add_foreign_key "daily_briefs", "churches"
+  add_foreign_key "daily_briefs", "users"
+  add_foreign_key "deliveries", "campaigns"
+  add_foreign_key "deliveries", "churches"
+  add_foreign_key "deliveries", "email_topics"
+  add_foreign_key "deliveries", "people"
+  add_foreign_key "deliveries", "workflow_step_executions"
+  add_foreign_key "donations", "churches"
+  add_foreign_key "donations", "funds"
+  add_foreign_key "donations", "people"
+  add_foreign_key "donations", "users", column: "matched_by_id"
+  add_foreign_key "donor_links", "churches"
+  add_foreign_key "donor_links", "people"
+  add_foreign_key "donor_links", "users", column: "created_by_id"
   add_foreign_key "duplicate_dismissals", "churches"
   add_foreign_key "duplicate_dismissals", "people"
   add_foreign_key "duplicate_dismissals", "people", column: "other_person_id"
   add_foreign_key "duplicate_dismissals", "users", column: "dismissed_by_id"
+  add_foreign_key "email_preferences", "churches"
+  add_foreign_key "email_preferences", "email_topics"
+  add_foreign_key "email_preferences", "people"
+  add_foreign_key "email_templates", "churches"
+  add_foreign_key "email_topics", "churches"
   add_foreign_key "enrollments", "churches"
   add_foreign_key "enrollments", "course_offerings"
   add_foreign_key "enrollments", "people"
@@ -871,6 +1645,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "form_submissions", "people"
   add_foreign_key "form_submissions", "users"
   add_foreign_key "forms", "churches"
+  add_foreign_key "funds", "churches"
+  add_foreign_key "giving_sync_runs", "churches"
+  add_foreign_key "giving_sync_runs", "integrations"
   add_foreign_key "group_join_requests", "churches"
   add_foreign_key "group_join_requests", "groups"
   add_foreign_key "group_join_requests", "people"
@@ -881,10 +1658,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "groups", "churches"
   add_foreign_key "groups", "ministries"
   add_foreign_key "households", "churches"
+  add_foreign_key "insights", "churches"
+  add_foreign_key "insights", "people"
+  add_foreign_key "insights", "tasks"
+  add_foreign_key "insights", "users", column: "resolved_by_id"
+  add_foreign_key "integrations", "churches"
+  add_foreign_key "message_drafts", "ai_requests"
+  add_foreign_key "message_drafts", "churches"
+  add_foreign_key "message_drafts", "email_templates"
+  add_foreign_key "message_drafts", "email_topics"
+  add_foreign_key "message_drafts", "people"
+  add_foreign_key "message_drafts", "users", column: "reviewed_by_id"
+  add_foreign_key "message_drafts", "workflow_step_executions"
   add_foreign_key "ministries", "churches"
   add_foreign_key "ministry_leaderships", "churches"
   add_foreign_key "ministry_leaderships", "ministries"
   add_foreign_key "ministry_leaderships", "users"
+  add_foreign_key "page_revisions", "churches"
+  add_foreign_key "page_revisions", "pages"
+  add_foreign_key "page_revisions", "users", column: "published_by_id"
+  add_foreign_key "pages", "churches"
+  add_foreign_key "pages", "sites"
+  add_foreign_key "pathway_placements", "churches"
+  add_foreign_key "pathway_placements", "pathway_stages"
+  add_foreign_key "pathway_placements", "people"
+  add_foreign_key "pathway_stages", "churches"
+  add_foreign_key "pathway_stages", "pathways"
+  add_foreign_key "pathway_transitions", "churches"
+  add_foreign_key "pathway_transitions", "pathway_stages", column: "from_stage_id"
+  add_foreign_key "pathway_transitions", "pathway_stages", column: "to_stage_id"
+  add_foreign_key "pathway_transitions", "people"
+  add_foreign_key "pathways", "churches"
   add_foreign_key "people", "churches"
   add_foreign_key "people", "households"
   add_foreign_key "people", "people", column: "merged_into_id"
@@ -910,7 +1714,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "registrations", "event_occurrences"
   add_foreign_key "registrations", "form_submissions"
   add_foreign_key "registrations", "people"
+  add_foreign_key "report_conversations", "churches"
+  add_foreign_key "report_conversations", "users"
+  add_foreign_key "report_messages", "ai_requests"
+  add_foreign_key "report_messages", "churches"
+  add_foreign_key "report_messages", "report_conversations"
   add_foreign_key "roles", "churches"
+  add_foreign_key "saved_reports", "churches"
+  add_foreign_key "saved_reports", "users"
+  add_foreign_key "section_definitions", "churches"
   add_foreign_key "segments", "churches"
   add_foreign_key "segments", "users", column: "created_by_id"
   add_foreign_key "service_occurrences", "churches"
@@ -920,7 +1732,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "session_attendances", "enrollments"
   add_foreign_key "sessions", "churches"
   add_foreign_key "sessions", "users"
+  add_foreign_key "site_domains", "churches"
+  add_foreign_key "site_domains", "sites"
+  add_foreign_key "sites", "churches"
+  add_foreign_key "social_accounts", "churches"
+  add_foreign_key "social_accounts", "integrations"
+  add_foreign_key "social_post_targets", "churches"
+  add_foreign_key "social_post_targets", "social_accounts"
+  add_foreign_key "social_post_targets", "social_posts"
+  add_foreign_key "social_posts", "churches"
+  add_foreign_key "social_posts", "events"
+  add_foreign_key "social_posts", "users", column: "created_by_id"
   add_foreign_key "special_sundays", "churches"
+  add_foreign_key "suppressions", "churches"
+  add_foreign_key "suppressions", "email_topics"
   add_foreign_key "taggings", "churches"
   add_foreign_key "taggings", "people"
   add_foreign_key "taggings", "tags"
@@ -929,6 +1754,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "users", column: "created_by_id"
   add_foreign_key "tasks", "users", column: "owner_id"
+  add_foreign_key "tasks", "workflow_step_executions"
   add_foreign_key "team_memberships", "churches"
   add_foreign_key "team_memberships", "people"
   add_foreign_key "team_memberships", "teams"
@@ -942,6 +1768,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_130100) do
   add_foreign_key "user_roles", "users"
   add_foreign_key "users", "churches"
   add_foreign_key "users", "people"
+  add_foreign_key "webhook_events", "churches"
+  add_foreign_key "webhook_events", "integrations"
+  add_foreign_key "workflow_runs", "churches"
+  add_foreign_key "workflow_runs", "people"
+  add_foreign_key "workflow_runs", "workflow_versions"
+  add_foreign_key "workflow_runs", "workflows"
+  add_foreign_key "workflow_step_executions", "churches"
+  add_foreign_key "workflow_step_executions", "workflow_runs"
+  add_foreign_key "workflow_versions", "churches"
+  add_foreign_key "workflow_versions", "users", column: "published_by_id"
+  add_foreign_key "workflow_versions", "workflows"
+  add_foreign_key "workflows", "churches"
+  add_foreign_key "workflows", "users", column: "created_by_id"
+  add_foreign_key "workflows", "workflow_versions", column: "current_version_id"
   add_foreign_key "worship_services", "campuses"
   add_foreign_key "worship_services", "churches"
 end

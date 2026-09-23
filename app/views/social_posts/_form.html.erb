@@ -1,0 +1,50 @@
+<% accounts = SocialAccount.usable.alphabetical %>
+<%= form_with model: post, multipart: true, class: "space-y-6", data: { controller: "char-count" } do |form| %>
+  <%= render "shared/form_errors", messages: post.errors.full_messages %>
+  <div class="<%= card_classes %> space-y-4">
+    <div>
+      <%= form.label :body, "Post", class: label_classes %>
+      <%= form.text_area :body, rows: 7, class: input_classes, data: { char_count_target: "input", action: "input->char-count#update" } %>
+      <p class="mt-2 flex flex-wrap gap-4 text-xs text-gray-500">
+        <span>Facebook <span data-char-count-target="count" data-limit="<%= Social::Providers::Meta.limits("facebook_page").caption_length %>"></span></span>
+        <span>Instagram <span data-char-count-target="count" data-limit="<%= Social::Providers::Meta.limits("instagram").caption_length %>"></span></span>
+      </p>
+    </div>
+    <%= render "shared/field", form:, attribute: :link_url, label: "Link (optional)", type: :url_field, hint: "Facebook shows a link preview. Instagram links aren't clickable, so it's added as “Link in bio”.", options: { placeholder: "https://" } %>
+    <div>
+      <%= form.label :media, "Photos", class: label_classes %>
+      <% if post.media.attached? %>
+        <div class="mb-2 flex flex-wrap gap-2"><% post.media.each do |photo| %><%= image_tag photo, alt: "", class: "h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200" %><% end %></div>
+      <% end %>
+      <%= form.file_field :media, multiple: true, accept: "image/jpeg,image/png", class: "block text-sm" %>
+      <p class="mt-2 text-sm text-gray-500">JPEG or PNG, up to 10. Instagram needs at least one and crops to a square in the feed. New photos are added to the ones above.</p>
+    </div>
+  </div>
+
+  <div class="<%= card_classes %>"><fieldset class="space-y-3">
+    <legend class="mb-3 text-sm font-semibold text-gray-900">Post to</legend>
+    <% if accounts.empty? %>
+      <p class="text-sm text-gray-500">No accounts connected yet. <%= link_to "Connect Facebook and Instagram", social_accounts_path, class: "underline" %>.</p>
+    <% end %>
+    <% chosen = post.targets.map(&:social_account_id) %>
+    <%= hidden_field_tag "social_post[account_ids][]", "", id: nil %>
+    <% accounts.each do |account| %>
+      <div class="rounded-xl bg-gray-50 p-3">
+        <label class="flex items-center gap-2 text-sm font-medium">
+          <%= check_box_tag "social_post[account_ids][]", account.id, chosen.include?(account.id), id: "account_#{account.id}", class: "rounded border-gray-300" %>
+          <%= account.label %>
+        </label>
+        <% target = post.targets.find { |t| t.social_account_id == account.id } %>
+        <details class="mt-2 pl-6 text-sm">
+          <summary class="cursor-pointer text-gray-600">Different text for <%= account.network_label %></summary>
+          <%= text_area_tag "social_post[captions][#{account.id}]", target&.caption, rows: 3, class: "mt-2 #{input_classes}", aria: { label: "Text for #{account.label}" } %>
+        </details>
+      </div>
+    <% end %>
+  </fieldset></div>
+
+  <div class="flex flex-wrap gap-3">
+    <%= form.submit "Save draft", class: button_classes(:primary) %>
+    <%= link_to "Back", social_posts_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

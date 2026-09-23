@@ -54,6 +54,19 @@ gem "csv", "~> 3.3"
 gem "groupdate", "~> 6.5"
 gem "chartkick", "~> 5.1"
 
+# Email: MJML compiled by MRML (Rust, no Node) via mjml-rails; Liquid for personalization and sections;
+# Markdown (HTML escaped) for text sections
+gem "mjml-rails", "~> 5.0"
+gem "mrml", "~> 1.10"
+gem "liquid", "~> 5.14"
+gem "commonmarker", "~> 2.10"
+
+# Email providers and audience sync, through their official SDKs
+gem "postmark", "~> 1.25"
+gem "aws-sdk-sesv2", "~> 1.110"
+gem "aws-sdk-sns", "~> 1.121"
+gem "mailchimp-marketing", "~> 0.0.218"
+
 # Holidays that move attendance (Memorial Day, July 4th, Thanksgiving, ...). Easter is computed in code.
 gem "holidays", "~> 8.8"
 
@@ -108,3 +121,5 @@ group :development do
   # See sent emails (and click their links) at /letter_opener
   gem "letter_opener_web", "~> 3.0"
 end
+
+gem "ruby_native", "~> 0.17.3"

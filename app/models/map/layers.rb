@@ -2,9 +2,10 @@
 # household privacy applied in SQL. Users without view_precise_locations see
 # households clustered on a ~1 km grid with counts, never exact points or names.
 class Map::Layers
-  def initialize(user:, segment: nil, group_type: nil, coverage_gap: false)
+  def initialize(user:, segment: nil, group_type: nil, coverage_gap: false, stage: nil)
     @user = user
     @segment = segment
+    @stage = stage
     @group_type = group_type.presence
     @coverage_gap = coverage_gap
     @church = ActsAsTenant.current_tenant
@@ -34,6 +35,7 @@ class Map::Layers
     def household_scope
       scope = Household.located
       scope = scope.where(id: @segment.people.select(:household_id)) if @segment
+      scope = scope.where(id: Person.unmerged.joins(:pathway_placement).where(pathway_placements: { pathway_stage_id: @stage.id }).select(:household_id)) if @stage
       scope = Map::CoverageGap.new(miles: @church.group_coverage_miles).households.merge(scope) if @coverage_gap
       scope
     end

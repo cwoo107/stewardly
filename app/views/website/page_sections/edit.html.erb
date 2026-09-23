@@ -1,0 +1,29 @@
+<% content_for :title, "Edit #{@definition.name}" %>
+<%= render "shared/page_header", title: @definition.name, subtitle: "On #{@page.title}" %>
+
+<div class="grid gap-8 xl:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+  <%= form_with url: website_page_section_path(@page, @section["id"]), method: :patch, multipart: true, class: "space-y-6 #{card_classes}" do %>
+    <% @definition.settings_schema.each do |setting| %>
+      <%= render "email_template_sections/setting", setting:, name: "settings[#{setting["id"]}]", value: @section.dig("settings", setting["id"]) %>
+    <% end %>
+    <% if (blocks_schema = @definition.blocks_schema) %>
+      <fieldset class="space-y-4">
+        <legend class="text-sm font-semibold text-gray-900"><%= blocks_schema["label"].pluralize %></legend>
+        <% Array(@section.dig("settings", "blocks")).each_with_index do |block, index| %>
+          <div class="space-y-3 rounded-2xl bg-gray-50 p-4 ring-1 ring-gray-200">
+            <% blocks_schema["settings"].each do |setting| %>
+              <%= render "email_template_sections/setting", setting:, name: "settings[blocks][#{index}][#{setting["id"]}]", value: block[setting["id"]] %>
+            <% end %>
+            <%= button_tag "Remove #{blocks_schema["label"].downcase}", name: "block_action", value: "remove_#{index}", class: "text-sm text-red-700 underline hover:no-underline cursor-pointer" %>
+          </div>
+        <% end %>
+        <%= button_tag "+ Add #{blocks_schema["label"].downcase}", name: "block_action", value: "add", class: button_classes(:outline) %>
+      </fieldset>
+    <% end %>
+    <div class="flex gap-3">
+      <%= submit_tag "Save section", class: button_classes(:primary) %>
+      <%= link_to "Back to page", website_page_path(@page), class: button_classes(:outline) %>
+    </div>
+  <% end %>
+  <section><%= render "website/pages/preview_frame", page: @page %></section>
+</div>

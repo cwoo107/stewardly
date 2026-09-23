@@ -1,5 +1,5 @@
 <% pastoral = policy(PrayerRequest.new).update? %>
-<%= form_with model: prayer_request, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: prayer_request, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: prayer_request.errors.full_messages %>
 
   <% if prayer_request.person %>

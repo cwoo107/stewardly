@@ -1,0 +1,33 @@
+<%= form_with model: definition, url: definition.persisted? ? website_section_path(definition) : website_sections_path, scope: :section_definition, class: "space-y-6" do |form| %>
+  <%= render "shared/form_errors", messages: definition.errors.full_messages %>
+  <div class="grid gap-4 md:grid-cols-2 <%= card_classes %>">
+    <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+    <% if definition.new_record? %>
+      <%= render "shared/field", form:, attribute: :key, hint: "Lowercase letters, numbers, and underscores. Can't be changed later.", options: { required: true, placeholder: "ministry_spotlight" } %>
+    <% else %>
+      <div><p class="<%= label_classes %>">Key</p><code class="text-sm"><%= definition.key %></code></div>
+    <% end %>
+  </div>
+  <div class="<%= card_classes %> space-y-3">
+    <%= form.label :liquid, "Liquid (HTML)", class: label_classes %>
+    <%= form.text_area :liquid, rows: 24, class: "#{input_classes} font-mono", data: { controller: "code-editor", code_editor_language_value: "html" } %>
+    <p class="text-sm text-gray-500">
+      Available: <code>settings.*</code> (from the schema below), <code>theme.*</code>, <code>site</code> (name, url, nav, logo_url), <code>church</code> (name, contact_email, giving_url),
+      <code>page</code>, <code>events</code>, <code>groups</code>, <code>service_times</code>, <code>campuses</code>, <code>forms["slug"]</code> (with <code>.html</code>). Filters include <code>escape</code> and <code>markdown</code>.
+      Strict mode: an unknown variable or filter is an error. Always <code>| escape</code> text settings.
+    </p>
+  </div>
+  <div class="<%= card_classes %> space-y-3">
+    <%= label_tag "section_definition_schema_json", "Settings schema (JSON)", class: label_classes %>
+    <%= text_area_tag "section_definition[schema_json]", JSON.pretty_generate(definition.schema.except("version")), id: "section_definition_schema_json", rows: 14,
+          class: "#{input_classes} font-mono", data: { controller: "code-editor", code_editor_language_value: "json" } %>
+    <p class="text-sm text-gray-500">
+      <code>{"settings": [{"id": "heading", "type": "text", "label": "Heading", "default": "…"}], "blocks": {"label": "Item", "settings": [...]}}</code>.
+      Types: <%= SectionDefinition::SETTING_TYPES.join(", ") %>.
+    </p>
+  </div>
+  <div class="flex flex-wrap gap-3">
+    <%= form.submit definition.persisted? ? "Save section" : "Create section", class: button_classes(:primary) %>
+    <%= link_to "Back", website_sections_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

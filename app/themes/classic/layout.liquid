@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {{ head }}
+</head>
+<body class="site site-classic">
+  <header class="site-header px-6 py-8 text-center sm:px-12 lg:px-24">
+    <a href="/" class="inline-block">
+      {% if site.logo_url != blank %}<img src="{{ site.logo_url }}" alt="{{ site.name | escape }}" class="mx-auto" style="width: {{ site.logo_width }}px">{% else %}<span class="site-heading text-3xl">{{ site.name | escape }}</span>{% endif %}
+    </a>
+    {% if site.tagline != blank %}<p class="mt-2 italic opacity-80">{{ site.tagline | escape }}</p>{% endif %}
+    <nav aria-label="Main" class="mt-6 border-y border-(--site-border) py-3">
+      <ul class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm uppercase tracking-widest">
+        {% for link in site.nav %}<li><a href="{{ link.url }}" class="site-nav-link{% if link.current %} is-current{% endif %}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>{% endfor %}
+      </ul>
+    </nav>
+  </header>
+  <main>{{ content_for_layout }}</main>
+  <footer class="site-footer px-6 py-12 text-center text-sm sm:px-12 lg:px-24">
+    <p class="site-heading text-xl">{{ site.name | escape }}</p>
+    {% if site.footer_text != blank %}<p class="mt-3 whitespace-pre-line opacity-80">{{ site.footer_text | escape }}</p>{% endif %}
+    <p class="mt-6 space-x-4">
+      {% if site.facebook_url != blank %}<a href="{{ site.facebook_url | escape }}">Facebook</a>{% endif %}
+      {% if site.instagram_url != blank %}<a href="{{ site.instagram_url | escape }}">Instagram</a>{% endif %}
+      {% if site.youtube_url != blank %}<a href="{{ site.youtube_url | escape }}">YouTube</a>{% endif %}
+    </p>
+    <p class="mt-6 opacity-60">© {{ site.year }} {{ church.name | escape }}</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<% content_for :title, "Suppressions" %>
+<%= render "shared/page_header", title: "Suppressions",
+      subtitle: "Addresses the church won't email. Bounces and spam complaints are added automatically and stop all email, including receipts and reminders." %>
+<%= render "shared/email_nav" %>
+
+<div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+  <div>
+    <%= form_with url: suppressions_path, method: :get, class: "mb-4 flex flex-wrap gap-3" do %>
+      <%= search_field_tag :q, params[:q], placeholder: "Search by email", class: "#{input_classes}", aria: { label: "Search by email" } %>
+      <%= select_tag :reason, options_for_select(Suppression.reasons.keys.map { |reason| [ reason.humanize, reason ] }, params[:reason]), include_blank: "Any reason", class: "#{select_classes}", aria: { label: "Reason" } %>
+      <%= submit_tag "Filter", class: button_classes(:outline), name: nil %>
+    <% end %>
+    <div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr><th scope="col" class="px-4 py-3 font-semibold">Email</th><th scope="col" class="px-4 py-3 font-semibold">Reason</th><th scope="col" class="px-4 py-3 font-semibold">Applies to</th><th scope="col" class="px-4 py-3 font-semibold">Added</th><th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th></tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% @suppressions.each do |suppression| %>
+            <tr>
+              <td class="px-4 py-3 font-medium"><%= suppression.email %><% if suppression.note.present? %><p class="font-normal text-gray-500"><%= suppression.note %></p><% end %></td>
+              <td class="px-4 py-3"><%= badge suppression.reason.humanize, color: suppression.unsubscribed? ? "gray" : "rose" %></td>
+              <td class="px-4 py-3 text-gray-700"><%= suppression.email_topic&.name || (suppression.unsubscribed? ? "All campaigns" : "All email") %></td>
+              <td class="px-4 py-3 text-gray-600"><%= l(suppression.created_at.to_date, format: :long) %><% if suppression.source.present? %><p class="text-xs"><%= suppression.source %></p><% end %></td>
+              <td class="px-4 py-3 text-right">
+                <%= button_to "Remove", suppression, method: :delete, class: "text-sm text-gray-600 underline hover:no-underline cursor-pointer",
+                      form: { data: { turbo_confirm: suppression.unsubscribed? ? "They asked not to be emailed. Only remove this if they've asked to hear from you again." : "Remove this suppression?" } } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <% if @suppressions.empty? %><p class="px-4 py-6 text-sm text-gray-500">No suppressed addresses.</p><% end %>
+    </div>
+    <%= render "shared/pagination", pagy: @pagy %>
+  </div>
+
+  <%= form_with model: @suppression, class: "h-fit space-y-4 #{card_classes}" do |form| %>
+    <h2 class="font-semibold">Add an address</h2>
+    <%= render "shared/field", form:, attribute: :email, type: :email_field, options: { required: true } %>
+    <div>
+      <%= form.label :email_topic_id, "Stop", class: label_classes %>
+      <%= form.collection_select :email_topic_id, EmailTopic.alphabetical, :id, :name, { include_blank: "All email" }, class: select_classes %>
+    </div>
+    <%= render "shared/field", form:, attribute: :note, options: { placeholder: "Asked by phone" } %>
+    <%= form.submit "Add", class: button_classes(:primary) %>
+  <% end %>
+</div>

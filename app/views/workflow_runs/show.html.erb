@@ -1,0 +1,12 @@
+<% content_for :title, "#{@run.person.name} in #{@workflow.name}" %>
+<%= render "shared/page_header", title: @run.person.name, subtitle: "#{@workflow.name} · version #{@run.workflow_version.number} · started #{l(@run.started_at, format: :long)}" do %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= run_status_badge(@run) %>
+    <%= button_to "Try again", retry_workflow_run_path(@workflow, @run), class: button_classes(:outline) if policy(@run).retry? %>
+    <%= button_to "Stop this run", cancel_workflow_run_path(@workflow, @run), method: :patch, class: button_classes(:danger), form: { data: { turbo_confirm: "Stop this run? Its remaining steps won't happen." } } if policy(@run).cancel? %>
+  </div>
+<% end %>
+<p class="mb-6 text-sm"><%= link_to "Back to runs", workflow_runs_path(@workflow), class: "underline" %> · <%= link_to "Open #{@run.person.name}", @run.person, class: "underline" %></p>
+<% if @run.exit_reason.present? %><p class="mb-6 rounded-lg bg-gray-100 px-4 py-3 text-sm"><%= @run.exit_reason %></p><% end %>
+
+<%= render "workflow_runs/steps", run: @run, steps: @run.definition.steps, executions: @executions %>

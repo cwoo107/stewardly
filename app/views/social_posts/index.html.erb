@@ -1,0 +1,28 @@
+<% content_for :title, "Social posts" %>
+<%= render "shared/page_header", title: "Social media", subtitle: "Write once, post to Facebook and Instagram now or later." do %>
+  <%= link_to "New post", new_social_post_path, class: button_classes(:primary) %>
+<% end %>
+<%= render "shared/social_nav" %>
+
+<nav class="mb-4 flex flex-wrap gap-2 text-sm" aria-label="Filter posts">
+  <% { "drafts" => "Drafts", "scheduled" => "Scheduled", "published" => "Published", "attention" => "Needs attention#{" (#{@attention})" if @attention.positive?}" }.each do |tab, label| %>
+    <%= link_to label, social_posts_path(tab:), class: "rounded-full px-3 py-1 #{@tab == tab ? "bg-gray-900 text-white" : "bg-white ring-1 ring-gray-200"}" %>
+  <% end %>
+</nav>
+
+<ul role="list" class="space-y-3">
+  <% @posts.each do |post| %>
+    <li class="flex flex-wrap items-start gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
+      <% if post.media.attached? %><%= image_tag post.media.first, alt: "", class: "h-16 w-16 rounded-lg object-cover" %><% end %>
+      <div class="min-w-0 flex-1">
+        <p class="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+          <%= social_status_badge(post) %> <%= badge("Event promo", color: "cyan") if post.source_event_promo? %> <span><%= social_when(post) %></span>
+        </p>
+        <%= link_to (post.body.presence || "(no text)").truncate(160), post.editable? ? edit_social_post_path(post) : post, class: "mt-2 block text-gray-900 hover:underline" %>
+        <p class="mt-1 text-xs text-gray-500"><%= post.targets.map { |target| target.social_account.label }.to_sentence.presence || "No accounts chosen" %></p>
+      </div>
+    </li>
+  <% end %>
+</ul>
+<% if @posts.empty? %><p class="<%= card_classes %> text-sm text-gray-500">Nothing here.</p><% end %>
+<%= render "shared/pagination", pagy: @pagy %>

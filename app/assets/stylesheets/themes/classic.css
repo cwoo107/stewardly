@@ -1,0 +1,14 @@
+/* Classic: serif type, warm tones, framed photos. */
+.site { --site-border: color-mix(in srgb, var(--site-text) 18%, transparent); --site-muted: color-mix(in srgb, var(--site-text) 68%, transparent);
+  background: var(--site-bg); color: var(--site-text); font-family: var(--site-body-font); line-height: 1.7; }
+.site .site-heading, .site h1, .site h2, .site h3 { font-family: var(--site-heading-font); font-weight: 500; letter-spacing: 0; }
+.site-classic .site-nav-link.is-current, .site-classic .site-nav-link:hover { color: var(--site-brand); text-decoration: underline; text-underline-offset: 6px; }
+.site-classic .site-card { background: var(--site-surface); border: 1px solid var(--site-border); }
+.site-classic .site-radius { border: 6px solid #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .15); }
+.site-classic .site-button { border-radius: 2px; letter-spacing: .05em; text-transform: uppercase; font-size: .875rem; }
+.site-classic .site-hero h1 { font-style: italic; }
+.site-classic .site-footer { border-top: 1px solid var(--site-border); background: var(--site-surface); }
+.site-prose p + p, .site-prose ul, .site-prose ol { margin-top: 1rem; }
+.site-prose ul { list-style: disc; padding-left: 1.5rem; }
+.site-prose ol { list-style: decimal; padding-left: 1.5rem; }
+.site-prose a { color: var(--site-brand); text-decoration: underline; }

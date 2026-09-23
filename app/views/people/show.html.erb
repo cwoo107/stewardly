@@ -36,6 +36,25 @@
       <% end %>
     </section>
 
+    <% if (placement = @person.pathway_placement) %>
+      <section class="<%= card_classes %>">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Pathway</h2>
+          <%= badge("Stuck", color: "amber") if placement.stuck? %>
+        </div>
+        <p class="mt-2 text-2xl font-semibold"><%= placement.pathway_stage.name %></p>
+        <p class="text-sm text-gray-600">for <%= pluralize(placement.days_in_stage, "day") %></p>
+        <ol class="mt-4 space-y-1 text-sm">
+          <% @person.pathway_transitions.includes(:from_stage, :to_stage).first(6).each do |transition| %>
+            <li class="text-gray-600">
+              <%= l(transition.occurred_at.to_date, format: :long) %>:
+              <%= transition.placed? ? "started at #{transition.to_stage.name}" : "#{transition.forward? ? "moved on" : "moved back"} to #{transition.to_stage.name}" %>
+            </li>
+          <% end %>
+        </ol>
+      </section>
+    <% end %>
+
     <section class="<%= card_classes %>">
       <h2 class="text-lg font-semibold">Groups and teams</h2>
       <ul role="list" class="mt-4 space-y-2 text-sm">
@@ -62,6 +81,48 @@
             <li><%= link_to truncate(request.body, length: 60), request, class: "hover:underline" %> <span class="text-gray-500">· <%= request.status.humanize %></span></li>
           <% end %>
           <% if @prayer_requests.empty? %><li class="text-gray-500">None.</li><% end %>
+        </ul>
+      </section>
+    <% end %>
+
+    <% if @giving %>
+      <section class="<%= card_classes %>">
+        <h2 class="text-lg font-semibold">Giving</h2>
+        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div><dt class="text-gray-500">This year</dt><dd class="font-semibold"><%= Money.format(@giving.this_year_cents) %></dd></div>
+          <div><dt class="text-gray-500">Last year</dt><dd class="font-semibold"><%= Money.format(@giving.last_year_cents) %></dd></div>
+        </dl>
+        <p class="mt-3 text-sm text-gray-600"><%= @giving.last_gift ? "Last gift #{l(@giving.last_gift.given_on, format: :long)}" : "No gifts on record." %>
+          <%= link_to "See gifts", donations_path(q: @person.name), class: "underline" if @giving.last_gift %></p>
+      </section>
+    <% end %>
+
+    <% if @benevolence_cases %>
+      <section class="<%= card_classes %>">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Benevolence</h2>
+          <%= link_to "Open a case", new_benevolence_case_path(person_id: @person.id), class: "text-sm text-cyan-700 hover:underline" if policy(BenevolenceCase).create? %>
+        </div>
+        <ul role="list" class="mt-4 space-y-2 text-sm">
+          <% @benevolence_cases.each do |kase| %>
+            <li><%= link_to kase.need_label, kase, class: "hover:underline" %> <span class="text-gray-500">· <%= kase.status.humanize %> · <%= l(kase.created_at.to_date, format: :long) %></span></li>
+          <% end %>
+          <% if @benevolence_cases.empty? %><li class="text-gray-500">None.</li><% end %>
+        </ul>
+      </section>
+    <% end %>
+
+    <% if @workflow_runs %>
+      <section class="<%= card_classes %>">
+        <h2 class="text-lg font-semibold">Workflows</h2>
+        <ul role="list" class="mt-4 space-y-2 text-sm">
+          <% @workflow_runs.each do |run| %>
+            <li class="flex items-center justify-between gap-2">
+              <%= link_to run.workflow.name, workflow_run_path(run.workflow, run), class: "hover:underline" %>
+              <%= run_status_badge(run) %>
+            </li>
+          <% end %>
+          <% if @workflow_runs.empty? %><li class="text-gray-500">None yet.</li><% end %>
         </ul>
       </section>
     <% end %>

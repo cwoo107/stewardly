@@ -10,7 +10,7 @@
         <h2 class="font-semibold"><%= link_to form.name, form, class: "hover:underline" %></h2>
         <%= badge(form.status.humanize, color: { "published" => "green", "draft" => "amber" }.fetch(form.status, "gray")) %>
       </div>
-      <p class="mt-1 text-sm text-gray-600"><%= form.prayer_request_form? ? "Prayer requests" : "General" %> · <%= pluralize(@submission_counts[form.id].to_i, "submission") %></p>
+      <p class="mt-1 text-sm text-gray-600"><%= Form::PURPOSE_LABELS.fetch(form.purpose) %> · <%= pluralize(@submission_counts[form.id].to_i, "submission") %></p>
       <% if form.published? %><p class="mt-2 truncate text-sm text-cyan-700"><%= link_to public_form_url(form.slug), public_form_path(form.slug), target: "_blank", rel: "noopener" %></p><% end %>
       <div class="mt-4 flex flex-wrap gap-2">
         <%= link_to "Edit", edit_form_path(form), class: button_classes(:outline) if policy(form).update? %>

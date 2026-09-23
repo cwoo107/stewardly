@@ -1,0 +1,10 @@
+<mj-section padding="24px">
+  <mj-column>
+    <mj-text align="center" color="#6b7280" font-size="12px" line-height="1.6">
+      {{ church.name | escape }}<br>{{ church.mailing_address | escape | newline_to_br }}
+    </mj-text>
+    <mj-text align="center" color="#6b7280" font-size="12px">
+      <a href="{{ links.preferences }}" style="color: #6b7280;">Email preferences</a> · <a href="{{ links.unsubscribe }}" style="color: #6b7280;">Unsubscribe</a>
+    </mj-text>
+  </mj-column>
+</mj-section>

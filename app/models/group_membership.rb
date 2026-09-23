@@ -1,4 +1,6 @@
 class GroupMembership < ApplicationRecord
+  include AffectsPathway
+
   belongs_to :group
   belongs_to :person
   # Declared after belongs_to so acts_as_tenant also validates those associations belong to this church.
@@ -10,6 +12,7 @@ class GroupMembership < ApplicationRecord
   validate :group_has_room, on: :create
 
   before_validation { self.joined_on ||= church&.today || Date.current }
+  after_create_commit { Workflow::Events.publish("group_joined", person:, subject: self) }
 
   private
     def group_has_room

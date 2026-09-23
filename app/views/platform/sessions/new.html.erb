@@ -1,5 +1,5 @@
 <% content_for :title, "Sign in" %>
-<div class="mx-auto max-w-md pt-16">
+<div class="pt-16">
   <div class="flex justify-center"><%= render "shared/logo", class: "h-10 w-10" %></div>
   <h1 class="mt-8 text-center text-2xl font-medium tracking-tight">Stewardly platform</h1>
 
@@ -14,4 +14,8 @@
     </div>
     <%= form.submit "Sign in", class: button_classes(:primary) %>
   <% end %>
+  <p class="mt-6 text-center text-sm text-gray-600">
+    This is the platform console. Church staff and members sign in at their church's own address, like
+    <span class="font-medium text-gray-900"><%= church_sign_in_example %></span>.
+  </p>
 </div>

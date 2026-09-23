@@ -1,4 +1,5 @@
 class Event < ApplicationRecord
+  include ExpiresSiteCache
   belongs_to :ministry, optional: true
   belongs_to :campus, optional: true
   belongs_to :organizer, class_name: "User", optional: true
@@ -14,6 +15,9 @@ class Event < ApplicationRecord
   # internal: staff calendar only.
   enum :visibility, { public: "public", members: "members", internal: "internal" }, default: :public, validate: true, prefix: true
   enum :status, { draft: "draft", published: "published", cancelled: "cancelled" }, default: :draft, validate: true
+
+  # A draft social post when a public event is published (Social::EventPromo decides).
+  after_commit -> { SocialEventPromoJob.perform_later(self) }, on: %i[ create update ], if: -> { saved_change_to_status? && published? && visibility_public? }
 
   normalizes :slug, with: ->(slug) { slug.to_s.parameterize }
   before_validation { self.slug = title if slug.blank? && title.present? }

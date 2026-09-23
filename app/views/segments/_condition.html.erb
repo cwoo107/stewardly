@@ -1,4 +1,5 @@
-<% name = ->(attribute) { "segment[definition][conditions][#{index}][#{attribute}]" } %>
+<% prefix = local_assigns.fetch(:prefix, "segment") %>
+<% name = ->(attribute) { "#{prefix}[definition][conditions][#{index}][#{attribute}]" } %>
 <% id = ->(attribute) { "condition_#{index}_#{attribute}" } %>
 <% check = "rounded border-gray-300 text-cyan-500" %>
 <fieldset class="rounded-2xl bg-gray-50 p-4" data-segment-condition id="condition_<%= index %>">
@@ -8,7 +9,7 @@
   </div>
   <%= hidden_field_tag name.("type"), condition.type, id: nil %>
 
-  <div class="grid gap-3 sm:grid-cols-2">
+  <div class="grid items-start gap-3 sm:grid-cols-2">
     <% case condition.type %>
     <% when "tag" %>
       <%= select_tag name.("operator"), options_for_select([ [ "Has any of", "any" ], [ "Has all of", "all" ], [ "Has none of", "none" ] ], condition["operator"]),
@@ -53,6 +54,32 @@
             include_blank: "Choose a campus", class: select_classes, aria: { label: "From campus" } %>
     <% when "no_touchpoint" %>
       <%= number_field_tag name.("days"), condition["days"], min: 1, placeholder: "Days", class: input_classes, aria: { label: "Days without contact" } %>
+    <% when "course" %>
+      <%= select_tag name.("operator"), options_for_select([ [ "Enrolled in or completed", "enrolled" ], [ "Completed", "completed" ] ], condition["operator"]),
+            class: select_classes, aria: { label: "Course status" } %>
+      <div>
+        <%= select_tag "#{name.("course_ids")}[]", options_from_collection_for_select(Course.alphabetical, :id, :name, condition["course_ids"]),
+              multiple: true, class: input_classes, aria: { label: "Specific courses (optional)" } %>
+        <p class="mt-1 text-xs text-gray-500">Choose specific courses, or none for any course.</p>
+      </div>
+    <% when "attendance", "serving" %>
+      <%= number_field_tag name.("times"), condition["times"] || 1, min: 1, class: input_classes, aria: { label: "At least this many times" } %>
+      <%= number_field_tag name.("days"), condition["days"] || 60, min: 1, class: input_classes, aria: { label: "In the last this many days" } %>
+      <% if condition.type == "serving" %>
+        <div class="sm:col-span-2">
+          <%= select_tag "#{name.("team_ids")}[]", options_from_collection_for_select(Team.alphabetical, :id, :name, condition["team_ids"]),
+                multiple: true, class: input_classes, aria: { label: "On specific teams (optional)" } %>
+        </div>
+      <% end %>
+      <p class="text-xs text-gray-500 sm:col-span-2">At least this many times, in the last this many days.</p>
+    <% when "pathway_stage" %>
+      <div class="flex flex-wrap gap-3 sm:col-span-2">
+        <% Pathway.current.stages.each do |stage| %>
+          <label class="inline-flex items-center gap-2 text-sm"><%= check_box_tag "#{name.("stage_ids")}[]", stage.id, condition["stage_ids"].include?(stage.id.to_s), id: "#{id.("stage")}_#{stage.id}", class: check %> <%= stage.name %></label>
+        <% end %>
+      </div>
+    <% when "stuck" %>
+      <%= select_tag name.("value"), options_for_select([ [ "Is stuck", "yes" ], [ "Is not stuck", "no" ] ], condition["value"]), class: select_classes, aria: { label: "Stuck" } %>
     <% end %>
   </div>
 </fieldset>

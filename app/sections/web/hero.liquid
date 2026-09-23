@@ -1,0 +1,10 @@
+<section class="site-hero relative overflow-hidden bg-(--site-brand) text-white">
+  {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="absolute inset-0 h-full w-full object-cover opacity-40">{% endif %}
+  <div class="relative px-6 py-24 sm:px-12 lg:px-24 lg:py-36 {% if settings.align == 'center' %}text-center{% endif %}">
+    <h1 class="site-heading text-4xl font-semibold tracking-tight sm:text-6xl">{{ settings.heading | escape }}</h1>
+    {% if settings.subheading != blank %}<p class="mt-6 text-lg sm:text-xl opacity-90">{{ settings.subheading | escape }}</p>{% endif %}
+    {% if settings.button_label != blank and settings.button_url != blank %}
+      <a href="{{ settings.button_url | escape }}" class="site-button mt-10 inline-block bg-white px-6 py-3 font-semibold text-(--site-brand)">{{ settings.button_label | escape }}</a>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,11 @@
+<%= turbo_frame_tag "segment_preview" do %>
+  <p class="text-sm font-semibold">With these rules</p>
+  <ul class="mt-2 flex flex-wrap gap-6">
+    <% @counts.each do |stage, count| %>
+      <li class="<%= "font-semibold text-cyan-800" if stage == @stage %>">
+        <span class="text-2xl tabular-nums"><%= number_with_delimiter(count) %></span>
+        <span class="block text-sm text-gray-600"><%= stage.name %></span>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

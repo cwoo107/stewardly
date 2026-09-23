@@ -1,4 +1,4 @@
-<%= form_with model: announcement, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: announcement, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: announcement.errors.full_messages %>
   <%= render "shared/field", form:, attribute: :title, options: { required: true } %>
   <%= render "shared/field", form:, attribute: :body, type: :text_area, options: { rows: 6, required: true } %>

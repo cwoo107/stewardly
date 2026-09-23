@@ -1,0 +1,13 @@
+<%= render "shared/page_header", title: workflow.name, subtitle: workflow.description do %>
+  <div class="flex flex-wrap items-center gap-2">
+    <%= workflow_status_badge(workflow) %>
+    <% if workflow.current_version %><%= badge "Version #{workflow.current_version.number} live", color: "cyan" %><% end %>
+    <% if workflow.current_version && workflow.unpublished_changes? %><%= badge "Unpublished changes", color: "amber" %><% end %>
+  </div>
+<% end %>
+<nav class="mb-8 flex flex-wrap gap-2" aria-label="Workflow">
+  <% [ [ "Overview", workflow_path(workflow), workflow.current_version ], [ "Builder", edit_workflow_path(workflow), true ],
+       [ "Runs", workflow_runs_path(workflow), workflow.current_version ] ].select(&:last).each do |label, path, _| %>
+    <%= link_to label, path, class: "rounded-full px-3 py-1 text-sm #{request.path == path ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>

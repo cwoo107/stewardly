@@ -1,0 +1,28 @@
+<%= form_with model: template, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: template.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, label: "Template name", options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :subject, label: "Default subject", hint: "Campaigns start with this subject. You can use {{ person.first_name }}." %>
+  <%= render "shared/field", form:, attribute: :preheader, label: "Preview text", hint: "The short line shown after the subject in most inboxes." %>
+
+  <fieldset class="space-y-4">
+    <legend class="text-sm font-semibold text-gray-900">Theme</legend>
+    <% theme = template.theme_settings %>
+    <div class="grid grid-cols-2 gap-4">
+      <% { "brand_color" => "Brand color", "text_color" => "Text", "background_color" => "Page background", "content_background" => "Content background" }.each do |key, label| %>
+        <div>
+          <%= label_tag "email_template_theme_#{key}", label, class: label_classes %>
+          <%= color_field_tag "email_template[theme][#{key}]", theme[key], id: "email_template_theme_#{key}", class: "h-10 w-20 rounded-lg border border-gray-200" %>
+        </div>
+      <% end %>
+    </div>
+    <div>
+      <%= label_tag "email_template_theme_font_family", "Font", class: label_classes %>
+      <%= select_tag "email_template[theme][font_family]", options_for_select(EmailTemplate::FONTS.invert, theme["font_family"]), id: "email_template_theme_font_family", class: select_classes %>
+    </div>
+  </fieldset>
+
+  <div class="flex gap-3">
+    <%= form.submit "Save template", class: button_classes(:primary) %>
+    <%= link_to "Cancel", template.persisted? ? template : email_templates_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

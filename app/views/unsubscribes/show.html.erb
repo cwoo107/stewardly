@@ -1,0 +1,17 @@
+<% content_for :title, "Unsubscribe" %>
+<% topic = @delivery.topic %>
+<div class="<%= card_classes %> space-y-6">
+  <% if params[:done] || @delivery.unsubscribed_at %>
+    <h1 class="text-2xl font-medium tracking-tight">You're unsubscribed</h1>
+    <p class="text-gray-700"><%= @delivery.email %> won't get <%= topic ? "#{topic.name} emails" : "these emails" %> from <%= Current.church.name %> any more. You'll still get things you ask for, like registration confirmations.</p>
+  <% else %>
+    <h1 class="text-2xl font-medium tracking-tight">Unsubscribe <%= @delivery.email %>?</h1>
+    <div class="flex flex-wrap gap-3">
+      <%= button_to "Stop #{topic&.name || "these"} emails", unsubscribe_path(@delivery.token), class: button_classes(:primary) %>
+      <%= button_to "Stop all emails from #{Current.church.name}", unsubscribe_path(@delivery.token), params: { scope: "all" }, class: button_classes(:outline) %>
+    </div>
+  <% end %>
+  <p class="text-sm text-gray-600">
+    <%= link_to "Choose which emails you get instead", email_preferences_path(@delivery.person.generate_token_for(:email_preferences)), class: "underline" %>
+  </p>
+</div>

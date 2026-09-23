@@ -1,0 +1,12 @@
+{% assign chosen = forms[settings.form] %}
+<section class="site-section grid gap-10 px-6 py-16 sm:px-12 lg:grid-cols-2 lg:px-24">
+  <div>
+    <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+    {% for campus in campuses %}
+      <div class="mt-6"><p class="font-semibold">{{ campus.name | escape }}</p><p class="whitespace-pre-line text-(--site-muted)">{{ campus.address | escape }}</p>
+        {% if campus.map_url != blank %}<a href="{{ campus.map_url }}" class="text-sm text-(--site-brand) underline">Directions</a>{% endif %}</div>
+    {% endfor %}
+    {% if church.contact_email != blank %}<p class="mt-6"><a href="mailto:{{ church.contact_email | escape }}" class="text-(--site-brand) underline">{{ church.contact_email | escape }}</a></p>{% endif %}
+  </div>
+  {% if chosen %}<div class="site-form">{{ chosen.html }}</div>{% endif %}
+</section>

@@ -1,0 +1,3 @@
+<%= render "workflow_steps/forms/field", key: "group_id", label: "Group", hint: "Skipped if the group is full." do %>
+  <%= select_tag "config[group_id]", options_from_collection_for_select(Group.order(:name), :id, :name, config["group_id"]), include_blank: "Choose a group", id: "config_group_id", class: select_classes %>
+<% end %>

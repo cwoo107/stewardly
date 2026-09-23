@@ -1,0 +1,13 @@
+<%= form_with model: topic, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: topic.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, hint: "Shown on the email preferences page.", options: { rows: 2 } %>
+  <label class="flex items-start gap-2 text-sm">
+    <%= form.check_box :default_subscribed, class: "mt-0.5 rounded border-gray-300" %>
+    <span>Everyone gets this unless they opt out<span class="block text-gray-500">Untick for topics people must choose, like a prayer chain.</span></span>
+  </label>
+  <div class="flex gap-3">
+    <%= form.submit "Save topic", class: button_classes(:primary) %>
+    <%= link_to "Cancel", email_topics_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

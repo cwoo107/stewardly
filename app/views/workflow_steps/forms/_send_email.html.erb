@@ -1,0 +1,4 @@
+<%= render "workflow_steps/forms/template_and_topic", config: %>
+<%= render "workflow_steps/forms/field", key: "subject", label: "Subject", hint: "{{ person.first_name }} and {{ church.name }} work here." do %>
+  <%= text_field_tag "config[subject]", config["subject"], id: "config_subject", class: input_classes %>
+<% end %>

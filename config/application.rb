@@ -48,10 +48,29 @@ module Stewardly
     config.x.app_domain = ENV.fetch("APP_DOMAIN", "localhost")
     # "localhost" has 0 TLD parts after the domain, "stewardly.app" has 1, "stewardly.co.uk" has 2.
     config.action_dispatch.tld_length = config.x.app_domain.count(".")
+    # The port links in emails use outside production (bin/dev serves on 3000).
+    config.x.dev_port = ENV.fetch("PORT", 3000).to_i if Rails.env.development?
+
+    # Church websites: grace.<sites_domain>, plus verified custom domains. A separate
+    # domain from the admin app, so site pages (which run church-written Liquid) can never
+    # read staff cookies. Custom domains CNAME to sites_cname_target; apex domains, which
+    # can't have a CNAME, point A records at sites_apex_ips. TLS certificates are issued
+    # on demand by the proxy in front of the app, which asks /internal/tls/allowed first.
+    config.x.sites_domain = ENV.fetch("SITES_DOMAIN", "sites.#{config.x.app_domain}")
+    config.x.sites_cname_target = ENV.fetch("SITES_CNAME_TARGET", "domains.#{config.x.sites_domain}")
+    config.x.sites_apex_ips = ENV.fetch("SITES_APEX_IPS", "").split(",").map(&:strip).compact_blank
+    config.x.tls_ask_token = ENV["TLS_ASK_TOKEN"]
+
     # Outgoing mail is sent from no-reply@<mail_domain>.
     config.x.mail_domain = ENV.fetch("MAIL_DOMAIN", config.x.app_domain == "localhost" ? "stewardly.test" : config.x.app_domain)
 
     config.active_job.queue_adapter = :sidekiq
+
+    # Church mail goes through each church's provider (Email::ChurchDeliveryMethod); the
+    # platform's own delivery is the fallback. Campaigns may use the platform fallback
+    # only outside production.
+    config.x.platform_delivery_method = :smtp
+    config.x.platform_campaigns = !Rails.env.production?
 
     # A `time` column is a time of day on the wall clock (a service at 9:00, a group
     # at 19:00), not an instant, so it must not shift with Time.zone. Only datetimes

@@ -1,0 +1,117 @@
+<% content_for :title, "Email settings" %>
+<%= render "shared/page_header", title: "Email settings" %>
+<%= render "shared/email_nav" %>
+
+<div class="grid gap-8 lg:grid-cols-2">
+  <div class="space-y-8">
+    <% if policy(:email_settings).update? %>
+      <%= form_with model: @church, url: email_settings_path, method: :patch, class: "space-y-6 #{card_classes}" do |form| %>
+        <h2 class="font-semibold">Sending</h2>
+        <%= render "shared/form_errors", messages: @church.errors.full_messages %>
+        <div>
+          <%= form.label :mailing_address, "Postal address", class: label_classes %>
+          <%= form.text_area :mailing_address, rows: 3, class: input_classes %>
+          <p class="mt-2 text-sm text-gray-500">Printed in every campaign's footer. Anti-spam law (CAN-SPAM) requires it, so campaigns can't send without one.</p>
+        </div>
+        <div>
+          <%= form.label :email_from_domain, "Sending domain", class: label_classes %>
+          <%= form.text_field :email_from_domain, placeholder: "gracechurch.org", class: input_classes %>
+          <p class="mt-2 text-sm text-gray-500">
+            Email comes from <strong><%= @church.email_from_address %></strong>. Use your own domain once your provider has verified it
+            and the DNS records below are in place. Replies go to <%= @church.contact_email.presence || "your contact email (set it in church settings)" %>.
+          </p>
+        </div>
+        <%= form.submit "Save", class: button_classes(:primary) %>
+      <% end %>
+    <% end %>
+
+    <% if @church.email_from_domain.present? %>
+      <section class="<%= card_classes %>" aria-labelledby="dns_heading">
+        <h2 id="dns_heading" class="font-semibold">DNS for <%= @church.email_from_domain %></h2>
+        <%= turbo_frame_tag "dns_check", src: dns_email_settings_path, loading: :lazy do %>
+          <p class="mt-3 text-sm text-gray-500">Checking DNS…</p>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="space-y-8">
+    <% Integration::CATEGORIES.slice("email_delivery", "email_audience_sync").each do |category, providers| %>
+      <% integration = @integrations[category] %>
+      <section class="<%= card_classes %> space-y-4" aria-labelledby="<%= category %>_heading">
+        <div class="flex items-center justify-between gap-3">
+          <h2 id="<%= category %>_heading" class="font-semibold"><%= category == "email_delivery" ? "Email provider" : "Audience sync" %></h2>
+          <%= badge(integration ? "#{integration.label} connected" : "Not connected", color: integration ? "green" : "gray") %>
+        </div>
+        <p class="text-sm text-gray-600">
+          <% if category == "email_delivery" %>
+            Campaigns and church email send through your own provider account, so your sending reputation is your own.
+            <%= "Until you connect one, email uses the platform's shared sender#{" (development and testing only for campaigns)" if Rails.env.production?}." unless integration %>
+          <% else %>
+            Copy a segment's people into a Mailchimp audience, if you'd rather design and send there.
+          <% end %>
+        </p>
+
+        <% if policy(Integration).update? %>
+          <% chosen = integration&.provider || params[:"#{category}_provider"].presence_in(providers.keys) %>
+          <% if chosen.nil? %>
+            <div class="flex flex-wrap gap-2">
+              <% providers.each do |provider, label| %>
+                <%= link_to "Connect #{label}", email_settings_path("#{category}_provider": provider), class: button_classes(:outline) %>
+              <% end %>
+            </div>
+          <% else %>
+            <% record = integration || Integration.new(category:, provider: chosen) %>
+            <%= form_with model: record, url: record.persisted? ? integration_path(record) : integrations_path, class: "space-y-4" do |form| %>
+              <%= form.hidden_field :category %>
+              <%= form.hidden_field :provider %>
+              <% fields = Integration::FIELDS.fetch(chosen) %>
+              <% fields[:credentials].each do |key| %>
+                <div>
+                  <%= label_tag "integration_credentials_#{key}", key.humanize, class: label_classes %>
+                  <%= password_field_tag "integration[credentials][#{key}]", nil, id: "integration_credentials_#{key}", autocomplete: "off",
+                        placeholder: record.credential(key) ? "Saved (leave blank to keep)" : "", class: input_classes %>
+                </div>
+              <% end %>
+              <% fields[:settings].each do |key| %>
+                <div>
+                  <%= label_tag "integration_settings_#{key}", key.humanize, class: label_classes %>
+                  <%= text_field_tag "integration[settings][#{key}]", record.setting(key), id: "integration_settings_#{key}", class: input_classes %>
+                </div>
+              <% end %>
+              <div class="flex flex-wrap gap-2">
+                <%= form.submit record.persisted? ? "Save" : "Connect #{record.label}", class: button_classes(:primary) %>
+                <%= link_to "Cancel", email_settings_path, class: button_classes(:outline) unless record.persisted? %>
+              </div>
+            <% end %>
+
+            <% if integration %>
+              <% if category == "email_delivery" %>
+                <div class="rounded-lg bg-gray-50 p-4 text-sm">
+                  <p class="font-semibold">Webhook URL</p>
+                  <p class="mt-1 text-gray-600">Point your provider's delivery, bounce, and complaint notifications here<%= " (with basic auth user “postmark” and your webhook password)" if integration.provider == "postmark" %><%= " (as an HTTPS subscription on your SNS topic)" if integration.provider == "ses" %>:</p>
+                  <code class="mt-2 block break-all rounded bg-white p-2 text-xs ring-1 ring-gray-200"><%= "#{Email::Tracking.base_url(@church)}#{webhook_path(integration.webhook_token)}" %></code>
+                </div>
+              <% else %>
+                <%= form_with url: sync_integration_path(integration), class: "flex flex-wrap items-end gap-3" do %>
+                  <div>
+                    <%= label_tag :segment_id, "Send a segment", class: label_classes %>
+                    <%= select_tag :segment_id, options_from_collection_for_select(Segment.alphabetical, :id, :name), class: select_classes %>
+                  </div>
+                  <%= submit_tag "Sync now", class: button_classes(:outline) %>
+                <% end %>
+                <% if integration.setting(:last_synced_at) %>
+                  <p class="text-xs text-gray-500">Last sync: <%= pluralize(integration.setting(:last_synced_count).to_i, "person") %>, <%= time_ago_in_words(Time.zone.parse(integration.setting(:last_synced_at))) %> ago</p>
+                <% end %>
+              <% end %>
+              <%= button_to "Disconnect #{integration.label}", integration_path(integration), method: :delete, class: button_classes(:danger),
+                    form: { data: { turbo_confirm: "Disconnect #{integration.label}? Its saved credentials are deleted." } } %>
+            <% end %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500">Someone with the “Connect outside services” permission can set this up.</p>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+</div>

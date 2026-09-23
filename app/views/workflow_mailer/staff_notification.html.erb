@@ -1,0 +1,3 @@
+<p><%= @message %></p>
+<p><%= link_to "Open #{@run.person.name}", person_url(@run.person) %> · <%= link_to "See this run", workflow_run_url(@run.workflow, @run) %></p>
+<p style="color:#6b7280;font-size:13px">Sent by the “<%= @run.workflow.name %>” workflow.</p>

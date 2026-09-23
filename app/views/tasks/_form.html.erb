@@ -1,5 +1,5 @@
 <% managing = Current.user.can?(:manage_tasks) %>
-<%= form_with model: task, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: task, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: task.errors.full_messages %>
   <%= render "shared/field", form:, attribute: :title, options: { required: true } %>
   <%= render "shared/field", form:, attribute: :notes, type: :text_area, options: { rows: 4 } %>

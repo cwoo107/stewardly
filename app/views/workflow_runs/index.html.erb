@@ -1,0 +1,10 @@
+<% content_for :title, "Runs of #{@workflow.name}" %>
+<%= render "workflows/header", workflow: @workflow %>
+<nav class="mb-4 flex flex-wrap gap-2 text-sm" aria-label="Filter runs">
+  <%= link_to "All", workflow_runs_path(@workflow), class: "rounded-full px-3 py-1 #{params[:status].blank? ? "bg-gray-900 text-white" : "bg-white ring-1 ring-gray-200"}" %>
+  <% WorkflowRun.statuses.each_key do |status| %>
+    <%= link_to status.humanize, workflow_runs_path(@workflow, status:), class: "rounded-full px-3 py-1 #{params[:status] == status ? "bg-gray-900 text-white" : "bg-white ring-1 ring-gray-200"}" %>
+  <% end %>
+</nav>
+<%= render "workflow_runs/table", workflow: @workflow, runs: @runs %>
+<%= render "shared/pagination", pagy: @pagy %>

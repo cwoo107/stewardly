@@ -2,7 +2,7 @@
 <%= render "shared/page_header", title: "Import people",
       subtitle: "Upload a CSV with a header row. Next you'll check a preview and match its columns to fields." %>
 
-<%= form_with model: @import, url: person_imports_path, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: @import, url: person_imports_path, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: @import.errors.full_messages %>
   <div>
     <%= form.label :file, "CSV file", class: label_classes %>

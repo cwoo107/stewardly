@@ -1,0 +1,38 @@
+<% content_for :title, "Benevolence" %>
+<%= render "shared/page_header", title: "Benevolence", subtitle: "Requests for financial help. Private: opening a case is recorded in the audit log." do %>
+  <%= link_to "Report", report_benevolence_cases_path, class: button_classes(:outline) %>
+<% end %>
+
+<% if policy(BenevolenceCase).create? %>
+  <div class="mb-6 <%= card_classes %>">
+    <h2 class="mb-3 text-sm font-semibold">Open a case</h2>
+    <%= render "people/picker", target: "benevolence", prompt: "Who is asking for help?" %>
+  </div>
+<% end %>
+
+<nav class="mb-4 flex flex-wrap gap-2 text-sm" aria-label="Filter cases">
+  <% { "open" => "Needs a decision", "mine" => "Assigned to me", "approved" => "Approved, to pay", "closed" => "Closed", "all" => "All" }.each do |tab, label| %>
+    <%= link_to label, benevolence_cases_path(tab:), class: "rounded-full px-3 py-1 #{@tab == tab ? "bg-gray-900 text-white" : "bg-white ring-1 ring-gray-200"}" %>
+  <% end %>
+</nav>
+
+<div class="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr><th scope="col" class="px-4 py-3 font-semibold">Case</th><th scope="col" class="px-4 py-3 font-semibold">Status</th><th scope="col" class="px-4 py-3 text-right font-semibold">Requested</th><th scope="col" class="px-4 py-3 font-semibold">Assigned to</th><th scope="col" class="px-4 py-3 font-semibold">Opened</th></tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @cases.each do |kase| %>
+        <tr>
+          <td class="px-4 py-3"><%= link_to kase.title, kase, class: "font-medium hover:underline" %><span class="block text-xs text-gray-500"><%= kase.source_form? ? "From the form" : "Opened by staff" %></span></td>
+          <td class="px-4 py-3"><%= benevolence_status_badge(kase) %></td>
+          <td class="px-4 py-3 text-right tabular-nums"><%= kase.requested %></td>
+          <td class="px-4 py-3 text-gray-700"><%= kase.assigned_to&.name || "—" %></td>
+          <td class="px-4 py-3 text-gray-600"><%= l(kase.created_at.to_date, format: :long) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @cases.empty? %><p class="px-4 py-6 text-sm text-gray-500">No cases here.</p><% end %>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

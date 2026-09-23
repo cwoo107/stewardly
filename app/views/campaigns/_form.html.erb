@@ -1,0 +1,35 @@
+<%= form_with model: campaign, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: campaign.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, label: "Campaign name", hint: "Only staff see this.", options: { required: true } %>
+
+  <div>
+    <%= form.label :email_template_id, "Template", class: label_classes %>
+    <%= form.collection_select :email_template_id, EmailTemplate.alphabetical, :id, :name, { include_blank: "Choose a template" }, class: select_classes %>
+  </div>
+  <div>
+    <%= form.label :segment_id, "Audience", class: label_classes %>
+    <%= form.collection_select :segment_id, Segment.alphabetical, :id, :name, { include_blank: "Choose a segment" }, class: select_classes %>
+    <p class="mt-2 text-sm text-gray-500">People in the segment with an email address. <%= link_to "Build a segment", new_segment_path, class: "underline" %></p>
+  </div>
+  <div>
+    <%= form.label :email_topic_id, "Topic", class: label_classes %>
+    <%= form.collection_select :email_topic_id, EmailTopic.alphabetical, :id, :name, {}, class: select_classes %>
+    <p class="mt-2 text-sm text-gray-500">People who turned this topic off in their email preferences are left out.</p>
+  </div>
+
+  <%= render "shared/field", form:, attribute: :subject, hint: "Leave blank to use the template's subject. {{ person.first_name }} works." %>
+  <%= render "shared/field", form:, attribute: :preheader, label: "Preview text" %>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :from_name, label: "From name", options: { placeholder: Current.church.name } %>
+    <%= render "shared/field", form:, attribute: :reply_to, label: "Reply-to", type: :email_field, options: { placeholder: Current.church.contact_email } %>
+  </div>
+  <label class="flex items-center gap-2 text-sm">
+    <%= form.check_box :track_engagement, class: "rounded border-gray-300" %>
+    Track opens and clicks
+  </label>
+
+  <div class="flex gap-3">
+    <%= form.submit "Save draft", class: button_classes(:primary) %>
+    <%= link_to "Cancel", campaign.persisted? ? campaign : campaigns_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

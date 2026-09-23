@@ -7,7 +7,7 @@ RSpec.describe "Managing roles" do
     volunteer = create(:user, person: create(:person, first_name: "Riley", last_name: "Nguyen"))
 
     sign_in_as(admin)
-    click_on "Users", match: :first
+    visit users_path # the Admin section opens because it holds the current page
     click_on "Riley Nguyen"
 
     select "Staff", from: "Grant a role"

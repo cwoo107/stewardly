@@ -1,0 +1,11 @@
+<% if @brief.summary.present? %><p><%= @brief.summary %></p><% end %>
+<ol>
+  <% @brief.insights.first(8).each do |insight| %>
+    <li style="margin-bottom:8px">
+      <strong><%= insight.title %></strong>
+      <% if (reason = @brief.reason_for(insight)) %><br><span style="color:#4b5563"><%= reason %></span><% end %>
+      <% if insight.action_path %><br><a href="<%= Email::Tracking.base_url(@brief.church) %><%= insight.action_path %>"><%= insight.action_label || "Open" %></a><% end %>
+    </li>
+  <% end %>
+</ol>
+<p><a href="<%= root_url %>">Open your dashboard</a> · You can turn this email off from your dashboard.</p>

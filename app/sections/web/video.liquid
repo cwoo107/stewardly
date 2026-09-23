@@ -1,0 +1,8 @@
+{% if settings.video_embed_url != blank %}
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<h2 class="site-heading mb-8 text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>{% endif %}
+  <div class="site-radius aspect-video overflow-hidden bg-black">
+    <iframe src="{{ settings.video_embed_url | escape }}" title="{{ settings.heading | default: 'Video' | escape }}" class="h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</section>
+{% endif %}

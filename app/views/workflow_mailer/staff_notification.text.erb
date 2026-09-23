@@ -1,0 +1,6 @@
+<%= @message %>
+
+<%= @run.person.name %>: <%= person_url(@run.person) %>
+This run: <%= workflow_run_url(@run.workflow, @run) %>
+
+Sent by the "<%= @run.workflow.name %>" workflow.

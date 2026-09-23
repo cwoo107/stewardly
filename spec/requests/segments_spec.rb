@@ -45,4 +45,9 @@ RSpec.describe "Segments" do
     post segments_path, params: { segment: { name: "Nope", definition: } }
     expect(response).to have_http_status(:forbidden)
   end
+
+  it "pre-fills conditions from a link" do
+    get new_segment_path(conditions: [ { type: "stuck", value: "yes" } ])
+    expect(response.body).to include("Stuck on the pathway", "segment[definition][conditions][0][value]")
+  end
 end

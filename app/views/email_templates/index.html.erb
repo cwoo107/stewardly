@@ -1,0 +1,17 @@
+<% content_for :title, "Email templates" %>
+<%= render "shared/page_header", title: "Email templates", subtitle: "Reusable designs built from sections. Every email gets your address and unsubscribe links automatically." do %>
+  <%= link_to "New template", new_email_template_path, class: button_classes(:primary) if policy(EmailTemplate).create? %>
+<% end %>
+<%= render "shared/email_nav" %>
+
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <% @templates.each do |template| %>
+    <%= link_to template, class: "block #{card_classes} hover:ring-cyan-500" do %>
+      <div class="mb-3 h-2 w-12 rounded-full" style="background-color: <%= template.theme_settings["brand_color"] %>"></div>
+      <h2 class="font-semibold"><%= template.name %></h2>
+      <p class="mt-1 text-sm text-gray-600"><%= template.subject.presence || "No subject yet" %></p>
+      <p class="mt-3 text-xs text-gray-500"><%= pluralize(template.sections.size, "section") %> · updated <%= time_ago_in_words(template.updated_at) %> ago</p>
+    <% end %>
+  <% end %>
+</div>
+<% if @templates.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No templates yet.</p><% end %>

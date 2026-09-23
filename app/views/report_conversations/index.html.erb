@@ -1,0 +1,26 @@
+<% content_for :title, "Report assistant" %>
+<%= render "shared/page_header", title: "Report assistant", subtitle: "Ask about your church's numbers. Answers come only from the church's data, and show what they're based on." %>
+<%= render "shared/reports_nav" %>
+
+<% unless @ai %>
+  <p class="mb-6 rounded-2xl bg-amber-50 px-5 py-3 text-sm text-amber-900">
+    AI isn't available right now (it may be turned off in church settings). You can still run every metric yourself from <%= link_to "Metrics", metrics_path, class: "font-semibold underline" %>.
+  </p>
+<% end %>
+
+<%= form_with url: report_conversations_path, class: "mb-8 #{card_classes} space-y-3" do %>
+  <%= label_tag :question, "What would you like to know?", class: label_classes %>
+  <%= text_area_tag :question, nil, rows: 3, class: input_classes, placeholder: "How many people joined since January, and how many are in a group?" %>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-xs text-gray-500">Try: “How is attendance trending this quarter?” · “Which teams have open spots next month?” · “How did our last campaign do?”</p>
+    <%= submit_tag "Ask", class: button_classes(:primary), disabled: !@ai %>
+  </div>
+<% end %>
+
+<h2 class="mb-3 text-sm font-semibold text-gray-900">Your recent questions</h2>
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @conversations.each do |conversation| %>
+    <li class="px-5 py-3"><%= link_to conversation.title, conversation, class: "font-medium hover:underline" %> <span class="text-sm text-gray-500">· <%= time_ago_in_words(conversation.updated_at) %> ago</span></li>
+  <% end %>
+  <% if @conversations.empty? %><li class="px-5 py-3 text-sm text-gray-500">No questions yet.</li><% end %>
+</ul>

@@ -1,0 +1,31 @@
+<% if message.role_user? %>
+  <div class="rounded-2xl bg-gray-900 px-5 py-4 text-white"><p class="text-xs uppercase tracking-wide text-gray-400">You asked</p><p class="mt-1"><%= message.content %></p></div>
+<% else %>
+  <%= turbo_frame_tag dom_id(message), src: (report_conversation_message_path(message.report_conversation, message) if message.pending?) do %>
+    <%= tag.div class: card_classes, data: { controller: ("poll" if message.pending?) } do %>
+      <% if message.pending? %>
+        <p class="text-sm text-gray-500">Looking at the numbers…</p>
+      <% elsif message.failed? %>
+        <p class="text-sm text-rose-700"><%= message.error %></p>
+      <% else %>
+        <p class="whitespace-pre-line text-gray-900"><%= message.content %></p>
+        <% if message.unverified_figures.any? %>
+          <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" role="alert">
+            Not from the data: <%= message.unverified_figures.to_sentence %>. Check these against the numbers below before using them.
+          </p>
+        <% end %>
+      <% end %>
+      <% if message.tool_calls.any? %>
+        <details class="mt-4" <%= "open" if message.done? %>>
+          <summary class="cursor-pointer text-sm font-semibold text-gray-700">Based on <%= pluralize(message.tool_calls.size, "metric") %></summary>
+          <div class="mt-3 space-y-3"><% message.tool_calls.each do |call| %><%= render "reports/result", call: %><% end %></div>
+        </details>
+      <% elsif message.done? %>
+        <p class="mt-3 text-xs text-gray-500">This answer didn't use any church data.</p>
+      <% end %>
+      <% if message.done? && message.tool_calls.any? { |call| call["result"] } %>
+        <%= button_to "Save report", saved_reports_path, params: { message_id: message.id }, class: "mt-4 #{button_classes(:outline)}", form: { data: { turbo_frame: "_top" } } %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

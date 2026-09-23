@@ -1,0 +1,15 @@
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24">
+  <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+  <ul class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for event in events limit: settings.count %}
+      <li class="site-card flex flex-col p-6">
+        <p class="text-sm font-semibold uppercase tracking-wide text-(--site-accent)">{{ event.date }} · {{ event.time }}</p>
+        <a href="{{ event.url }}" class="mt-2 text-xl font-semibold hover:underline">{{ event.title | escape }}</a>
+        {% if event.location != blank %}<p class="mt-1 text-(--site-muted)">{{ event.location | escape }}</p>{% endif %}
+        <a href="{{ event.url }}" class="mt-4 text-sm font-semibold text-(--site-brand)">Details and registration →</a>
+      </li>
+    {% else %}
+      <li class="text-(--site-muted)">Nothing on the calendar right now. Check back soon.</li>
+    {% endfor %}
+  </ul>
+</section>

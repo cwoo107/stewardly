@@ -1,0 +1,12 @@
+<%= turbo_frame_tag "step_frame_#{@step["id"]}" do %>
+  <% config = @step["config"].to_h %>
+  <%= form_with url: workflow_step_path(@workflow, @step["id"]), method: :patch, class: "space-y-4",
+        data: { turbo_frame: "_top" }.merge(@step["type"] == "condition" ? { controller: "segment-builder", segment_builder_condition_url_value: condition_segments_path(prefix: "workflow_condition") } : {}) do %>
+    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400"><%= Workflow::Steps.label(@step["type"]) %></p>
+    <%= render "workflow_steps/forms/#{@step["type"]}", config:, step: @step %>
+    <div class="flex gap-3">
+      <%= submit_tag "Save step", class: button_classes(:primary) %>
+      <%= link_to "Cancel", edit_workflow_path(@workflow, anchor: "step_#{@step["id"]}"), class: button_classes(:outline), data: { turbo_frame: "_top" } %>
+    </div>
+  <% end %>
+<% end %>

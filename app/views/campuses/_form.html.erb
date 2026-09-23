@@ -1,4 +1,4 @@
-<%= form_with model: campus, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: campus, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: campus.errors.full_messages %>
   <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
   <%= render "shared/field", form:, attribute: :address_line1, label: "Address" %>

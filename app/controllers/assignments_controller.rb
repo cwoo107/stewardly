@@ -37,6 +37,12 @@ class AssignmentsController < ApplicationController
   end
 
   private
+    # Scheduling is never blocked by load, but the leader hears about it.
+    def load_warning(assignment)
+      load = @board.load_for(assignment)
+      "#{assignment.person.name} is now at risk of burnout: #{load.reasons.to_sentence}." if load.at_risk? && !assignment.declined?
+    end
+
     def find_schedulable(attributes)
       type = attributes[:schedulable_type].presence_in(Assignment::SCHEDULABLE_TYPES) or raise ActiveRecord::RecordNotFound
       type.constantize.find(attributes[:schedulable_id])
@@ -48,6 +54,7 @@ class AssignmentsController < ApplicationController
       @board = Scheduling::Board.new(team:, range: assignment.local_date..assignment.local_date)
       @cells = [ [ assignment.schedulable, assignment.position ], previous ].compact.uniq.map { |occurrence, position| @board.cell(occurrence, position) }
       @team = team
+      @load_warning = load_warning(assignment) if assignment.persisted? && !assignment.destroyed? && assignment.errors.empty?
       respond_to do |format|
         format.turbo_stream { render "assignments/cells", status: assignment.errors.any? ? :unprocessable_content : :ok }
         format.html { redirect_to team_schedule_path(team, from: assignment.local_date), alert: assignment.errors.full_messages.to_sentence.presence, status: :see_other }

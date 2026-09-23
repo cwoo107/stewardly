@@ -4,6 +4,7 @@ class TeamsController < ApplicationController
   def show
     @memberships = @team.team_memberships.includes(:person).sort_by { |m| [ m.leader? ? 0 : 1, m.person.last_name ] }
     @positions = @team.positions.alphabetical.includes(position_qualifications: :person)
+    @loads = Volunteering::LoadAssessment.new(people: @memberships.map(&:person_id), church: Current.church) if TeamSchedulePolicy.new(Current.user, @team).show?
   end
 
   def new

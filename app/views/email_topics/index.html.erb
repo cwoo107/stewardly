@@ -1,0 +1,21 @@
+<% content_for :title, "Email topics" %>
+<%= render "shared/page_header", title: "Email topics", subtitle: "The kinds of email people can choose to get. Every campaign belongs to one." do %>
+  <%= link_to "New topic", new_email_topic_path, class: button_classes(:primary) if policy(EmailTopic).create? %>
+<% end %>
+<%= render "shared/email_nav" %>
+
+<ul role="list" class="divide-y divide-gray-100 rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
+  <% @topics.each do |topic| %>
+    <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+      <div>
+        <p class="font-medium"><%= topic.name %> <%= badge(topic.default_subscribed ? "Everyone unless they opt out" : "Only people who opt in", color: topic.default_subscribed ? "cyan" : "violet") %></p>
+        <% if topic.description.present? %><p class="text-sm text-gray-600"><%= topic.description %></p><% end %>
+        <p class="text-xs text-gray-500"><%= pluralize(@subscriber_counts.fetch(topic.id, 0), "person") %> turned this off</p>
+      </div>
+      <span class="flex gap-2">
+        <%= link_to "Edit", edit_email_topic_path(topic), class: button_classes(:outline) %>
+        <%= button_to "Delete", topic, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{topic.name}?" } } %>
+      </span>
+    </li>
+  <% end %>
+</ul>

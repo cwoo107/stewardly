@@ -1,0 +1,61 @@
+<% content_for :title, "Pathway" %>
+<%= render "shared/page_header", title: @funnel.stages.map(&:name).join(" → "), subtitle: "Where people are on the pathway, and how they move." do %>
+  <%= link_to "Stages and rules", edit_pathway_path, class: button_classes(:outline) if policy(:pathway).update? %>
+<% end %>
+
+<section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <% conversions = @funnel.conversions %>
+  <% medians = @funnel.median_days %>
+  <% @funnel.stages.each do |stage| %>
+    <div class="<%= card_classes %>">
+      <p class="text-sm text-gray-500"><%= stage.name %></p>
+      <p class="mt-1 text-4xl font-semibold tracking-tight"><%= number_with_delimiter(@funnel.counts[stage]) %></p>
+      <% if (conversion = conversions[stage]) %>
+        <p class="mt-2 text-sm text-gray-600">
+          <%= conversion[:percent] ? "#{conversion[:percent]}% moved on" : "No one entered yet" %>
+          <span class="text-gray-400">(<%= conversion[:moved_on] %> of <%= conversion[:entered] %> in 12 months)</span>
+        </p>
+        <% if medians[stage] %><p class="text-sm text-gray-600">Typically <%= pluralize(medians[stage], "day") %> before moving on</p><% end %>
+      <% else %>
+        <p class="mt-2 text-sm text-gray-500">Final stage</p>
+      <% end %>
+    </div>
+  <% end %>
+</section>
+
+<section class="mt-6 <%= card_classes %>">
+  <h2 class="text-lg font-semibold">People at each stage</h2>
+  <div class="mt-4"><%= bar_chart solid_series([ { name: "People", data: @funnel.counts.transform_keys(&:name) } ]), **column_chart_options(legend: false, height: "#{60 + @funnel.stages.size * 40}px") %></div>
+  <%= render "attendance_dashboards/table", headers: [ "Stage", "People" ], rows: @funnel.counts.map { |stage, count| [ stage.name, count ] } %>
+</section>
+
+<section class="mt-6 <%= card_classes %>">
+  <h2 class="text-lg font-semibold">Movement</h2>
+  <p class="text-sm text-gray-500">People moving forward or back a stage, by month.</p>
+  <% movement = @funnel.movement %>
+  <div class="mt-4"><%= column_chart solid_series(movement.map { |name, data| { name:, data: } }), **column_chart_options %></div>
+  <%= render "attendance_dashboards/table", headers: [ "Month", *movement.keys ],
+        rows: movement.values.first.keys.reverse.map { |month| [ month, *movement.values.map { |data| data[month] } ] } %>
+</section>
+
+<section class="mt-6 <%= card_classes %>">
+  <h2 class="text-lg font-semibold">Stuck</h2>
+  <p class="text-sm text-gray-500">Longer in a stage than its limit without moving on.</p>
+  <% stuck = @funnel.stuck.limit(25) %>
+  <% stuck_count = @funnel.stuck.count %>
+  <ul role="list" class="mt-4 divide-y divide-gray-100">
+    <% stuck.each do |placement| %>
+      <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+        <%= link_to placement.person.name, placement.person, class: "font-medium hover:underline" %>
+        <span class="text-gray-600"><%= placement.pathway_stage.name %> for <%= pluralize(placement.days_in_stage, "day") %> <span class="text-gray-400">(limit <%= placement.pathway_stage.stuck_after_days %>)</span></span>
+      </li>
+    <% end %>
+    <% if stuck.empty? %><li class="py-2 text-sm text-gray-500">No one is stuck.</li><% end %>
+  </ul>
+  <% if stuck_count > stuck.size %>
+    <p class="mt-3 text-sm text-gray-600">
+      The <%= stuck.size %> longest of <%= number_with_delimiter(stuck_count) %>.
+      <%= link_to "Make a segment of everyone stuck", new_segment_path(conditions: [ { type: "stuck", value: "yes" } ]), class: "text-cyan-700 hover:underline" if policy(Segment).create? %>
+    </p>
+  <% end %>
+</section>

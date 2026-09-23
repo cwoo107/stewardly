@@ -295,12 +295,263 @@ def seed_phase_four(church)
   ForecastSweepJob.new.send(:sweep, church)
 end
 
+# Phase 5: pathway placements with a backdated history (so the funnel has movement),
+# and a few volunteers who serve a lot, or not at all.
+def seed_phase_five(church)
+  return if PathwayPlacement.exists?
+
+  random = Random.new(55)
+  pathway = Pathway.current
+  connect, grow, serve = pathway.stages.to_a
+  now = Time.current
+
+  PathwayPlacement.transaction do
+    # Team members joined months ago, so "underused" can apply.
+    TeamMembership.update_all(created_at: 6.months.ago)
+
+    # A couple of volunteers serving every week for two months.
+    band = Team.find_by!(name: "Worship band")
+    ServiceOccurrence.where(local_date: (church.today - 63)...church.today).includes(:worship_service)
+      .select { |o| o.worship_service.name == "Sunday 9am" }.each do |occurrence|
+      band.team_memberships.first(2).each do |membership|
+        occurrence.assignments.find_or_create_by!(person: membership.person, position: band.positions.find_by!(name: "Vocals")) do |a|
+          a.status = "accepted"
+          a.requested_at = occurrence.starts_at - 7.days
+          a.responded_at = occurrence.starts_at - 6.days
+        end
+      end
+    end
+
+    Pathway::Placement.new(pathway).place_everyone!
+
+    # Replace today's first placements with a believable past.
+    PathwayTransition.delete_all
+    PathwayPlacement.includes(:pathway_stage).find_each do |placement|
+      started = now - random.rand(60..480).days
+      steps = [ [ nil, connect, :placed, started ] ]
+      if placement.pathway_stage_id.in?([ grow.id, serve.id ])
+        steps << [ connect, grow, :forward, [ started + random.rand(20..120).days, now - 5.days ].min ]
+      end
+      if placement.pathway_stage_id == serve.id
+        steps << [ grow, serve, :forward, [ steps.last.last + random.rand(30..150).days, now - 2.days ].min ]
+      end
+      steps.each do |from, to, direction, at|
+        PathwayTransition.create!(person_id: placement.person_id, from_stage: from, to_stage: to, direction:, occurred_at: at)
+      end
+      placement.update!(entered_at: steps.last.last)
+    end
+  end
+end
+
+# Phase 6: topics, starter templates, a draft campaign, and one sent campaign with
+# made-up delivery results (written directly; seeds never send email).
+def seed_phase_six(church)
+  church.update!(mailing_address: "412 Grace Ave\nSpringfield, IL 62704") if church.mailing_address.blank?
+  news = EmailTopic.default!
+  kids = EmailTopic.find_or_create_by!(name: "Kids ministry") { |t| t.description = "Sunday school, VBS, and family events."; t.default_subscribed = false }
+  SectionDefinition::Defaults.install!
+  EmailTemplate::Starters.install!
+  return if Campaign.exists?
+
+  newsletter = EmailTemplate.find_by!(name: "Weekly newsletter")
+  everyone = Segment.find_or_create_by!(name: "Everyone with email") { |s| s.definition = { match: "all", conditions: [] } }
+  people = Person.where.not(email: nil).order(:id).to_a
+  people.first(4).each { |person| EmailPreference.find_or_create_by!(person:, email_topic: kids) { |p| p.subscribed = true } }
+  Suppression.record!(people.last.email, reason: :hard_bounce, source: "bounce") if people.any?
+
+  Campaign.create!(name: "Fall kickoff", subject: "{{ person.first_name }}, fall starts Sunday", email_template: newsletter,
+    segment: everyone, email_topic: news, track_engagement: true)
+
+  sent_at = 9.days.ago.change(hour: 7)
+  sent = Campaign.create!(name: "Summer wrap-up", subject: "Thank you for a great summer", email_template: newsletter, segment: everyone,
+    email_topic: news, status: :sent, sending_at: sent_at, sent_at: sent_at + 4.minutes,
+    html_snapshot: EmailTemplate::Renderer.new(newsletter).compile(tracking: Email::Tracking.new(church)))
+  random = Random.new(6)
+  people.first(people.size - 1).each do |person|
+    roll = random.rand
+    status = roll < 0.03 ? "bounced" : "delivered"
+    opened = status == "delivered" && roll < 0.62
+    clicked = opened && roll < 0.18
+    Delivery.create!(campaign: sent, person:, email: person.email, status:, sent_at: sent_at + 1.minute, provider_message_id: SecureRandom.uuid,
+      delivered_at: (sent_at + 2.minutes if status == "delivered"), first_opened_at: (sent_at + random.rand(1..72).hours if opened),
+      open_count: opened ? random.rand(1..3) : 0, first_clicked_at: (sent_at + random.rand(2..80).hours if clicked), click_count: clicked ? 1 : 0,
+      unsubscribed_at: (sent_at + 1.day if roll > 0.985))
+  end
+end
+
+# Phase 7: the starter workflows, two published (with staff chosen for tasks and alerts),
+# and a few people part-way through them. Jobs are held (test adapter) and steps driven
+# here, so seeding works without Sidekiq; waits are left waiting. AI stays off, so the
+# guest thank-you notes sit in the approval queue for someone to write.
+def seed_phase_seven(church)
+  Workflow::Starters.install!
+  return if WorkflowRun.exists?
+
+  admin = User.find_by!(email_address: "admin@grace.test")
+  previous_adapter = ActiveJob::Base.queue_adapter
+  ActiveJob::Base.queue_adapter = :test
+
+  %w[ new_member_welcome first_time_guest ].each do |key|
+    workflow = Workflow.find_by!(starter_key: key)
+    workflow.draft.all_steps.each do |step|
+      case step["type"]
+      when "create_task" then workflow.update_step!(step["id"], step["config"].merge("owner_id" => admin.id))
+      when "notify_staff" then workflow.update_step!(step["id"], step["config"].merge("user_ids" => [ admin.id ]))
+      end
+    end
+    workflow.publish!(by: admin)
+  end
+
+  drive = lambda do |run|
+    20.times do
+      run.reload
+      break unless run.active? && run.current_step_id
+
+      Workflow::Execution.new(run).perform(run.current_step_id)
+    end
+  end
+
+  welcome = Workflow.find_by!(starter_key: "new_member_welcome")
+  new_member = Tag.find_by!(name: "New member")
+  Person.where(membership_status: "member").where.not(email: nil).order(:id).limit(2).each do |person|
+    Tagging.find_or_create_by!(person:, tag: new_member)
+    Workflow::Enrollment.new(welcome, person).start!&.then(&drive)
+  end
+
+  guest_follow_up = Workflow.find_by!(starter_key: "first_time_guest")
+  Person.where(membership_status: "guest").where.not(email: nil).order(:id).limit(3).each do |person|
+    Workflow::Enrollment.new(guest_follow_up, person).start!&.then(&drive)
+  end
+ensure
+  ActiveJob::Base.queue_adapter = previous_adapter if previous_adapter
+end
+
+# Phase 8: a year of made-up giving (provider "demo", since nothing is synced from
+# Tithe.ly yet) with a few gifts waiting in the review queue, and benevolence cases in
+# every state. Priya (care@grace.test) is on the Benevolence team.
+def seed_phase_eight(church)
+  Form::Starters.install!
+  return if Donation.exists?
+
+  priya = User.find_by!(email_address: "care@grace.test")
+  UserRole.find_or_create_by!(user: priya, role: Role.find_by!(key: "benevolence_team"))
+  admin = User.find_by!(email_address: "admin@grace.test")
+
+  random = Random.new(8)
+  funds = { "General" => 0.8, "Missions" => 0.15, "Building" => 0.05 }.map { |name, share| [ Fund.find_or_create_by!(name:, provider: "demo", external_id: name.downcase), share ] }
+  givers = Person.where.not(email: nil).order(:id).limit(35).to_a
+  today = church.today
+  sequence = 0
+  givers.each_with_index do |person, index|
+    usual = [ 25, 40, 50, 75, 100, 150, 250 ].sample(random: random) * 100
+    link_id = "demo-donor-#{person.id}"
+    DonorLink.find_or_create_by!(provider: "demo", donor_external_id: link_id) { |link| link.person = person } unless index > 30
+    (0..51).step(index.even? ? 1 : 2) do |weeks_ago|
+      next if random.rand < 0.15
+
+      fund = funds.find { |_, share| random.rand < share }&.first || funds.first.first
+      Donation.create!(provider: "demo", external_id: "demo-#{sequence += 1}", donor_external_id: link_id, donor_name: person.name,
+        donor_email: person.email, fund:, amount_cents: usual, given_on: today - weeks_ago.weeks, method: %w[ card ach ].sample(random:),
+        person: index > 30 ? nil : person, match_status: index > 30 ? "unmatched" : "auto", matched_at: Time.current)
+    end
+  end
+  Donation.where(external_id: "demo-3").update_all(status: "refunded")
+
+  care = Fund.find_or_create_by!(name: "Care fund", provider: "manual") { |fund| fund.benevolence = true }
+  people = Person.where.not(household_id: nil).order(:id).offset(10).limit(5).to_a
+  create_case = lambda do |person, attributes|
+    BenevolenceCase.create!({ person:, created_by: priya, assigned_to: priya, source: "staff" }.merge(attributes))
+  end
+
+  create_case.(people[0], need_category: "rent", summary: "Two weeks behind on rent", circumstances: "Reduced hours after an injury.", requested_cents: 45_000)
+  create_case.(people[1], need_category: "food", summary: "Groceries until payday", requested_cents: 12_000, source: "form")
+  large = create_case.(people[2], need_category: "utilities", summary: "Winter heating bill", circumstances: "Gas shut-off notice received.",
+    requested_cents: 80_000, created_at: 2.days.ago)
+  large.decision.record!(user: admin, decision: "approve", amount_cents: 60_000, note: "Approve most of it; connect them with the county program.")
+  large.notes.create!(author: priya, body: "Called the gas company: they'll hold the shut-off for a week once payment is scheduled.")
+
+  paid = create_case.(people[3], need_category: "transportation", summary: "Car repair to get to work", requested_cents: 35_000, created_at: 3.months.ago)
+  paid.decision.record!(user: admin, decision: "approve", amount_cents: 35_000)
+  paid.disbursements.create!(amount_cents: 35_000, paid_on: today - 80, method: "check", payee_type: "vendor", payee_name: "Main Street Auto",
+    fund: care, reference: "Check 2201", recorded_by: priya)
+
+  denied = create_case.(people[4], need_category: "other", summary: "Help with a phone bill", requested_cents: 9_000, created_at: 1.month.ago)
+  denied.decision.record!(user: admin, decision: "deny", note: "Referred to the community resource center.")
+end
+
+# Phase 9: run the insight checks, build the admin's brief (rules, since AI is off by
+# default), and pin a couple of reports to their dashboard.
+def seed_phase_nine(church)
+  admin = User.find_by!(email_address: "admin@grace.test")
+  Insights::Sweep.new(church).run!
+  Insights::Brief.new(admin).build!
+  return if SavedReport.exists?
+
+  [ [ "New people and groups this year", "group_connection" ], [ "Volunteer coverage, next 4 weeks", "volunteer_coverage" ] ].each do |title, tool|
+    SavedReport.create!(user: admin, title:, pinned: true, tool_calls: [ { "name" => tool, "arguments" => {} } ]).rerun!
+  end
+end
+
+# Phase 10: the website, live at grace.<sites_domain>, with the connect card on the
+# contact page and a few sermons.
+def seed_phase_ten(church)
+  site = Site.current
+  return if site.published?
+
+  Form.find_by(slug: "connect")&.then { |form| form.publish! unless form.published? }
+  site.update!(theme_settings: { "tagline" => "Love God, love people, serve the city", "footer_text" => "412 Grace Ave, Springfield, IL\nSundays at 9 and 10:45" })
+  about = site.pages.find_by!(slug: "about")
+  staff = about.section_list.find { |section| section["key"] == "staff" }
+  about.update_section!(staff["id"], staff["settings"].merge("blocks" => [
+    { "name" => "Caleb Woods", "role" => "Lead pastor" }, { "name" => "Priya Raman", "role" => "Care pastor" },
+    { "name" => "Sam Ortiz", "role" => "Worship and arts" }
+  ]))
+  home = site.home_page
+  sermons = home.add_section!("sermon_links", after: home.section_list.find { |section| section["key"] == "upcoming_events" }&.dig("id"))
+  home.update_section!(sermons["id"], sermons["settings"].merge("blocks" => [
+    { "title" => "The God who sees", "speaker" => "Caleb Woods", "date" => "September 20", "url" => "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { "title" => "Bread for the journey", "speaker" => "Priya Raman", "date" => "September 13", "url" => "" }
+  ]))
+  site.pages.each(&:publish!)
+  site.update!(published: true, published_at: Time.current)
+end
+
+# Phase 11: demo Facebook and Instagram accounts (fake tokens: nothing can really be
+# posted without a Meta app), one post that "went out", a draft, and an event promo draft.
+# Nothing is scheduled, so the sweeper never tries to reach Meta from seed data.
+def seed_phase_eleven(church)
+  return if SocialAccount.exists?
+
+  integration = Integration.create!(category: "social", provider: "meta", credentials: { "user_access_token" => "demo" }, settings: { "meta_user_id" => "demo" })
+  facebook = SocialAccount.create!(integration:, network: "facebook_page", external_id: "demo-page", name: "Grace Community Church", access_token: "demo", checked_at: Time.current)
+  SocialAccount.create!(integration:, network: "instagram", external_id: "demo-ig", name: "gracechurch", handle: "gracechurch", access_token: "demo", checked_at: Time.current)
+
+  published = SocialPost.new(body: "Thank you to everyone who served at the back-to-school drive! 🎒 240 backpacks packed.", status: "published",
+    published_at: 3.days.ago, scheduled_at: 3.days.ago)
+  published.account_ids = [ facebook.id ]
+  published.save!
+  published.targets.update_all(status: "published", external_post_id: "demo", permalink: "https://www.facebook.com/", published_at: 3.days.ago)
+
+  draft = SocialPost.new(body: "This Sunday we're starting a new series on the Psalms. Come as you are.")
+  draft.account_ids = SocialAccount.ids
+  draft.save!
+
+  Event.published.where(visibility: "public").find_each { |event| Social::EventPromo.new(event).draft!(force: true) }
+end
+
 if (grace = Church.find_by(subdomain: "grace"))
   ActsAsTenant.with_tenant(grace) do
     seed_phase_one(grace)
     seed_phase_two
     seed_phase_three(grace)
     seed_phase_four(grace)
+    seed_phase_five(grace)
+    seed_phase_six(grace)
+    seed_phase_seven(grace)
+    seed_phase_eight(grace)
+    seed_phase_nine(grace)
+    seed_phase_ten(grace)
+    seed_phase_eleven(grace)
   end
 end
 

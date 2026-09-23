@@ -1,0 +1,1 @@
+<%= badge campaign.status.humanize, color: { "draft" => "gray", "scheduled" => "violet", "sending" => "amber", "sent" => "green", "cancelled" => "rose" }.fetch(campaign.status) %>

@@ -1,4 +1,4 @@
-<%= form_with model: offering, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: offering, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: offering.errors.full_messages %>
   <%= form.hidden_field :course_id %>
   <div class="grid gap-6 sm:grid-cols-2">

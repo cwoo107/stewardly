@@ -1,0 +1,15 @@
+<div class="flex flex-wrap gap-2">
+  <% if workflow.unpublished_changes? %>
+    <%= button_to workflow.current_version ? "Publish changes" : "Publish", publish_workflow_path(workflow), method: :patch, class: button_classes(:primary),
+          form: { data: { turbo_confirm: workflow.current_version ? "Publish version #{workflow.current_version.number + 1}? New runs use it; people already in the workflow finish on theirs." : "Publish and turn this workflow on?" } } %>
+  <% end %>
+  <% if workflow.active? %>
+    <%= button_to "Pause", pause_workflow_path(workflow), method: :patch, class: button_classes(:outline) %>
+  <% elsif workflow.paused? %>
+    <%= button_to "Resume", resume_workflow_path(workflow), method: :patch, class: button_classes(:outline) %>
+  <% end %>
+  <% if workflow.runs.in_flight.exists? %>
+    <%= button_to "Stop all runs", stop_runs_workflow_path(workflow), method: :patch, class: button_classes(:danger),
+          form: { data: { turbo_confirm: "Stop everyone currently in this workflow? Their remaining steps won't happen." } } %>
+  <% end %>
+</div>
