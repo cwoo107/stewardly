@@ -20,7 +20,7 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 # json 3.0 dropped positional parse options that ActiveSupport::JSON.decode (Rails 8.1.3) still passes.
 # Remove this pin once Rails supports json 3.
-gem "json", "< 3"
+gem "json", "< 4"
 
 # PostGIS adapter for spatial columns (households, groups, campuses) [https://github.com/rgeo/activerecord-postgis-adapter]
 gem "activerecord-postgis-adapter", "~> 11.1"
