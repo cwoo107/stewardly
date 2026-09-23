@@ -1,0 +1,5 @@
+<% content_for :title, "Thank you" %>
+<div class="<%= card_classes %> text-center">
+  <h1 class="text-2xl font-medium tracking-tight">Thank you!</h1>
+  <p class="mt-3 whitespace-pre-line text-gray-600"><%= @form.confirmation_message.presence || "Your response was received." %></p>
+</div>

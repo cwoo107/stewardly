@@ -1,0 +1,60 @@
+<% content_for :title, "Edit #{@form.name}" %>
+<%= render "shared/page_header", title: @form.name,
+      subtitle: "#{@form.status.humanize} · #{@form.prayer_request_form? ? "Prayer request form" : "General form"}" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Preview", preview_form_path(@form), class: button_classes(:outline), target: "_blank", rel: "noopener" %>
+    <%= link_to "Submissions", form_submissions_path(@form), class: button_classes(:outline) if policy(FormSubmission.new(form: @form)).index? %>
+    <% if @form.published? %>
+      <%= button_to "Close form", close_form_path(@form), method: :patch, class: button_classes(:outline), form: { data: { turbo_confirm: "Stop accepting submissions?" } } %>
+    <% else %>
+      <%= button_to @form.closed? ? "Reopen" : "Publish", publish_form_path(@form), method: :patch, class: button_classes(:primary) %>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @form.published? %>
+  <p class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-900">
+    Live at <%= link_to public_form_url(@form.slug), public_form_path(@form.slug), class: "font-medium underline", target: "_blank", rel: "noopener" %>.
+    Changes to fields apply to new submissions straight away.
+  </p>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="space-y-4 lg:col-span-2">
+    <h2 class="text-lg font-semibold">Questions</h2>
+    <ol id="form_fields" class="space-y-3" data-controller="sortable">
+      <% @form.fields.each do |field| %>
+        <%= render "form_fields/item", form: @form, field: %>
+      <% end %>
+    </ol>
+
+    <%= form_with url: form_fields_path(@form), class: "flex flex-wrap items-end gap-3 #{card_classes}" do |f| %>
+      <div class="min-w-48 flex-1">
+        <%= label_tag :field_type, "Add a question", class: label_classes %>
+        <%= select_tag :field_type, options_for_select(FormField.field_types.keys.map { |t| [ t.humanize, t ] }), class: select_classes %>
+      </div>
+      <%= f.submit "Add", class: button_classes(:secondary) %>
+    <% end %>
+  </section>
+
+  <section class="<%= card_classes %> h-fit">
+    <h2 class="text-lg font-semibold">Settings</h2>
+    <%= form_with model: @form, class: "mt-4 space-y-5" do |form| %>
+      <%= render "shared/form_errors", messages: @form.errors.full_messages %>
+      <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+      <%= render "shared/field", form:, attribute: :slug, label: "Web address", hint: public_form_url(@form.slug) %>
+      <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 3 } %>
+      <%= render "shared/field", form:, attribute: :confirmation_message, label: "Thank-you message", type: :text_area, options: { rows: 3 } %>
+      <% unless @form.event_registration_form? %>
+        <div>
+          <%= form.label :access, "Who can fill it in", class: label_classes %>
+          <%= form.select :access, [ [ "Anyone", "public" ], [ "Signed-in members", "members" ] ], {}, class: select_classes %>
+        </div>
+      <% end %>
+      <%= form.submit "Save settings", class: button_classes(:primary) %>
+    <% end %>
+    <% if @form.submissions.none? %>
+      <%= button_to "Delete form", @form, method: :delete, class: "mt-6 #{button_classes(:danger)}", form: { data: { turbo_confirm: "Delete this form?" } } %>
+    <% end %>
+  </section>
+</div>

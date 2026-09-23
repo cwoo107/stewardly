@@ -1,0 +1,70 @@
+<% content_for :title, @group.name %>
+<%= render "shared/page_header", title: @group.name, subtitle: [ @group.group_type.humanize, @group.ministry&.name, @group.meeting_summary ].compact.join(" · ") do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Edit", edit_group_path(@group), class: button_classes(:outline) if policy(@group).update? %>
+    <% if policy(@group).destroy? %>
+      <%= button_to "Delete", @group, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{@group.name}?" } } %>
+    <% end %>
+  </div>
+<% end %>
+
+<% requests = @group.join_requests.pending.includes(:person) %>
+<% if requests.any? && requests.first && policy(requests.first).update? %>
+  <section class="mb-6 <%= card_classes %>">
+    <h2 class="text-lg font-semibold">Asking to join</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% requests.each do |join_request| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm" id="<%= dom_id(join_request) %>">
+          <div>
+            <%= link_to join_request.person.name, join_request.person, class: "font-medium hover:underline" %>
+            <% if join_request.message.present? %><p class="mt-1 text-gray-600">“<%= join_request.message %>”</p><% end %>
+          </div>
+          <span class="flex gap-2">
+            <%= button_to "Approve", group_join_request_path(@group, join_request), method: :patch, params: { decision: "approve" }, class: button_classes(:primary) %>
+            <%= button_to "Decline", group_join_request_path(@group, join_request), method: :patch, params: { decision: "decline" }, class: button_classes(:outline) %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="<%= card_classes %> lg:col-span-2">
+    <h2 class="text-lg font-semibold">People <span class="text-gray-500"><%= @memberships.size %><%= " of #{@group.capacity}" if @group.capacity %></span></h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @memberships.each do |membership| %>
+        <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm" id="<%= dom_id(membership) %>">
+          <span><%= link_to membership.person.name, membership.person, class: "hover:underline" %> <%= badge("Leader", color: "cyan") if membership.leader? %></span>
+          <% if policy(membership).update? %>
+            <span class="flex gap-3">
+              <%= button_to membership.leader? ? "Make member" : "Make leader", group_group_membership_path(@group, membership), method: :patch,
+                    params: { group_membership: { role: membership.leader? ? "member" : "leader" } }, class: "text-gray-600 underline hover:no-underline" %>
+              <%= button_to "Remove", group_group_membership_path(@group, membership), method: :delete, class: "text-gray-600 underline hover:no-underline" %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+      <% if @memberships.empty? %><li class="py-2 text-sm text-gray-500">No one yet.</li><% end %>
+    </ul>
+    <% if policy(@group).update? %>
+      <div class="mt-6">
+        <% if @group.full? %>
+          <p class="text-sm text-amber-700">This group is full.</p>
+        <% else %>
+          <%= render "people/picker", target: "group:#{@group.id}" %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Where</h2>
+    <p class="mt-2 text-sm text-gray-700"><%= @group.full_address.presence || "No meeting location" %></p>
+    <% if @group.geocode_error %><p class="mt-2 text-sm text-amber-700">Not found on the map.</p><% end %>
+    <% if @group.description.present? %>
+      <h2 class="mt-6 text-lg font-semibold">About</h2>
+      <p class="mt-2 whitespace-pre-line text-sm text-gray-700"><%= @group.description %></p>
+    <% end %>
+  </section>
+</div>

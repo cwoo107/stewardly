@@ -1,0 +1,45 @@
+<% content_for :title, "Edit #{@event.title}" %>
+<%= render "shared/page_header", title: @event.title, subtitle: "#{@event.status.humanize} · #{@event.visibility.humanize}" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Registrations", event_registrations_path(@event), class: button_classes(:outline) if @event.registration_required? %>
+    <% if @event.published? && !@event.visibility_internal? %>
+      <%= link_to "Public page", public_event_path(@event.slug), class: button_classes(:outline), target: "_blank", rel: "noopener" %>
+    <% end %>
+    <% if @event.draft? %>
+      <%= button_to "Publish", publish_event_path(@event), method: :patch, class: button_classes(:primary) %>
+    <% elsif @event.published? %>
+      <%= button_to "Cancel event", cancel_event_path(@event), method: :patch, class: button_classes(:danger), form: { data: { turbo_confirm: "Cancel this event?" } } %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="lg:col-span-2"><%= render "form", event: @event %></div>
+  <div class="space-y-6">
+    <section class="<%= card_classes %>">
+      <h2 class="text-lg font-semibold">Dates</h2>
+      <ul role="list" class="mt-4 divide-y divide-gray-100">
+        <% @event.occurrences.each do |occurrence| %>
+          <li class="py-2 text-sm">
+            <div class="flex items-center justify-between gap-2">
+              <span class="<%= "text-gray-400 line-through" if occurrence.cancelled? %>"><%= l(occurrence.starts_at, format: :long) %></span>
+              <span class="flex gap-3">
+                <%= link_to "Check in", event_occurrence_check_in_path(@event, occurrence), class: "text-cyan-700 hover:underline" if @event.registration_required? %>
+                <%= button_to "Remove", event_occurrence_path(@event, occurrence), method: :delete, class: "text-gray-500 underline hover:no-underline" %>
+              </span>
+            </div>
+            <% if @event.registration_required? %>
+              <p class="text-xs text-gray-500"><%= occurrence.seats_taken %><%= " of #{occurrence.capacity_limit}" if occurrence.capacity_limit %> registered · <%= occurrence.registrations.waitlisted.size %> waiting</p>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+      <%= form_with model: EventOccurrence.new, url: event_occurrences_path(@event), class: "mt-4 space-y-2" do |form| %>
+        <%= form.datetime_local_field :starts_at, required: true, class: input_classes, aria: { label: "New date starts" } %>
+        <%= form.datetime_local_field :ends_at, required: true, class: input_classes, aria: { label: "New date ends" } %>
+        <%= form.submit "Add date", class: button_classes(:secondary) %>
+      <% end %>
+    </section>
+    <%= render "shared/position_needs", needable: @event, positions: @positions, heading: "Volunteers needed each date" %>
+  </div>
+</div>

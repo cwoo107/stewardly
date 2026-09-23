@@ -1,0 +1,7 @@
+<%# Finds a person and offers an Add button for the given target ("group:ID" or "team:ID"). %>
+<%= form_with url: search_people_path, method: :get, data: { turbo_frame: "person_search" }, class: "flex gap-2" do |form| %>
+  <%= hidden_field_tag :for, target %>
+  <%= form.search_field :q, placeholder: "Find someone to add", class: input_classes, aria: { label: "Find someone to add" } %>
+  <%= form.submit "Search", class: button_classes(:secondary) %>
+<% end %>
+<%= turbo_frame_tag "person_search" %>

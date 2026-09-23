@@ -1,0 +1,16 @@
+<% content_for :title, "Events" %>
+<h1 class="text-2xl font-medium tracking-tight">Events</h1>
+<ul class="mt-6 space-y-3">
+  <% @occurrences.each do |occurrence| %>
+    <li>
+      <%= link_to member_event_path(occurrence.event), class: "flex items-center justify-between gap-3 #{card_classes} hover:ring-cyan-500" do %>
+        <div>
+          <p class="text-sm text-gray-500"><%= l(occurrence.starts_at, format: :long) %></p>
+          <p class="mt-1 font-semibold"><%= occurrence.title %></p>
+        </div>
+        <% if (status = @mine[occurrence.id]) %><%= badge(status == "waitlisted" ? "Waitlist" : "Registered", color: status == "waitlisted" ? "amber" : "green") %><% end %>
+      <% end %>
+    </li>
+  <% end %>
+  <% if @occurrences.empty? %><li class="<%= card_classes %> text-sm text-gray-500">No upcoming events.</li><% end %>
+</ul>

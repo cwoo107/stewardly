@@ -1,0 +1,5 @@
+Hi <%= @join_request.person.first_name %>,
+
+<%= @join_request.approved? ? "You're now part of #{@join_request.group.name}." : "#{@join_request.group.name} isn't able to take new people right now." %>
+
+<%= member_groups_url %>

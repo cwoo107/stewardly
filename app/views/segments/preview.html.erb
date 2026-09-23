@@ -1,0 +1,9 @@
+<%= turbo_frame_tag "segment_preview" do %>
+  <% @segment.validate %>
+  <% if @segment.errors[:definition].any? %>
+    <ul class="mb-3 text-sm text-amber-700"><% @segment.errors[:definition].each do |message| %><li><%= message %></li><% end %></ul>
+  <% end %>
+  <% count = @people.count %>
+  <p class="text-2xl font-semibold"><%= pluralize(count, "person") %></p>
+  <p class="mt-1 text-sm text-gray-600"><%= @people.alphabetical.limit(8).map(&:name).to_sentence %><%= "…" if count > 8 %></p>
+<% end %>

@@ -1,0 +1,15 @@
+<% content_for :title, @registration.event.title %>
+<% occurrence = @registration.event_occurrence %>
+<div class="<%= card_classes %>">
+  <p class="text-sm text-gray-500"><%= @registration.person.name %></p>
+  <h1 class="mt-1 text-2xl font-medium tracking-tight"><%= @registration.event.title %></h1>
+  <p class="mt-2 text-gray-700"><%= l(occurrence.starts_at, format: :long) %><%= " · #{@registration.event.location_summary}" if @registration.event.location_summary.present? %></p>
+  <p class="mt-4 text-lg font-semibold">
+    <%= { "confirmed" => "You're registered.", "waitlisted" => "You're on the waitlist. We'll email you if a spot opens.", "cancelled" => "This registration is cancelled." }.fetch(@registration.status) %>
+  </p>
+  <% if @registration.party_size > 1 %><p class="text-sm text-gray-600">Party of <%= @registration.party_size %></p><% end %>
+  <% unless @registration.cancelled? || occurrence.ends_at.past? %>
+    <%= button_to "Cancel my registration", manage_registration_path(@registration.manage_token), method: :delete,
+          class: "mt-6 #{button_classes(:danger)}", form: { data: { turbo_confirm: "Cancel your registration?" } } %>
+  <% end %>
+</div>

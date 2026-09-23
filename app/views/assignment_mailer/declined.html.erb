@@ -1,0 +1,3 @@
+<p><%= @assignment.person.name %> can't serve as <strong><%= @assignment.position.name %></strong> at
+  <%= @assignment.title %> on <%= l(@assignment.starts_at, format: :long) %>.</p>
+<p><a class="button" href="<%= team_schedule_url(@assignment.team, from: @assignment.local_date) %>">Open the schedule</a></p>

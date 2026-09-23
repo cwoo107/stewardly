@@ -1,0 +1,26 @@
+<% content_for :title, "Map" %>
+<% content_for :head do %><%= stylesheet_link_tag "leaflet", "data-turbo-track": "reload" %><% end %>
+<%= render "shared/page_header", title: "Map",
+      subtitle: @layers[:precise] ? "Households are shown at their exact location." : "Households are shown approximately (about 1 km) to protect privacy." %>
+
+<%= form_with url: map_path, method: :get, class: "mb-4 flex flex-wrap items-end gap-3", data: { turbo_action: "replace" } do |form| %>
+  <%= form.select :segment_id, options_from_collection_for_select(@segments, :id, :name, params[:segment_id]),
+        { include_blank: "Everyone" }, class: select_classes, aria: { label: "Segment" } %>
+  <%= form.select :group_type, options_for_select(Group.group_types.keys.map { |t| [ t.humanize, t ] }, params[:group_type]),
+        { include_blank: "All group types" }, class: select_classes, aria: { label: "Group type" } %>
+  <label class="inline-flex items-center gap-2 text-sm">
+    <%= form.check_box :coverage_gap, { checked: params[:coverage_gap] == "1", class: "rounded border-gray-300 text-cyan-500" }, "1", nil %>
+    Only households more than <%= @layers[:coverage_miles] %> miles from any group
+  </label>
+  <%= form.submit "Update map", class: button_classes(:secondary) %>
+<% end %>
+
+<div class="overflow-hidden rounded-4xl shadow-sm ring-1 ring-gray-200">
+  <div class="h-[70vh] min-h-96 w-full bg-gray-100" data-controller="map" data-map-layers-value="<%= @layers.to_json %>"></div>
+</div>
+
+<div class="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+  <span class="inline-flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-gray-900"></span> Campus</span>
+  <span class="inline-flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-cyan-500"></span> Group</span>
+  <span class="inline-flex items-center gap-2"><span class="h-3 w-3 rounded-full bg-amber-400"></span> <%= pluralize(@layers[:households].sum { |h| h[:count] || 1 }, "household") %></span>
+</div>

@@ -1,0 +1,59 @@
+<% content_for :title, @event.title %>
+<h1 class="text-3xl font-medium tracking-tight"><%= @event.title %></h1>
+<% if @event.location_summary.present? %><p class="mt-2 text-gray-600"><%= @event.location_summary %></p><% end %>
+<% if @event.description.present? %><p class="mt-4 whitespace-pre-line text-gray-700"><%= @event.description %></p><% end %>
+
+<section class="mt-8 space-y-4">
+  <% @occurrences.each do |occurrence| %>
+    <div class="<%= card_classes %>">
+      <p class="font-semibold"><%= l(occurrence.starts_at, format: :long) %></p>
+      <% if @event.registration_required? %>
+        <p class="mt-1 text-sm text-gray-600">
+          <% if occurrence.capacity_limit %><%= occurrence.full? ? "Full: you can join the waitlist." : "#{occurrence.seats_left} spots left." %><% end %>
+        </p>
+        <% if @event.registration_open? %>
+          <%= form_with url: public_event_registrations_path(@event.slug), class: "mt-4 space-y-4",
+                data: { controller: "form-logic", form_logic_rules_value: @event.registration_form&.visibility_rules.to_h.to_json,
+                        action: "input->form-logic#update change->form-logic#update" } do |form| %>
+            <%= hidden_field_tag :occurrence_id, occurrence.id, id: nil %>
+            <% if Current.user %>
+              <p class="text-sm">Registering as <strong><%= Current.user.name %></strong>.</p>
+            <% else %>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <%= label_tag "registrant_first_name_#{occurrence.id}", "First name", class: label_classes %>
+                  <%= text_field_tag "registrant[first_name]", params.dig(:registrant, :first_name), id: "registrant_first_name_#{occurrence.id}", required: true, class: input_classes %>
+                </div>
+                <div>
+                  <%= label_tag "registrant_last_name_#{occurrence.id}", "Last name", class: label_classes %>
+                  <%= text_field_tag "registrant[last_name]", params.dig(:registrant, :last_name), id: "registrant_last_name_#{occurrence.id}", required: true, class: input_classes %>
+                </div>
+              </div>
+              <div>
+                <%= label_tag "registrant_email_#{occurrence.id}", "Email", class: label_classes %>
+                <%= email_field_tag "registrant[email]", params.dig(:registrant, :email), id: "registrant_email_#{occurrence.id}", required: true, class: input_classes %>
+              </div>
+            <% end %>
+            <% if @event.max_party_size > 1 %>
+              <div class="max-w-40">
+                <%= label_tag "party_size_#{occurrence.id}", "How many people", class: label_classes %>
+                <%= number_field_tag :party_size, params[:party_size] || 1, id: "party_size_#{occurrence.id}", min: 1, max: @event.max_party_size, class: input_classes %>
+              </div>
+            <% end %>
+            <% @event.registration_form&.fields&.each do |field| %>
+              <%= render "public_forms/field", field:, value: @response&.value_for(field.key), error: @response&.errors&.dig(field.key) %>
+            <% end %>
+            <div class="hidden" aria-hidden="true">
+              <label>Leave this empty <input type="text" name="<%= PublicSubmissionProtection::HONEYPOT %>" tabindex="-1" autocomplete="off"></label>
+            </div>
+            <%= hidden_field_tag :started_at, PublicSubmissionProtection.started_at_token, id: nil %>
+            <%= form.submit occurrence.full? ? "Join the waitlist" : "Register", class: button_classes(:primary) %>
+          <% end %>
+        <% else %>
+          <p class="mt-2 text-sm text-gray-500">Registration isn't open right now.</p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+  <% if @occurrences.empty? %><p class="<%= card_classes %> text-gray-600">There are no upcoming dates.</p><% end %>
+</section>

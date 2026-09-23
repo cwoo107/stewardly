@@ -1,0 +1,41 @@
+<% content_for :title, "#{@event.title} registrations" %>
+<%= render "shared/page_header", title: "#{@event.title}: registrations" do %>
+  <div class="flex gap-2">
+    <%= link_to "Export CSV", event_registrations_path(@event, format: :csv), class: button_classes(:outline), data: { turbo: false } %>
+    <%= link_to "Edit event", edit_event_path(@event), class: button_classes(:outline) %>
+  </div>
+<% end %>
+
+<div class="space-y-6">
+  <% @occurrences.each do |occurrence| %>
+    <section class="<%= card_classes %>">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-lg font-semibold"><%= l(occurrence.starts_at, format: :long) %></h2>
+        <p class="text-sm text-gray-600">
+          <%= occurrence.seats_taken %><%= " of #{occurrence.capacity_limit}" if occurrence.capacity_limit %> registered ·
+          <%= link_to "Check in", event_occurrence_check_in_path(@event, occurrence), class: "text-cyan-700 hover:underline" %>
+        </p>
+      </div>
+      <% registrations = occurrence.registrations.sort_by { |r| [ %w[ confirmed waitlisted cancelled ].index(r.status), r.created_at ] } %>
+      <ul role="list" class="mt-4 divide-y divide-gray-100">
+        <% registrations.each do |registration| %>
+          <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+            <span>
+              <%= link_to registration.person.name, registration.person, class: "font-medium hover:underline" %>
+              <%= " + #{registration.party_size - 1}" if registration.party_size > 1 %>
+              <span class="text-gray-500">· <%= registration.person.email %></span>
+            </span>
+            <span class="flex items-center gap-2">
+              <%= badge(registration.status.humanize, color: { "confirmed" => "green", "waitlisted" => "amber", "cancelled" => "gray" }.fetch(registration.status)) %>
+              <% unless registration.cancelled? %>
+                <%= button_to "Cancel", event_registration_path(@event, registration), method: :patch, params: { change: "cancel" }, class: "text-gray-500 underline hover:no-underline",
+                      form: { data: { turbo_confirm: "Cancel #{registration.person.name}'s registration?" } } %>
+              <% end %>
+            </span>
+          </li>
+        <% end %>
+        <% if registrations.empty? %><li class="py-2 text-sm text-gray-500">No registrations yet.</li><% end %>
+      </ul>
+    </section>
+  <% end %>
+</div>

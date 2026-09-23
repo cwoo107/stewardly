@@ -1,0 +1,17 @@
+<% content_for :title, "Sign in" %>
+<div class="mx-auto max-w-md pt-16">
+  <div class="flex justify-center"><%= render "shared/logo", class: "h-10 w-10" %></div>
+  <h1 class="mt-8 text-center text-2xl font-medium tracking-tight">Stewardly platform</h1>
+
+  <%= form_with url: platform_session_path, class: "mt-10 space-y-6 rounded-4xl bg-white p-8 shadow-2xl shadow-gray-900/10" do |form| %>
+    <div>
+      <%= form.label :email_address, "Email address", class: label_classes %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", class: input_classes %>
+    </div>
+    <div>
+      <%= form.label :password, class: label_classes %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: input_classes %>
+    </div>
+    <%= form.submit "Sign in", class: button_classes(:primary) %>
+  <% end %>
+</div>

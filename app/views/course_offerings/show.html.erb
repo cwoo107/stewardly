@@ -1,0 +1,80 @@
+<% content_for :title, @offering.title %>
+<% manage = policy(@offering).update? %>
+<%= render "shared/page_header", title: @offering.title,
+      subtitle: [ @offering.leader && "Led by #{@offering.leader.name}", @offering.location_name, "#{@offering.seats_taken}#{" of #{@offering.capacity}" if @offering.capacity} enrolled" ].compact_blank.join(" · ") do %>
+  <div class="flex gap-2">
+    <%= link_to "Course", @offering.course, class: button_classes(:outline) %>
+    <%= link_to "Edit", edit_course_offering_path(@offering), class: button_classes(:outline) if manage %>
+  </div>
+<% end %>
+
+<section class="<%= card_classes %> overflow-x-auto">
+  <h2 class="text-lg font-semibold">Roster and attendance</h2>
+  <%= form_with url: course_offering_attendance_path(@offering), method: :patch, class: "mt-4" do |form| %>
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="text-left">
+          <th class="py-2 pr-4 font-semibold">Person</th>
+          <% @sessions.each do |session| %>
+            <th class="px-2 py-2 text-center font-normal text-gray-600" title="<%= session.topic %>"><%= l(session.local_date, format: :short) %></th>
+          <% end %>
+          <th class="px-2 py-2 font-semibold">Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @enrollments.each do |enrollment| %>
+          <tr id="<%= dom_id(enrollment) %>">
+            <td class="py-2 pr-4"><%= link_to enrollment.person.name, enrollment.person, class: "hover:underline" %></td>
+            <% @sessions.each do |session| %>
+              <td class="px-2 py-2 text-center">
+                <% if enrollment.enrolled? || enrollment.completed? %>
+                  <%= check_box_tag "present[#{session.id}][]", enrollment.id, session.present?(enrollment), id: "present_#{session.id}_#{enrollment.id}",
+                        class: "rounded border-gray-300 text-cyan-500", aria: { label: "#{enrollment.person.name} at #{l(session.local_date, format: :short)}" } %>
+                <% end %>
+              </td>
+            <% end %>
+            <td class="px-2 py-2"><%= badge(enrollment.status.humanize, color: { "enrolled" => "cyan", "completed" => "green", "waitlisted" => "amber" }.fetch(enrollment.status, "gray")) %></td>
+            <td class="py-2 text-right whitespace-nowrap">
+              <% if enrollment.enrolled? %>
+                <%= button_to "Complete", course_offering_enrollment_path(@offering, enrollment), method: :patch, params: { change: "complete" }, class: "text-cyan-700 hover:underline", form: { class: "inline" } %>
+              <% end %>
+              <% unless enrollment.withdrawn? %>
+                <%= button_to "Withdraw", course_offering_enrollment_path(@offering, enrollment), method: :patch, params: { change: "withdraw" }, class: "ml-2 text-gray-500 hover:underline", form: { class: "inline" } %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @enrollments.empty? %><p class="py-4 text-sm text-gray-500">No one enrolled yet.</p><% end %>
+    <% if @sessions.any? && @enrollments.any? %><%= form.submit "Save attendance", class: "mt-4 #{button_classes(:primary)}" %><% end %>
+  <% end %>
+
+  <%= form_with model: Enrollment.new, url: course_offering_enrollments_path(@offering), class: "mt-6 flex flex-wrap items-end gap-2" do |form| %>
+    <div class="min-w-64 flex-1">
+      <%= form.label :person_id, "Enroll someone", class: label_classes %>
+      <%= form.collection_select :person_id, Person.unmerged.alphabetical.where.not(id: @enrollments.map(&:person_id)), :id, :name, {}, class: select_classes %>
+    </div>
+    <%= form.submit "Enroll", class: button_classes(:secondary) %>
+  <% end %>
+</section>
+
+<% if manage %>
+  <section class="mt-6 <%= card_classes %>">
+    <h2 class="text-lg font-semibold">Sessions</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @sessions.each do |session| %>
+        <li class="flex items-center justify-between py-2 text-sm">
+          <span><%= l(session.starts_at, format: :long) %><%= " · #{session.topic}" if session.topic.present? %></span>
+          <%= button_to "Remove", course_offering_session_path(@offering, session), method: :delete, class: "text-gray-500 underline hover:no-underline" %>
+        </li>
+      <% end %>
+    </ul>
+    <%= form_with model: CourseSession.new, url: course_offering_sessions_path(@offering), class: "mt-4 grid gap-2 sm:grid-cols-[1fr_1fr_auto]" do |form| %>
+      <%= form.datetime_local_field :starts_at, required: true, class: input_classes, aria: { label: "Session starts" } %>
+      <%= form.text_field :topic, placeholder: "Topic (optional)", class: input_classes, aria: { label: "Topic" } %>
+      <%= form.submit "Add session", class: button_classes(:secondary) %>
+    <% end %>
+  </section>
+<% end %>

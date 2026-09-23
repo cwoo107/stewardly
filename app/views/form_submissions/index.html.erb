@@ -1,0 +1,32 @@
+<% content_for :title, "#{@form.name} submissions" %>
+<%= render "shared/page_header", title: "#{@form.name}: submissions" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Export CSV", form_submissions_path(@form, format: :csv), class: button_classes(:outline), data: { turbo: false } %>
+    <%= link_to "Edit form", edit_form_path(@form), class: button_classes(:outline) if policy(@form).update? %>
+  </div>
+<% end %>
+
+<nav class="mb-6 flex gap-2" aria-label="Status">
+  <% FormSubmission.statuses.each_key do |status| %>
+    <%= link_to status.humanize, form_submissions_path(@form, status:), class: "rounded-full px-3 py-1 text-sm #{@status == status ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>
+
+<% preview_fields = @form.fields.reject(&:sensitive?).reject { |f| f.field_type.in?(%w[ file address ]) }.first(3) %>
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @submissions.each do |submission| %>
+      <li>
+        <%= link_to form_submission_path(@form, submission), class: "block px-6 py-4 hover:bg-gray-50", id: dom_id(submission) do %>
+          <div class="flex flex-wrap items-baseline justify-between gap-2">
+            <p class="font-medium"><%= submission.person&.name || "Not linked to a person" %></p>
+            <time class="text-xs text-gray-500" datetime="<%= submission.created_at.iso8601 %>"><%= l(submission.created_at, format: :short) %></time>
+          </div>
+          <p class="mt-1 truncate text-sm text-gray-600"><%= preview_fields.filter_map { |f| f.display_answer(submission.answer_for(f)).presence }.join(" · ") %></p>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @submissions.empty? %><li class="px-6 py-8 text-center text-sm text-gray-500">No <%= @status %> submissions.</li><% end %>
+  </ul>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

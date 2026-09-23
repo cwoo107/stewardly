@@ -1,0 +1,23 @@
+<% content_for :title, "Church updates" %>
+<%= render "shared/page_header", title: "Church updates", subtitle: "Posted to the member area home page." do %>
+  <%= link_to "New update", new_announcement_path, class: button_classes(:primary) %>
+<% end %>
+<div class="space-y-4">
+  <% @announcements.each do |announcement| %>
+    <article class="<%= card_classes %>" id="<%= dom_id(announcement) %>">
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <h2 class="font-semibold"><%= announcement.title %> <%= badge("Pinned", color: "cyan") if announcement.pinned? %></h2>
+        <span class="flex items-center gap-3 text-sm">
+          <%= announcement.published? ? badge("Live", color: "green") : badge("Scheduled", color: "amber") %>
+          <%= link_to "Edit", edit_announcement_path(announcement), class: "text-cyan-700 hover:underline" %>
+        </span>
+      </div>
+      <p class="mt-2 line-clamp-3 whitespace-pre-line text-sm text-gray-700"><%= announcement.body %></p>
+      <p class="mt-2 text-xs text-gray-500">
+        <%= announcement.published_at ? "From #{l(announcement.published_at, format: :short)}" : "Draft" %><%= " until #{l(announcement.expires_on, format: :long)}" if announcement.expires_on %>
+        <%= " · #{announcement.author.name}" if announcement.author %>
+      </p>
+    </article>
+  <% end %>
+  <% if @announcements.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No updates yet.</p><% end %>
+</div>

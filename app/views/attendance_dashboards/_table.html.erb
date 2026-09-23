@@ -1,0 +1,13 @@
+<details class="mt-4">
+  <summary class="cursor-pointer text-sm text-gray-600">Show the numbers</summary>
+  <div class="mt-2 max-h-72 overflow-auto">
+    <table class="min-w-full text-sm">
+      <thead class="sticky top-0 bg-white"><tr class="text-left text-gray-500"><% headers.each_with_index do |header, i| %><th class="py-1 pr-4 <%= "text-right" if i.positive? %>"><%= header %></th><% end %></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <% rows.each do |row| %>
+          <tr><% row.each_with_index do |cell, i| %><td class="py-1 pr-4 <%= "text-right tabular-nums" if i.positive? %>"><%= cell.is_a?(Numeric) ? number_with_delimiter(cell) : (cell.presence || "—") %></td><% end %></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</details>

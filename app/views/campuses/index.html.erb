@@ -1,0 +1,27 @@
+<% content_for :title, "Campuses" %>
+<%= render "shared/page_header", title: "Settings" do %>
+  <%= link_to "New campus", new_campus_path, class: button_classes(:primary) %>
+<% end %>
+<%= render "shared/settings_nav" %>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @campuses.each do |campus| %>
+      <li class="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
+        <div>
+          <p class="font-medium"><%= campus.name %> <%= badge("Default", color: "cyan") if campus.is_default? %></p>
+          <p class="text-sm text-gray-500">
+            <%= campus.full_address.presence || "No address" %>
+            <%= " · not found on the map" if campus.geocode_error %>
+          </p>
+        </div>
+        <span class="flex gap-2">
+          <%= link_to "Edit", edit_campus_path(campus), class: button_classes(:outline) %>
+          <% if policy(campus).destroy? %>
+            <%= button_to "Delete", campus, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{campus.name}?" } } %>
+          <% end %>
+        </span>
+      </li>
+    <% end %>
+  </ul>
+</div>

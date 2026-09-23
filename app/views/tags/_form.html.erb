@@ -1,0 +1,12 @@
+<%= form_with model: tag, class: "max-w-md space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: tag.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+  <div>
+    <%= form.label :color, class: label_classes %>
+    <%= form.select :color, Tag::COLORS.map { |c| [ c.humanize, c ] }, {}, class: select_classes %>
+  </div>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", tags_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

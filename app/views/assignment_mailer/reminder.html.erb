@@ -1,0 +1,8 @@
+<p>Hi <%= @assignment.person.first_name %>,</p>
+<p>A reminder that you're serving as <strong><%= @assignment.position.name %></strong> at <strong><%= @assignment.title %></strong>
+  on <%= l(@assignment.starts_at, format: :long) %>. Thank you!</p>
+<% if @assignment.pending? %>
+  <p><a class="button" href="<%= assignment_response_url(@assignment.response_token) %>">Let us know if you can make it</a></p>
+<% else %>
+  <p class="muted">Can't make it after all? <a href="<%= assignment_response_url(@assignment.response_token) %>">Let us know</a>.</p>
+<% end %>

@@ -1,0 +1,14 @@
+<% more = local_assigns[:more] %>
+<% unless more %>
+  <%= link_to "Home", member_root_path, class: link_class %>
+  <%= link_to "Serving", member_assignments_path, class: link_class %>
+  <%= link_to "Events", member_events_path, class: link_class %>
+  <%= link_to "Groups", member_groups_path, class: link_class %>
+<% end %>
+<%= link_to "Classes", member_courses_path, class: link_class %>
+<%= link_to "Calendar", member_calendar_path, class: link_class %>
+<%= link_to "Prayer", member_prayers_path, class: link_class %>
+<%= link_to "Profile", member_profile_path, class: link_class %>
+<%= link_to "Give", Current.church.giving_url, class: link_class, target: "_blank", rel: "noopener" if Current.church.giving_url.present? %>
+<%= link_to "Staff area", root_path, class: link_class if Current.user.admin_area? %>
+<%= button_to "Sign out", session_path, method: :delete, class: "#{link_class} #{"w-full text-left" if more} cursor-pointer" %>

@@ -1,0 +1,5 @@
+Hi <%= @assignment.person.first_name %>,
+
+Can you serve as <%= @assignment.position.name %> (<%= @assignment.team.name %>) at <%= @assignment.title %> on <%= l(@assignment.starts_at, format: :long) %>?
+
+Accept or decline: <%= assignment_response_url(@assignment.response_token) %>

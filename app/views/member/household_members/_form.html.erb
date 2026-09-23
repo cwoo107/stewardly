@@ -1,0 +1,20 @@
+<%= form_with model: member, url: member.persisted? ? member_household_member_path(member) : member_household_members_path, scope: :person,
+      class: "mt-6 space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: member.errors.full_messages %>
+  <div class="grid gap-6 sm:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :first_name, options: { required: true } %>
+    <%= render "shared/field", form:, attribute: :last_name, options: { required: true } %>
+  </div>
+  <div class="grid gap-6 sm:grid-cols-3">
+    <%= render "shared/field", form:, attribute: :nickname %>
+    <%= render "shared/field", form:, attribute: :birthdate, label: "Birthday", type: :date_field %>
+    <div>
+      <%= form.label :household_role, "Adult or child", class: label_classes %>
+      <%= form.select :household_role, [ [ "Child", "child" ], [ "Adult", "adult" ] ], {}, class: select_classes %>
+    </div>
+  </div>
+  <div class="flex gap-3">
+    <%= form.submit "Save", class: button_classes(:primary) %>
+    <%= link_to "Cancel", member_profile_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

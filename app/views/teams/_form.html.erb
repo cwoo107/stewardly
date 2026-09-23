@@ -1,0 +1,13 @@
+<%= form_with model: team, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: team.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+  <div>
+    <%= form.label :ministry_id, class: label_classes %>
+    <%= form.collection_select :ministry_id, policy_scope(Ministry).alphabetical.select { |m| policy(Team.new(ministry: m)).create? }, :id, :name, {}, class: select_classes %>
+  </div>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 3 } %>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", team.persisted? ? team : (team.ministry || ministries_path), class: button_classes(:outline) %>
+  </div>
+<% end %>

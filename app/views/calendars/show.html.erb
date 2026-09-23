@@ -1,0 +1,37 @@
+<% content_for :title, "Calendar" %>
+<%= render "shared/page_header", title: "Calendar", subtitle: @month.strftime("%B %Y") do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "←", calendar_path(month: @calendar.previous.strftime("%Y-%m"), view: @view), class: button_classes(:outline), aria: { label: "Previous month" } %>
+    <%= link_to "Today", calendar_path(view: @view), class: button_classes(:outline) %>
+    <%= link_to "→", calendar_path(month: @calendar.following.strftime("%Y-%m"), view: @view), class: button_classes(:outline), aria: { label: "Next month" } %>
+    <%= link_to @view == "month" ? "Agenda" : "Month", calendar_path(month: @month.strftime("%Y-%m"), view: @view == "month" ? "agenda" : nil), class: button_classes(:secondary) %>
+  </div>
+<% end %>
+
+<% if @view == "month" %>
+  <div class="hidden overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200 md:block">
+    <div class="grid grid-cols-7 border-b border-gray-100 bg-gray-50 text-center text-xs font-semibold text-gray-600">
+      <% %w[ Sun Mon Tue Wed Thu Fri Sat ].each do |day| %><div class="py-2"><%= day %></div><% end %>
+    </div>
+    <% @calendar.weeks.each do |week| %>
+      <div class="grid grid-cols-7 divide-x divide-gray-100 border-b border-gray-100 last:border-0">
+        <% week.each do |date| %>
+          <div class="min-h-28 space-y-1 p-1.5 <%= "bg-gray-50/60 text-gray-400" unless @calendar.in_month?(date) %>">
+            <p class="text-xs font-semibold <%= "inline-flex h-6 w-6 items-center justify-center rounded-full bg-cyan-500 text-white" if date == Current.church.today %>"><%= date.day %></p>
+            <% @calendar.items_on(date).each do |item| %><%= render "shared/calendar_item", item: %><% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%# The agenda is the month view on small screens. %>
+<div class="<%= "md:hidden" if @view == "month" %> space-y-4">
+  <% @feed.by_date.select { |date, _| @calendar.in_month?(date) }.sort.each do |date, items| %>
+    <section class="<%= card_classes %>">
+      <h2 class="text-sm font-semibold"><%= l(date, format: :long) %></h2>
+      <ul class="mt-2 space-y-1"><% items.each do |item| %><li><%= render "shared/calendar_item", item: %></li><% end %></ul>
+    </section>
+  <% end %>
+</div>

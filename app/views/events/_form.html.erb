@@ -1,0 +1,59 @@
+<%= form_with model: event, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: event.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :title, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 4 } %>
+  <% if event.new_record? %>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div>
+        <%= label_tag "first_occurrence_starts_at", "Starts", class: label_classes %>
+        <%= datetime_local_field_tag "first_occurrence[starts_at]", nil, id: "first_occurrence_starts_at", required: true, class: input_classes %>
+      </div>
+      <div>
+        <%= label_tag "first_occurrence_ends_at", "Ends", class: label_classes %>
+        <%= datetime_local_field_tag "first_occurrence[ends_at]", nil, id: "first_occurrence_ends_at", required: true, class: input_classes %>
+      </div>
+    </div>
+  <% end %>
+  <div class="grid gap-6 sm:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :location_name, label: "Where", options: { placeholder: "Fellowship hall" } %>
+    <%= render "shared/field", form:, attribute: :address_line1, label: "Address" %>
+  </div>
+  <div class="grid gap-6 sm:grid-cols-3">
+    <div>
+      <%= form.label :ministry_id, class: label_classes %>
+      <%= form.collection_select :ministry_id, policy_scope(Ministry).alphabetical.select { |m| Current.user.can?(:manage_events) || Current.user.leads?(m) },
+            :id, :name, { include_blank: (Current.user.can?(:manage_events) ? "—" : false) }, class: select_classes %>
+    </div>
+    <div>
+      <%= form.label :visibility, "Who can see it", class: label_classes %>
+      <%= form.select :visibility, [ [ "Everyone (public page)", "public" ], [ "Members (member area)", "members" ], [ "Staff only", "internal" ] ], {}, class: select_classes %>
+    </div>
+    <div>
+      <%= form.label :slug, "Web address", class: label_classes %>
+      <%= form.text_field :slug, class: input_classes, placeholder: "fall-picnic" %>
+    </div>
+  </div>
+
+  <fieldset class="space-y-6 border-t border-gray-100 pt-6">
+    <legend class="text-sm font-semibold">Registration</legend>
+    <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :registration_required, class: "rounded border-gray-300 text-cyan-500" %> People register for this event</label>
+    <div class="grid gap-6 sm:grid-cols-3">
+      <%= render "shared/field", form:, attribute: :capacity, type: :number_field, hint: "Per date. Blank = no limit; extra people join a waitlist.", options: { min: 1 } %>
+      <%= render "shared/field", form:, attribute: :max_party_size, label: "Most people per registration", type: :number_field, options: { min: 1, max: 20 } %>
+      <div>
+        <%= form.label :registration_form_id, "Extra questions", class: label_classes %>
+        <%= form.collection_select :registration_form_id, Form.event_registration_form.alphabetical, :id, :name, { include_blank: "None" }, class: select_classes %>
+        <p class="mt-2 text-xs text-gray-500">Build an “Event registration” form under Forms.</p>
+      </div>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <%= render "shared/field", form:, attribute: :registration_opens_at, type: :datetime_local_field, label: "Opens (optional)" %>
+      <%= render "shared/field", form:, attribute: :registration_closes_at, type: :datetime_local_field, label: "Closes (optional)" %>
+    </div>
+  </fieldset>
+
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", event.persisted? ? event : events_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

@@ -1,0 +1,14 @@
+# Turbo Stream broadcasts depend on Redis-backed Action Cable.
+# REDIS_URL is the jobs/cable Redis (maxmemory-policy noeviction).
+development:
+  adapter: redis
+  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  channel_prefix: stewardly_development
+
+test:
+  adapter: test
+
+production:
+  adapter: redis
+  url: <%= ENV["REDIS_URL"] %>
+  channel_prefix: stewardly_production

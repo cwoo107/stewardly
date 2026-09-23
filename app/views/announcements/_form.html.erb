@@ -1,0 +1,17 @@
+<%= form_with model: announcement, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: announcement.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :title, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :body, type: :text_area, options: { rows: 6, required: true } %>
+  <div class="grid gap-6 sm:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :published_at, label: "Show from", type: :datetime_local_field, hint: "Leave blank to keep as a draft." %>
+    <%= render "shared/field", form:, attribute: :expires_on, label: "Show until (optional)", type: :date_field %>
+  </div>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :pinned, class: "rounded border-gray-300 text-cyan-500" %> Pin to the top</label>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", announcements_path, class: button_classes(:outline) %>
+    <% if announcement.persisted? %>
+      <%= link_to "Delete", announcement, data: { turbo_method: :delete, turbo_confirm: "Delete this update?" }, class: "ml-auto #{button_classes(:danger)}" %>
+    <% end %>
+  </div>
+<% end %>

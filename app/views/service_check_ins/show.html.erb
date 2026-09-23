@@ -1,0 +1,44 @@
+<% content_for :title, "Check-in" %>
+<%= render "shared/page_header", title: "Check-in: #{@occurrence.title}",
+      subtitle: "#{l(@occurrence.local_date, format: :long)} · #{pluralize(@attendances.size, "person")} checked in" do %>
+  <%= link_to "Counts", attendance_counts_path(date: @occurrence.local_date), class: button_classes(:outline) %>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <section class="<%= card_classes %>">
+    <%= form_with url: service_occurrence_check_in_path(@occurrence), method: :get, class: "flex gap-2", data: { turbo_action: "replace" } do |form| %>
+      <%= form.search_field :q, value: params[:q], placeholder: "Find someone", autofocus: true, class: input_classes, aria: { label: "Find someone" } %>
+      <%= form.submit "Search", class: button_classes(:secondary) %>
+    <% end %>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @results.each do |person| %>
+        <li class="flex items-center justify-between py-2 text-sm">
+          <span><%= person.name %> <span class="text-gray-500"><%= person.email %></span></span>
+          <%= button_to "Check in", service_occurrence_attendances_path(@occurrence), params: { person_id: person.id }, class: button_classes(:primary) %>
+        </li>
+      <% end %>
+      <% if params[:q].present? && @results.empty? %><li class="py-2 text-sm text-gray-500">No one found. Add them below.</li><% end %>
+    </ul>
+
+    <h2 class="mt-6 text-sm font-semibold">New here</h2>
+    <%= form_with url: service_occurrence_attendances_path(@occurrence), class: "mt-2 grid gap-2 sm:grid-cols-2" do |form| %>
+      <%= form.text_field :first_name, placeholder: "First name", required: true, class: input_classes, aria: { label: "First name" } %>
+      <%= form.text_field :last_name, placeholder: "Last name", required: true, class: input_classes, aria: { label: "Last name" } %>
+      <%= form.email_field :email, placeholder: "Email (optional)", class: "sm:col-span-2 #{input_classes}", aria: { label: "Email" } %>
+      <%= form.submit "Check in guest", class: "sm:col-span-2 #{button_classes(:primary)}" %>
+    <% end %>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Checked in</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @attendances.each do |attendance| %>
+        <li class="flex items-center justify-between py-2 text-sm">
+          <span><%= attendance.person.name %> <%= badge("First time", color: "green") if attendance.first_time? %></span>
+          <%= button_to "Undo", service_occurrence_attendance_path(@occurrence, attendance), method: :delete, class: "text-gray-500 underline hover:no-underline" %>
+        </li>
+      <% end %>
+      <% if @attendances.empty? %><li class="py-2 text-sm text-gray-500">No one yet.</li><% end %>
+    </ul>
+  </section>
+</div>

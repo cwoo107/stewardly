@@ -1,0 +1,65 @@
+<% content_for :title, @ministry.name %>
+<%= render "shared/page_header", title: @ministry.name, subtitle: @ministry.description do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Edit", edit_ministry_path(@ministry), class: button_classes(:outline) if policy(@ministry).update? %>
+    <% if policy(@ministry).destroy? %>
+      <%= button_to "Delete", @ministry, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{@ministry.name}?" } } %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Leaders</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @ministry.ministry_leaderships.includes(user: :person).each do |leadership| %>
+        <li class="flex items-center justify-between py-2 text-sm">
+          <%= leadership.user.name %>
+          <% if policy(leadership).destroy? %>
+            <%= button_to "Remove", ministry_ministry_leadership_path(@ministry, leadership), method: :delete, class: "text-gray-500 underline hover:no-underline" %>
+          <% end %>
+        </li>
+      <% end %>
+      <% if @ministry.leaders.empty? %><li class="py-2 text-sm text-gray-500">No leaders yet.</li><% end %>
+    </ul>
+    <% if @leadership_candidates&.any? %>
+      <%= form_with model: MinistryLeadership.new, url: ministry_ministry_leaderships_path(@ministry), class: "mt-4 flex gap-2" do |form| %>
+        <%= form.collection_select :user_id, @leadership_candidates, :id, :name, {}, class: select_classes, aria: { label: "Leader" } %>
+        <%= form.submit "Add", class: button_classes(:secondary) %>
+      <% end %>
+      <p class="mt-2 text-xs text-gray-500">Leaders manage this ministry's groups and teams.</p>
+    <% end %>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Groups</h2>
+      <%= link_to "Add", new_group_path(ministry_id: @ministry.id), class: "text-sm text-cyan-700 hover:underline" if policy(Group.new(ministry: @ministry)).create? %>
+    </div>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @groups.each do |group| %>
+        <li class="flex justify-between py-2 text-sm">
+          <%= link_to group.name, group, class: "hover:underline" %>
+          <span class="text-gray-500"><%= group.group_memberships.size %><%= "/#{group.capacity}" if group.capacity %></span>
+        </li>
+      <% end %>
+      <% if @groups.empty? %><li class="py-2 text-sm text-gray-500">No groups yet.</li><% end %>
+    </ul>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Teams</h2>
+      <%= link_to "Add", new_team_path(ministry_id: @ministry.id), class: "text-sm text-cyan-700 hover:underline" if policy(Team.new(ministry: @ministry)).create? %>
+    </div>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @teams.each do |team| %>
+        <li class="py-2 text-sm">
+          <%= link_to team.name, team, class: "hover:underline" %>
+          <span class="text-gray-500">· <%= pluralize(team.team_memberships.size, "person") %> · <%= pluralize(team.positions.size, "position") %></span>
+        </li>
+      <% end %>
+      <% if @teams.empty? %><li class="py-2 text-sm text-gray-500">No teams yet.</li><% end %>
+    </ul>
+  </section>
+</div>

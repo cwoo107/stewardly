@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50 antialiased">
+  <head>
+    <%= render "layouts/head", suffix: Current.church&.name %>
+  </head>
+
+  <body class="min-h-full font-sans text-gray-900">
+    <header class="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <div class="mx-auto flex  items-center justify-between gap-3 px-4 py-3">
+        <%= link_to member_root_path, class: "flex items-center gap-2" do %>
+          <%= render "shared/logo", class: "h-7 w-7" %>
+          <span class="font-semibold"><%= Current.church.name %></span>
+        <% end %>
+        <nav class="hidden items-center gap-4 text-sm text-gray-700 sm:flex" aria-label="Member">
+          <%= render "member/nav_links", link_class: "hover:text-gray-900" %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-3xl px-4 pb-28 pt-6 sm:pb-12">
+      <div id="flash"><%= render "shared/flash" %></div>
+      <%= yield %>
+    </main>
+
+    <%# Bottom navigation on phones %>
+    <nav class="fixed inset-x-0 bottom-0 z-10 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] sm:hidden" aria-label="Member">
+      <div class="grid grid-cols-5 text-center text-xs">
+        <% [ [ "Home", member_root_path ], [ "Serving", member_assignments_path ], [ "Events", member_events_path ], [ "Groups", member_groups_path ] ].each do |label, path| %>
+          <%= link_to label, path, class: "py-3 #{current_page?(path) ? "font-semibold text-cyan-700" : "text-gray-600"}" %>
+        <% end %>
+        <details class="relative">
+          <summary class="cursor-pointer list-none py-3 text-gray-600">More</summary>
+          <div class="absolute bottom-full right-1 mb-2 w-48 space-y-1 rounded-2xl bg-white p-2 text-left text-sm shadow-xl ring-1 ring-gray-200">
+            <%= render "member/nav_links", link_class: "block rounded-lg px-3 py-2 hover:bg-gray-50", more: true %>
+          </div>
+        </details>
+      </div>
+    </nav>
+  </body>
+</html>

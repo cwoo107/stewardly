@@ -1,0 +1,14 @@
+<% content_for :title, "Roles" %>
+<%= render "shared/page_header", title: "Roles", subtitle: "What each role lets someone do." %>
+
+<div class="grid gap-6 sm:grid-cols-2">
+  <% @roles.each do |role| %>
+    <%= link_to role, class: "block rounded-4xl bg-white p-6 shadow-sm ring-1 ring-gray-200 hover:ring-cyan-500" do %>
+      <h2 class="font-semibold"><%= role.name %></h2>
+      <p class="mt-1 text-sm text-gray-600">
+        <%= role.grants_all? ? "Every permission" : pluralize(role.permissions.size, "permission") %>
+        · <%= pluralize(role.users.size, "user") %>
+      </p>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,17 @@
+<%= form_with model: custom_field, class: "max-w-md space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: custom_field.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :label, options: { required: true } %>
+  <div>
+    <%= form.label :field_type, "Type", class: label_classes %>
+    <%= form.select :field_type, CustomField.field_types.keys.map { |t| [ t.humanize, t ] }, {}, class: select_classes, disabled: custom_field.persisted? %>
+    <% if custom_field.persisted? %><p class="mt-2 text-sm text-gray-500">The type can't change once created.</p><% end %>
+  </div>
+  <div>
+    <%= label_tag "custom_field_options_text", "Choices (one per line, for select types)", class: label_classes %>
+    <%= text_area_tag "custom_field[options_text]", custom_field.options.join("\n"), id: "custom_field_options_text", rows: 4, class: input_classes %>
+  </div>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", custom_fields_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

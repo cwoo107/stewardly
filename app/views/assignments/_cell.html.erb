@@ -1,0 +1,37 @@
+<% occurrence = cell.occurrence %>
+<% board = local_assigns.fetch(:board) %>
+<div id="<%= cell.dom_id %>">
+  <ol class="min-h-12 space-y-1 rounded-xl border border-dashed <%= cell.open_slots.positive? ? "border-cyan-300 bg-cyan-50/40" : "border-transparent" %> p-1"
+      data-schedule-board-target="slot"
+      data-schedulable-type="<%= occurrence.class.name %>" data-schedulable-id="<%= occurrence.id %>" data-position-id="<%= cell.position.id %>">
+    <% cell.assignments.each do |assignment| %>
+      <% conflicts = board.conflicts_for(assignment) %>
+      <li class="group cursor-grab rounded-lg bg-white px-2 py-1 shadow-sm ring-1 ring-gray-200" data-assignment-url="<%= assignment_path(assignment) %>"
+          title="<%= conflicts.join("\n") %>">
+        <div class="flex items-center justify-between gap-1">
+          <span class="truncate <%= "text-gray-400 line-through" if assignment.declined? %>">
+            <%= "⚠ " if conflicts.any? %><%= assignment.person.name %>
+          </span>
+          <%= button_to "×", assignment_path(assignment), method: :delete, class: "text-gray-400 hover:text-rose-600",
+                aria: { label: "Remove #{assignment.person.name}" }, form: { data: { turbo_stream: true } } %>
+        </div>
+        <%= badge(assignment.status.humanize, color: { "pending" => "amber", "accepted" => "green", "declined" => "rose" }.fetch(assignment.status)) %>
+        <% if assignment.pending? && assignment.requested_at.nil? %><span class="text-xs text-gray-400">not sent</span><% end %>
+      </li>
+    <% end %>
+  </ol>
+  <% if cell.needed.positive? %>
+    <p class="mt-1 text-xs <%= cell.open_slots.positive? ? "text-cyan-800" : "text-gray-400" %>">
+      <%= cell.open_slots.positive? ? "#{cell.open_slots} of #{cell.needed} open" : "#{cell.needed} needed · full" %>
+    </p>
+  <% end %>
+  <% if cell.open_slots.positive? %>
+    <details class="mt-1 text-xs">
+      <summary class="cursor-pointer text-cyan-700">Suggestions</summary>
+      <%= turbo_frame_tag "suggestions_#{cell.dom_id}", loading: :lazy,
+            src: suggestions_assignments_path(schedulable_type: occurrence.class.name, schedulable_id: occurrence.id, position_id: cell.position.id) do %>
+        <p class="mt-1 text-gray-400">Loading…</p>
+      <% end %>
+    </details>
+  <% end %>
+</div>

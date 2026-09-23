@@ -1,0 +1,64 @@
+<% content_for :title, "Tasks" %>
+<%= render "shared/page_header", title: "Tasks" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Board", tasks_path(request.query_parameters.merge(view: nil)), class: button_classes(@view == "board" ? :secondary : :outline) %>
+    <%= link_to "List", tasks_path(request.query_parameters.merge(view: "list")), class: button_classes(@view == "list" ? :secondary : :outline) %>
+    <%= link_to "Projects", projects_path, class: button_classes(:outline) if policy(Project).index? %>
+    <%= link_to "New task", new_task_path, class: button_classes(:primary) if policy(Task).create? %>
+  </div>
+<% end %>
+
+<%= form_with url: tasks_path, method: :get, class: "mb-6 flex flex-wrap items-center gap-3", data: { turbo_action: "replace" } do |form| %>
+  <%= hidden_field_tag :view, @view if @view == "list" %>
+  <%= form.select :owner_id, [ [ "Anyone", "" ], [ "Me", "me" ] ] + User.alphabetical.includes(:person).map { |u| [ u.name, u.id ] },
+        { selected: params[:owner_id] }, class: select_classes, aria: { label: "Owner" } %>
+  <%= form.select :project_id, options_from_collection_for_select(policy_scope(Project).active.alphabetical, :id, :name, params[:project_id]),
+        { include_blank: "All projects" }, class: select_classes, aria: { label: "Project" } %>
+  <%= form.select :priority, options_for_select(Task.priorities.keys.map { |p| [ p.humanize, p ] }, params[:priority]),
+        { include_blank: "Any priority" }, class: select_classes, aria: { label: "Priority" } %>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :overdue, { checked: params[:overdue] == "1", class: "rounded border-gray-300 text-cyan-500" }, "1", nil %> Overdue</label>
+  <%= form.submit "Filter", class: button_classes(:secondary) %>
+<% end %>
+
+<% if @view == "board" %>
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <% @columns.each do |status, tasks| %>
+      <section class="flex flex-col rounded-3xl bg-gray-100/70 p-3 <%= "xl:opacity-90" if status == "idea" %>" aria-labelledby="column_<%= status %>">
+        <div class="mb-2 flex items-center justify-between px-2">
+          <h2 id="column_<%= status %>" class="text-sm font-semibold"><%= status == "idea" ? "Ideas (parked)" : status.humanize %></h2>
+          <%= link_to "+", new_task_path(status:), class: "text-lg leading-none text-gray-500 hover:text-gray-900", aria: { label: "New #{status.humanize.downcase} task" } if policy(Task).create? %>
+        </div>
+        <ol class="min-h-24 flex-1 space-y-2" data-controller="sortable" data-sortable-group-value="board" data-status="<%= status %>" id="tasks_<%= status %>">
+          <% tasks.each do |task| %>
+            <%= render "tasks/card", task: %>
+          <% end %>
+        </ol>
+        <% if status == "idea" && @hidden_low_ideas.to_i.positive? %>
+          <%= link_to "Show #{pluralize(@hidden_low_ideas, "low-priority idea")}", tasks_path(request.query_parameters.merge(show_low_ideas: "1")),
+                class: "mt-2 px-2 text-xs text-gray-500 underline hover:no-underline" %>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+<% else %>
+  <div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+    <ul role="list" class="divide-y divide-gray-100">
+      <% @tasks.each do |task| %>
+        <li>
+          <%= link_to task, class: "flex flex-wrap items-center justify-between gap-2 px-6 py-3 hover:bg-gray-50" do %>
+            <div>
+              <p class="font-medium <%= "text-gray-400 line-through" if task.done? %>"><%= task.title %></p>
+              <p class="text-sm text-gray-500"><%= [ task.status.humanize, task.project&.name, task.owner&.name ].compact.join(" · ") %></p>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <% if task.due_on %><span class="<%= task.overdue?(Current.church.today) ? "font-semibold text-rose-700" : "text-gray-600" %>">Due <%= l(task.due_on, format: :short) %></span><% end %>
+              <%= priority_badge(task) %>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+      <% if @tasks.empty? %><li class="px-6 py-8 text-center text-sm text-gray-500">No tasks match.</li><% end %>
+    </ul>
+  </div>
+  <%= render "shared/pagination", pagy: @pagy %>
+<% end %>

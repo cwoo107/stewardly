@@ -1,0 +1,9 @@
+<% if pagy.pages > 1 %>
+  <nav class="mt-6 flex items-center justify-between gap-4 text-sm" aria-label="Pagination">
+    <p class="text-gray-600">Showing <%= pagy.from %>–<%= pagy.to %> of <%= pagy.count %></p>
+    <div class="flex gap-2">
+      <%= link_to "Previous", pagy_url_for(pagy, pagy.prev), class: button_classes(:outline) if pagy.prev %>
+      <%= link_to "Next", pagy_url_for(pagy, pagy.next), class: button_classes(:outline) if pagy.next %>
+    </div>
+  </nav>
+<% end %>

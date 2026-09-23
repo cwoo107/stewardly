@@ -1,0 +1,5 @@
+Hi <%= @assignment.person.first_name %>,
+
+A reminder that you're serving as <%= @assignment.position.name %> at <%= @assignment.title %> on <%= l(@assignment.starts_at, format: :long) %>.
+
+Can't make it? <%= assignment_response_url(@assignment.response_token) %>

@@ -1,0 +1,6 @@
+Hi <%= @person.first_name %>,
+
+Set a password to use the <%= ActsAsTenant.current_tenant.name %> member area:
+<%= edit_account_setup_url(token: @token) %>
+
+This link works for 7 days.

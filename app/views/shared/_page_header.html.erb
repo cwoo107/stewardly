@@ -1,0 +1,9 @@
+<div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-medium tracking-tight text-gray-900"><%= title %></h1>
+    <% if local_assigns[:subtitle] %>
+      <p class="mt-1 text-gray-600"><%= subtitle %></p>
+    <% end %>
+  </div>
+  <%= yield if block_given? %>
+</div>

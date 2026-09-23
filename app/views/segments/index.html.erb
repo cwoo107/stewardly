@@ -1,0 +1,16 @@
+<% content_for :title, "Segments" %>
+<%= render "shared/page_header", title: "Segments", subtitle: "Saved groups of people, reused for email audiences, workflows, reports, and the map." do %>
+  <%= link_to "New segment", new_segment_path, class: button_classes(:primary) if policy(Segment).create? %>
+<% end %>
+
+<div class="grid gap-6 sm:grid-cols-2">
+  <% @segments.each do |segment| %>
+    <%= link_to segment, class: "block #{card_classes} hover:ring-cyan-500" do %>
+      <h2 class="font-semibold"><%= segment.name %></h2>
+      <ul class="mt-2 space-y-1 text-sm text-gray-600">
+        <% segment.conditions.each do |condition| %><li><%= condition.summary %></li><% end %>
+      </ul>
+    <% end %>
+  <% end %>
+</div>
+<% if @segments.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No segments yet.</p><% end %>

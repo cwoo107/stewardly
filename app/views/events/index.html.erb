@@ -1,0 +1,32 @@
+<% content_for :title, "Events" %>
+<%= render "shared/page_header", title: "Events" do %>
+  <%= link_to "New event", new_event_path, class: button_classes(:primary) if policy(Event).new? %>
+<% end %>
+
+<nav class="mb-6 flex gap-2" aria-label="Status">
+  <%= link_to "All", events_path, class: "rounded-full px-3 py-1 text-sm #{params[:status].blank? ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200"}" %>
+  <% Event.statuses.each_key do |status| %>
+    <%= link_to status.humanize, events_path(status:), class: "rounded-full px-3 py-1 text-sm #{params[:status] == status ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200"}" %>
+  <% end %>
+</nav>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @events.each do |event| %>
+      <% next_date = event.upcoming_occurrences.first %>
+      <li>
+        <%= link_to event, class: "flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-gray-50" do %>
+          <div>
+            <p class="font-medium"><%= event.title %></p>
+            <p class="text-sm text-gray-500"><%= [ (next_date ? l(next_date.starts_at, format: :long) : "No upcoming dates"), event.ministry&.name ].compact.join(" · ") %></p>
+          </div>
+          <div class="flex gap-2">
+            <%= badge(event.visibility.humanize) %>
+            <%= badge(event.status.humanize, color: { "published" => "green", "draft" => "amber", "cancelled" => "rose" }.fetch(event.status)) %>
+          </div>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @events.empty? %><li class="px-6 py-8 text-center text-sm text-gray-500">No events.</li><% end %>
+  </ul>
+</div>

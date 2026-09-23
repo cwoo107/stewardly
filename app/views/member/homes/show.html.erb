@@ -1,0 +1,67 @@
+<% content_for :title, "Home" %>
+<h1 class="text-2xl font-medium tracking-tight">Hi, <%= person.nickname.presence || person.first_name %></h1>
+
+<% if @awaiting_reply.any? %>
+  <section class="mt-6">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Can you serve?</h2>
+    <ul class="mt-3 space-y-3"><% @awaiting_reply.each do |assignment| %><%= render "member/assignment", assignment: %><% end %></ul>
+  </section>
+<% end %>
+
+<% if @announcements.any? %>
+  <section class="mt-8">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Church updates</h2>
+    <div class="mt-3 space-y-3">
+      <% @announcements.each do |announcement| %>
+        <article class="<%= card_classes %>">
+          <h3 class="font-semibold"><%= announcement.title %></h3>
+          <p class="mt-2 whitespace-pre-line text-sm text-gray-700"><%= announcement.body %></p>
+        </article>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<section class="mt-8">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Coming up for you</h2>
+  <ul class="mt-3 space-y-2">
+    <% @upcoming_serving.each do |assignment| %>
+      <li class="rounded-2xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-gray-200">
+        <span class="font-medium">Serving <%= assignment.position.name %></span> · <%= l(assignment.starts_at, format: :long) %>
+      </li>
+    <% end %>
+    <% @registrations.each do |registration| %>
+      <li class="rounded-2xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-gray-200">
+        <%= link_to registration.event.title, member_event_path(registration.event), class: "font-medium hover:underline" %> · <%= l(registration.event_occurrence.starts_at, format: :long) %>
+        <%= badge("Waitlist", color: "amber") if registration.waitlisted? %>
+      </li>
+    <% end %>
+    <% if @upcoming_serving.empty? && @registrations.empty? %><li class="text-sm text-gray-500">Nothing yet.</li><% end %>
+  </ul>
+</section>
+
+<section class="mt-8">
+  <div class="flex items-center justify-between">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Events</h2>
+    <%= link_to "All events", member_events_path, class: "text-sm text-cyan-700" %>
+  </div>
+  <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+    <% @events.each do |occurrence| %>
+      <li>
+        <%= link_to member_event_path(occurrence.event), class: "block #{card_classes} hover:ring-cyan-500" do %>
+          <p class="text-sm text-gray-500"><%= l(occurrence.starts_at, format: :long) %></p>
+          <p class="mt-1 font-semibold"><%= occurrence.title %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</section>
+
+<div class="mt-8 grid grid-cols-2 gap-3">
+  <%= link_to "Share a prayer request", member_prayers_path, class: "#{card_classes} text-center text-sm font-semibold hover:ring-cyan-500" %>
+  <% if Current.church.giving_url.present? %>
+    <%= link_to "Give", Current.church.giving_url, class: "#{card_classes} text-center text-sm font-semibold hover:ring-cyan-500", target: "_blank", rel: "noopener" %>
+  <% else %>
+    <%= link_to "Find a group", member_groups_path, class: "#{card_classes} text-center text-sm font-semibold hover:ring-cyan-500" %>
+  <% end %>
+</div>

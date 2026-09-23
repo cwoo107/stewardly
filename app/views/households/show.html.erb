@@ -1,0 +1,47 @@
+<% content_for :title, @household.name %>
+<%= render "shared/page_header", title: @household.name, subtitle: @household.full_address.presence do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Edit", edit_household_path(@household), class: button_classes(:outline) if policy(@household).update? %>
+    <% if policy(@household).destroy? %>
+      <%= button_to "Delete", @household, method: :delete, class: button_classes(:danger),
+            form: { data: { turbo_confirm: "Delete this household? Its people are kept." } } %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <section class="<%= card_classes %>">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">People</h2>
+      <%= link_to "Add person", new_person_path(household_id: @household.id), class: "text-sm text-cyan-700 hover:underline" if policy(Person).create? %>
+    </div>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @household.people.alphabetical.each do |person| %>
+        <li class="flex justify-between py-2 text-sm">
+          <%= link_to person.name, person, class: "hover:underline" %>
+          <span class="text-gray-500"><%= person.household_role.humanize %></span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Nearest groups</h2>
+    <% if @household.geocode_error %>
+      <p class="mt-2 text-sm text-amber-700">We couldn't find this address on the map: <%= @household.geocode_error %>.</p>
+    <% elsif @display_location.nil? %>
+      <p class="mt-2 text-sm text-gray-500"><%= @household.address? ? "Locating this address…" : "Add an address to see nearby groups." %></p>
+    <% end %>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @nearest_groups.each do |group| %>
+        <li class="flex justify-between gap-3 py-2 text-sm">
+          <span><%= link_to group.name, group, class: "font-medium hover:underline" %> <span class="text-gray-500">· <%= group.meeting_summary %></span></span>
+          <span class="shrink-0 text-gray-500"><%= number_with_precision(group.distance_miles, precision: 1) %> mi</span>
+        </li>
+      <% end %>
+      <% if @display_location && @nearest_groups.empty? %>
+        <li class="py-2 text-sm text-gray-500">No groups with a meeting location yet.</li>
+      <% end %>
+    </ul>
+  </section>
+</div>

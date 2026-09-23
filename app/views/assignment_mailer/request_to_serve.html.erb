@@ -1,0 +1,5 @@
+<p>Hi <%= @assignment.person.first_name %>,</p>
+<p>Can you serve as <strong><%= @assignment.position.name %></strong> (<%= @assignment.team.name %>) at
+  <strong><%= @assignment.title %></strong> on <%= l(@assignment.starts_at, format: :long) %>?</p>
+<p><a class="button" href="<%= assignment_response_url(@assignment.response_token) %>">Accept or decline</a></p>
+<p class="muted">You can also answer in the member area.</p>

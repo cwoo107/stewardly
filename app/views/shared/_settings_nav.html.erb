@@ -1,0 +1,11 @@
+<% links = [
+     [ "Church", edit_church_settings_path, policy(Current.church).edit? ],
+     [ "Campuses", campuses_path, policy(Campus).index? ],
+     [ "Tags", tags_path, policy(Tag).index? ],
+     [ "Custom fields", custom_fields_path, policy(CustomField).index? ]
+   ].select(&:last) %>
+<nav class="mb-8 flex flex-wrap gap-2" aria-label="Settings">
+  <% links.each do |label, path, _| %>
+    <%= link_to label, path, class: "rounded-full px-3 py-1 text-sm #{request.path.start_with?(path.sub(%r{/edit\z}, "")) ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>

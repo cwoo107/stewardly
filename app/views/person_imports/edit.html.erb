@@ -1,0 +1,38 @@
+<% content_for :title, "Map columns" %>
+<%= render "shared/page_header", title: "Match columns to fields",
+      subtitle: "#{@import.file.filename} · #{pluralize(@preview.row_count, "row")}. We've guessed where we could; check each column." %>
+
+<% if @preview.error %>
+  <p class="<%= card_classes %> text-sm text-red-700">This file isn't valid CSV: <%= @preview.error %></p>
+<% else %>
+  <%= form_with model: @import, url: person_import_path(@import), method: :patch, class: "space-y-6" do |form| %>
+    <%= render "shared/form_errors", messages: @import.errors.full_messages %>
+
+    <div class="overflow-x-auto rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+      <table class="min-w-full divide-y divide-gray-100 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <% @preview.headers.each do |header| %>
+              <th class="px-4 py-3 text-left align-top">
+                <p class="font-semibold text-gray-900"><%= header %></p>
+                <%= select_tag "person_import[mapping][#{header}]",
+                      options_for_select(PersonImport::Importer.field_options, @mapping[header]),
+                      include_blank: "Skip", class: "mt-2 min-w-40 #{select_classes}", aria: { label: "Field for #{header}" } %>
+              </th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% @preview.rows.each do |row| %>
+            <tr><% row.each do |value| %><td class="whitespace-nowrap px-4 py-2 text-gray-700"><%= value %></td><% end %></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex gap-3">
+      <%= form.submit "Import #{pluralize(@preview.row_count, "row")}", class: button_classes(:primary) %>
+      <%= link_to "Cancel", person_imports_path, class: button_classes(:outline) %>
+    </div>
+  <% end %>
+<% end %>

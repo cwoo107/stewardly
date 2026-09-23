@@ -1,0 +1,20 @@
+<% content_for :title, "Tags" %>
+<%= render "shared/page_header", title: "Settings" do %>
+  <%= link_to "New tag", new_tag_path, class: button_classes(:primary) %>
+<% end %>
+<%= render "shared/settings_nav" %>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @tags.each do |tag| %>
+      <li class="flex items-center justify-between gap-3 px-6 py-3">
+        <span class="flex items-center gap-3"><%= tag_badge(tag) %> <span class="text-sm text-gray-500"><%= pluralize(tag.people_count, "person") %></span></span>
+        <span class="flex gap-2">
+          <%= link_to "Edit", edit_tag_path(tag), class: button_classes(:outline) %>
+          <%= button_to "Delete", tag, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{tag.name}? It will be removed from everyone." } } %>
+        </span>
+      </li>
+    <% end %>
+    <% if @tags.empty? %><li class="px-6 py-6 text-sm text-gray-500">No tags yet.</li><% end %>
+  </ul>
+</div>

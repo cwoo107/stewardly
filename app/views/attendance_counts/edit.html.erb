@@ -1,0 +1,53 @@
+<% content_for :title, "Enter counts" %>
+<% categories = Current.church.attendance_categories %>
+<%= render "shared/page_header", title: "Counts for #{l(@date, format: :long)}" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "← Week before", attendance_counts_path(date: @date - 7), class: button_classes(:outline) %>
+    <%= link_to "Week after →", attendance_counts_path(date: @date + 7), class: button_classes(:outline) unless @date + 7 > Current.church.today %>
+    <%= link_to "Dashboard", attendance_path, class: button_classes(:outline) if policy(:attendance).show? %>
+  </div>
+<% end %>
+
+<% if @occurrences.empty? %>
+  <p class="<%= card_classes %> text-sm text-gray-600">No services on this date. <%= link_to "Set up worship services", worship_services_path, class: "underline" %>.</p>
+<% else %>
+  <%= form_with url: attendance_counts_path(date: @date), method: :patch, class: "space-y-6" do |form| %>
+    <% @occurrences.each do |occurrence| %>
+      <% count = occurrence.attendance_count || occurrence.build_attendance_count %>
+      <% prefix = "counts[#{occurrence.id}]" %>
+      <fieldset class="<%= card_classes %>" id="<%= dom_id(occurrence) %>">
+        <legend class="sr-only"><%= occurrence.title %></legend>
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 class="text-lg font-semibold"><%= occurrence.title %></h2>
+          <span class="text-sm text-gray-500">
+            <%= "Forecast #{occurrence.forecast.expected} (#{occurrence.forecast.low}–#{occurrence.forecast.high})" if occurrence.forecast %>
+            <%= link_to "Individual check-in", service_occurrence_check_in_path(occurrence), class: "ml-3 text-cyan-700 hover:underline" %>
+          </span>
+        </div>
+        <% if @errors&.dig(occurrence.id) %><p class="mt-2 text-sm text-red-700"><%= @errors[occurrence.id] %></p><% end %>
+        <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <% categories.each do |category| %>
+            <div>
+              <%= label_tag "count_#{occurrence.id}_#{category.parameterize}", category, class: label_classes %>
+              <%= number_field_tag "#{prefix}[breakdown][#{category}]", count.breakdown[category], id: "count_#{occurrence.id}_#{category.parameterize}", min: 0, class: input_classes %>
+            </div>
+          <% end %>
+          <div>
+            <%= label_tag "count_#{occurrence.id}_total", "Total", class: label_classes %>
+            <%= number_field_tag "#{prefix}[total]", count.total, id: "count_#{occurrence.id}_total", min: 0, class: input_classes %>
+          </div>
+          <div>
+            <%= label_tag "count_#{occurrence.id}_guests", "First-time guests", class: label_classes %>
+            <%= number_field_tag "#{prefix}[first_time_guests]", count.first_time_guests, id: "count_#{occurrence.id}_guests", min: 0, class: input_classes %>
+          </div>
+        </div>
+        <p class="mt-2 text-xs text-gray-500">Fill in the categories and the total is added up for you, or just enter a total.</p>
+        <div class="mt-4">
+          <%= label_tag "count_#{occurrence.id}_note", "Note", class: label_classes %>
+          <%= text_field_tag "#{prefix}[note]", count.note, id: "count_#{occurrence.id}_note", placeholder: "Snow day, baptism service…", class: input_classes %>
+        </div>
+      </fieldset>
+    <% end %>
+    <%= form.submit "Save counts", class: button_classes(:primary) %>
+  <% end %>
+<% end %>

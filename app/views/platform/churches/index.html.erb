@@ -1,0 +1,18 @@
+<% content_for :title, "Churches" %>
+<%= render "shared/page_header", title: "Churches" do %>
+  <%= link_to "New church", new_platform_church_path, class: button_classes(:primary) %>
+<% end %>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @churches.each do |church| %>
+      <li id="<%= dom_id(church) %>" class="flex flex-wrap items-center justify-between gap-2 px-6 py-4">
+        <div>
+          <p class="font-medium"><%= church.name %></p>
+          <p class="text-sm text-gray-500"><%= church.host %> · <%= church.time_zone %></p>
+        </div>
+        <p class="text-sm text-gray-500">Since <%= l(church.created_at.to_date, format: :long) %></p>
+      </li>
+    <% end %>
+  </ul>
+</div>

@@ -1,0 +1,37 @@
+<section class="<%= card_classes %> h-fit">
+  <h2 class="text-lg font-semibold"><%= heading %></h2>
+  <ul role="list" class="mt-4 divide-y divide-gray-100">
+    <% needable.position_needs.sort_by { |n| [ n.position.team.name, n.position.name ] }.each do |need| %>
+      <li class="flex items-center justify-between gap-3 py-2 text-sm">
+        <span><%= need.position.name %> <span class="text-gray-500">(<%= need.position.team.name %>)</span></span>
+        <span class="flex items-center gap-2">
+          <%= form_with model: need, class: "flex items-center gap-2" do |form| %>
+            <%= form.number_field :quantity, min: 1, class: "w-20 #{input_classes}", aria: { label: "How many #{need.position.name}" } %>
+            <%= form.submit "Save", class: button_classes(:outline) %>
+          <% end %>
+          <%= button_to "Remove", need, method: :delete, class: "text-gray-500 underline hover:no-underline" %>
+        </span>
+      </li>
+    <% end %>
+    <% if needable.position_needs.empty? %><li class="py-2 text-sm text-gray-500">None yet.</li><% end %>
+  </ul>
+  <% taken = needable.position_needs.map(&:position_id) %>
+  <% available = positions.reject { |p| taken.include?(p.id) } %>
+  <% if available.any? %>
+    <%= form_with model: PositionNeed.new, class: "mt-4 flex flex-wrap items-end gap-2" do |form| %>
+      <%= form.hidden_field :needable_type, value: needable.class.name %>
+      <%= form.hidden_field :needable_id, value: needable.id %>
+      <div class="min-w-48 flex-1">
+        <%= form.label :position_id, "Position", class: label_classes %>
+        <%= form.select :position_id, available.map { |p| [ "#{p.team.name}: #{p.name}", p.id ] }, {}, class: select_classes %>
+      </div>
+      <div class="w-24">
+        <%= form.label :quantity, "How many", class: label_classes %>
+        <%= form.number_field :quantity, value: 1, min: 1, class: input_classes %>
+      </div>
+      <%= form.submit "Add", class: button_classes(:secondary) %>
+    <% end %>
+  <% elsif positions.empty? %>
+    <p class="mt-4 text-sm text-gray-500">Add positions to a team first.</p>
+  <% end %>
+</section>

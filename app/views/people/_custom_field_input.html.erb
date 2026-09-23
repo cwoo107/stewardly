@@ -1,0 +1,25 @@
+<% name = "person[custom_field_values][#{field.key}]" %>
+<% id = "person_custom_field_#{field.key}" %>
+<div>
+  <% if field.field_type == "boolean" %>
+    <%= hidden_field_tag name, "", id: nil %>
+    <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-900">
+      <%= check_box_tag name, "1", value == true, id:, class: "rounded border-gray-300 text-cyan-500" %> <%= field.label %>
+    </label>
+  <% else %>
+    <%= label_tag id, field.label, class: label_classes %>
+    <% case field.field_type %>
+    <% when "number" %>
+      <%= number_field_tag name, value, id:, step: "any", class: input_classes %>
+    <% when "date" %>
+      <%= date_field_tag name, value, id:, class: input_classes %>
+    <% when "select" %>
+      <%= select_tag name, options_for_select(field.options, value), id:, include_blank: true, class: select_classes %>
+    <% when "multi_select" %>
+      <%= hidden_field_tag "#{name}[]", "", id: nil %>
+      <%= select_tag "#{name}[]", options_for_select(field.options, value), id:, multiple: true, class: input_classes %>
+    <% else %>
+      <%= text_field_tag name, value, id:, class: input_classes %>
+    <% end %>
+  <% end %>
+</div>

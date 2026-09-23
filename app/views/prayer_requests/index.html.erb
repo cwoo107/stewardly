@@ -1,0 +1,28 @@
+<% content_for :title, "Prayer requests" %>
+<%= render "shared/page_header", title: "Prayer requests", subtitle: "Request text is stored encrypted and never shared outside this list." do %>
+  <%= link_to "New request", new_prayer_request_path, class: button_classes(:primary) if policy(PrayerRequest).create? %>
+<% end %>
+
+<nav class="mb-6 flex gap-2" aria-label="Status">
+  <% PrayerRequest.statuses.each_key do |status| %>
+    <%= link_to status.humanize, prayer_requests_path(status:), class: "rounded-full px-3 py-1 text-sm #{@status == status ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>
+
+<div class="space-y-4">
+  <% @prayer_requests.each do |request| %>
+    <%= link_to request, class: "block #{card_classes} hover:ring-cyan-500", id: dom_id(request) do %>
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <p class="font-medium"><%= request.requester_display_name %></p>
+        <div class="flex gap-2">
+          <%= badge(request.visibility.humanize, color: request.pastoral_staff? ? "violet" : "cyan") %>
+          <% request.assignees.each { |user| %><%= badge(user.name) %><% } %>
+        </div>
+      </div>
+      <p class="mt-2 line-clamp-2 text-sm text-gray-700"><%= request.body %></p>
+      <p class="mt-2 text-xs text-gray-500"><%= l(request.created_at, format: :short) %></p>
+    <% end %>
+  <% end %>
+  <% if @prayer_requests.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No <%= @status %> requests.</p><% end %>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

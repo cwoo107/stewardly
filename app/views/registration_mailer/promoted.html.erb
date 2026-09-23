@@ -1,0 +1,5 @@
+<p>Hi <%= @registration.person.first_name %>,</p>
+<p>Good news: a spot opened up. You're now registered for <strong><%= @registration.event.title %></strong>,
+  <%= l(@occurrence.starts_at, format: :long) %><%= ", #{@registration.event.location_summary}" if @registration.event.location_summary.present? %>.</p>
+<% if @registration.party_size > 1 %><p>Party of <%= @registration.party_size %>.</p><% end %>
+<p><a class="button" href="<%= manage_registration_url(@registration.manage_token) %>">View or cancel</a></p>

@@ -1,0 +1,8 @@
+<p>Hi <%= @join_request.person.first_name %>,</p>
+<% if @join_request.approved? %>
+  <p>You're now part of <strong><%= @join_request.group.name %></strong>. <%= @join_request.group.meeting_summary %>.</p>
+  <p><a class="button" href="<%= member_groups_url %>">See your groups</a></p>
+<% else %>
+  <p><%= @join_request.group.name %> isn't able to take new people right now. We'd love to help you find another group.</p>
+  <p><a class="button" href="<%= member_groups_url %>">Find a group</a></p>
+<% end %>

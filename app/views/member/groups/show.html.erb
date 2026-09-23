@@ -1,0 +1,22 @@
+<% content_for :title, @group.name %>
+<h1 class="text-2xl font-medium tracking-tight"><%= @group.name %></h1>
+<p class="mt-1 text-gray-600"><%= [ @group.group_type.humanize, @group.meeting_summary ].join(" · ") %></p>
+<% if @group.description.present? %><p class="mt-4 whitespace-pre-line text-gray-700"><%= @group.description %></p><% end %>
+<% if @group.city.present? %><p class="mt-2 text-sm text-gray-500">Meets in <%= @group.city %></p><% end %>
+
+<div class="mt-6 <%= card_classes %>">
+  <% if @member %>
+    <p class="font-semibold">You're in this group.</p>
+  <% elsif @pending %>
+    <p class="font-semibold">You've asked to join. A leader will be in touch.</p>
+  <% elsif @group.full? %>
+    <p class="text-gray-700">This group is full right now.</p>
+  <% else %>
+    <%= form_with model: GroupJoinRequest.new, url: member_group_join_requests_path(@group), class: "space-y-3" do |form| %>
+      <%= form.label :message, "Anything the leader should know? (optional)", class: label_classes %>
+      <%= form.text_area :message, rows: 3, maxlength: 1000, class: input_classes %>
+      <%= form.submit "Ask to join", class: button_classes(:primary) %>
+    <% end %>
+  <% end %>
+</div>
+<p class="mt-6"><%= link_to "← All groups", member_groups_path, class: "text-sm text-gray-600 hover:underline" %></p>

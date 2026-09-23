@@ -1,0 +1,9 @@
+<% colors = { "event" => "bg-cyan-50 text-cyan-900", "service" => "bg-gray-100 text-gray-700", "class" => "bg-violet-50 text-violet-900", "serving" => "bg-amber-50 text-amber-900" } %>
+<% content = capture do %>
+  <span class="font-medium"><%= item.starts_at.strftime("%-l:%M%P") %></span> <%= item.title %>
+<% end %>
+<% if item.path %>
+  <%= link_to content, item.path, class: "block truncate rounded px-1.5 py-0.5 text-xs #{colors.fetch(item.kind)} hover:ring-1 hover:ring-gray-300", title: [ item.title, item.detail ].compact.join(" · ") %>
+<% else %>
+  <span class="block truncate rounded px-1.5 py-0.5 text-xs <%= colors.fetch(item.kind) %>" title="<%= [ item.title, item.detail ].compact.join(" · ") %>"><%= content %></span>
+<% end %>

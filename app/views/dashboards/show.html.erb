@@ -1,0 +1,10 @@
+<% content_for :title, "Dashboard" %>
+<%= render "shared/page_header", title: "Welcome, #{Current.user.person.nickname.presence || Current.user.person.first_name}",
+      subtitle: "#{Current.church.name} · #{l(Current.church.today, format: :long)} (#{Current.church.time_zone})" %>
+
+<div class="rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+  <h2 class="text-lg font-semibold">Stewardly is getting ready</h2>
+  <p class="mt-2 text-gray-600">
+    People, groups, scheduling, and the rest of your church’s work will show up here as each part is switched on.
+  </p>
+</div>

@@ -1,0 +1,20 @@
+<% content_for :title, "Serving request" %>
+<div class="<%= card_classes %>">
+  <p class="text-sm text-gray-500">Hi <%= @assignment.person.first_name %></p>
+  <h1 class="mt-1 text-2xl font-medium tracking-tight"><%= @assignment.position.name %> · <%= @assignment.team.name %></h1>
+  <p class="mt-2 text-gray-700"><%= @assignment.title %>, <%= l(@assignment.starts_at, format: :long) %></p>
+
+  <% if !@assignment.respondable? %>
+    <p class="mt-6 text-gray-600">This date has passed.</p>
+  <% else %>
+    <p class="mt-6 font-semibold">
+      <%= { "pending" => "Can you serve?", "accepted" => "You said yes. Thank you!", "declined" => "You said you can't make it." }.fetch(@assignment.status) %>
+    </p>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <%= button_to "Yes, I'll serve", assignment_response_path(@assignment.response_token), method: :patch, params: { answer: "accept" },
+            class: button_classes(:primary), disabled: @assignment.accepted? %>
+      <%= button_to "I can't make it", assignment_response_path(@assignment.response_token), method: :patch, params: { answer: "decline" },
+            class: button_classes(:outline), disabled: @assignment.declined? %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,12 @@
+<%= form_with model: project, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: project.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 3 } %>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", projects_path, class: button_classes(:outline) %>
+    <% if project.persisted? %>
+      <%= link_to "Delete", project, data: { turbo_method: :delete, turbo_confirm: "Delete #{project.name}? Its tasks are kept." }, class: "ml-auto #{button_classes(:danger)}" %>
+    <% end %>
+  </div>
+<% end %>

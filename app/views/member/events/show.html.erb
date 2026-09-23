@@ -1,0 +1,38 @@
+<% content_for :title, @event.title %>
+<h1 class="text-2xl font-medium tracking-tight"><%= @event.title %></h1>
+<% if @event.location_summary.present? %><p class="mt-1 text-gray-600"><%= @event.location_summary %></p><% end %>
+<% if @event.description.present? %><p class="mt-4 whitespace-pre-line text-gray-700"><%= @event.description %></p><% end %>
+
+<ul class="mt-6 space-y-3">
+  <% @occurrences.each do |occurrence| %>
+    <% mine = @mine[occurrence.id] %>
+    <li class="<%= card_classes %>">
+      <p class="font-semibold"><%= l(occurrence.starts_at, format: :long) %></p>
+      <% if mine %>
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <%= badge(mine.waitlisted? ? "You're on the waitlist" : "You're registered#{" (party of #{mine.party_size})" if mine.party_size > 1}", color: mine.waitlisted? ? "amber" : "green") %>
+          <%= button_to "Cancel", member_registration_path(mine), method: :delete, class: "text-sm text-gray-500 underline hover:no-underline",
+                form: { data: { turbo_confirm: "Cancel your registration?" } } %>
+        </div>
+      <% elsif @event.registration_open? %>
+        <%= form_with url: member_event_registrations_path(@event), class: "mt-3 space-y-3",
+              data: { controller: "form-logic", form_logic_rules_value: @event.registration_form&.visibility_rules.to_h.to_json,
+                      action: "input->form-logic#update change->form-logic#update" } do |form| %>
+          <%= hidden_field_tag :occurrence_id, occurrence.id, id: nil %>
+          <% if @event.max_party_size > 1 %>
+            <div class="max-w-40">
+              <%= label_tag "party_size_#{occurrence.id}", "How many people", class: label_classes %>
+              <%= number_field_tag :party_size, 1, id: "party_size_#{occurrence.id}", min: 1, max: @event.max_party_size, class: input_classes %>
+            </div>
+          <% end %>
+          <% @event.registration_form&.fields&.each do |field| %>
+            <%= render "public_forms/field", field:, value: nil, error: nil %>
+          <% end %>
+          <%= form.submit occurrence.full? ? "Join the waitlist" : "Register", class: button_classes(:primary) %>
+        <% end %>
+      <% elsif @event.registration_required? %>
+        <p class="mt-2 text-sm text-gray-500">Registration isn't open.</p>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

@@ -1,0 +1,47 @@
+<% content_for :title, "Forecast accuracy" %>
+<%= render "shared/page_header", title: "Forecast accuracy",
+      subtitle: @accuracy.mean_error_percent ? "Off by #{@accuracy.mean_error_percent}% on average · the actual count landed in the range #{@accuracy.within_range_percent}% of the time" : "No finished forecasts yet." do %>
+  <%= link_to "Dashboard", attendance_path, class: button_classes(:outline) %>
+<% end %>
+
+<nav class="mb-6 flex flex-wrap gap-2" aria-label="Service">
+  <% @services.each do |service| %>
+    <%= link_to service.name, attendance_accuracy_path(worship_service_id: service.id),
+          class: "rounded-full px-3 py-1 text-sm #{service == @service ? "bg-gray-900 text-white" : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-gray-50"}" %>
+  <% end %>
+</nav>
+
+<% if @rows.any? %>
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Forecast vs actual</h2>
+    <% ordered = @rows.reverse %>
+    <% series = [
+         { name: "Actual", data: ordered.to_h { |f| [ f.local_date, f.actual ] } },
+         { name: "Forecast", data: ordered.to_h { |f| [ f.local_date, f.expected ] } }
+       ] %>
+    <div class="mt-4"><%= line_chart series, **line_chart_options(library: { elements: { point: { radius: 3 } } }) %></div>
+  </section>
+
+  <section class="mt-6 <%= card_classes %> overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead><tr class="text-left text-gray-500"><th class="py-2 pr-4">Date</th><th class="py-2 pr-4 text-right">Forecast</th><th class="py-2 pr-4 text-right">Range</th><th class="py-2 pr-4 text-right">Actual</th><th class="py-2 pr-4 text-right">Off by</th><th class="py-2">Why</th></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @rows.each do |forecast| %>
+          <tr class="align-top">
+            <td class="py-2 pr-4"><%= l(forecast.local_date, format: :long) %></td>
+            <td class="py-2 pr-4 text-right tabular-nums"><%= forecast.expected %></td>
+            <td class="py-2 pr-4 text-right tabular-nums text-gray-600"><%= forecast.low %>–<%= forecast.high %></td>
+            <td class="py-2 pr-4 text-right tabular-nums font-medium"><%= forecast.actual %></td>
+            <td class="py-2 pr-4 text-right tabular-nums">
+              <%= format("%.1f", forecast.error_percent) %>%
+              <%= forecast.within_range? ? badge("in range", color: "green") : badge("outside", color: "amber") %>
+            </td>
+            <td class="py-2"><details><summary class="cursor-pointer text-cyan-700">Factors</summary><%= render "attendance_forecasts/factors", forecast: %></details></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+<% else %>
+  <p class="<%= card_classes %> text-sm text-gray-500">Forecasts are compared with counts once a service has happened.</p>
+<% end %>

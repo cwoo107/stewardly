@@ -1,0 +1,17 @@
+<% content_for :title, "Ministries" %>
+<%= render "shared/page_header", title: "Ministries" do %>
+  <%= link_to "New ministry", new_ministry_path, class: button_classes(:primary) if policy(Ministry).create? %>
+<% end %>
+
+<div class="grid gap-6 sm:grid-cols-2">
+  <% @ministries.each do |ministry| %>
+    <%= link_to ministry, class: "block #{card_classes} hover:ring-cyan-500" do %>
+      <h2 class="font-semibold"><%= ministry.name %></h2>
+      <p class="mt-1 text-sm text-gray-600"><%= pluralize(ministry.groups.size, "group") %> · <%= pluralize(ministry.teams.size, "team") %></p>
+      <% if ministry.leaders.any? %>
+        <p class="mt-2 text-sm text-gray-500">Led by <%= ministry.leaders.map(&:name).to_sentence %></p>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
+<% if @ministries.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No ministries yet.</p><% end %>

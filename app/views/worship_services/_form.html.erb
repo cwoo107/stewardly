@@ -1,0 +1,21 @@
+<%= form_with model: service, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: service.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "Sunday 9am" } %>
+  <div class="grid gap-6 sm:grid-cols-4">
+    <div>
+      <%= form.label :day_of_week, "Day", class: label_classes %>
+      <%= form.select :day_of_week, Date::DAYNAMES.each_with_index.to_a, {}, class: select_classes %>
+    </div>
+    <%= render "shared/field", form:, attribute: :start_time, type: :time_field, options: { required: true } %>
+    <%= render "shared/field", form:, attribute: :duration_minutes, label: "Minutes", type: :number_field, options: { min: 5 } %>
+    <div>
+      <%= form.label :campus_id, class: label_classes %>
+      <%= form.collection_select :campus_id, Campus.ordered, :id, :name, { include_blank: "—" }, class: select_classes %>
+    </div>
+  </div>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :active, class: "rounded border-gray-300 text-cyan-500" %> Active</label>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", worship_services_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

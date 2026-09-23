@@ -1,0 +1,44 @@
+<% pastoral = policy(PrayerRequest.new).update? %>
+<%= form_with model: prayer_request, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: prayer_request.errors.full_messages %>
+
+  <% if prayer_request.person %>
+    <%= form.hidden_field :person_id %>
+    <p class="text-sm">For <span class="font-semibold"><%= prayer_request.person.name %></span></p>
+  <% else %>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <%= render "shared/field", form:, attribute: :requester_name, label: "Name" %>
+      <%= render "shared/field", form:, attribute: :requester_email, label: "Email (optional)", type: :email_field %>
+    </div>
+    <p class="-mt-3 text-sm text-gray-500">For someone already in the database, add the request from their profile.</p>
+  <% end %>
+
+  <%= render "shared/field", form:, attribute: :body, label: "Request", type: :text_area, options: { rows: 5, required: true } %>
+
+  <% if pastoral %>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div>
+        <%= form.label :visibility, "Who can see this", class: label_classes %>
+        <%= form.select :visibility, [ [ "Pastoral staff only", "pastoral_staff" ], [ "Prayer team", "prayer_team" ], [ "Shared with members", "shared" ] ], {}, class: select_classes %>
+        <p class="mt-2 text-xs text-gray-500">Sharing with members takes effect when the member area opens.</p>
+      </div>
+      <% if prayer_request.persisted? %>
+        <div>
+          <%= form.label :status, class: label_classes %>
+          <%= form.select :status, PrayerRequest.statuses.keys.map { |s| [ s.humanize, s ] }, {}, class: select_classes %>
+        </div>
+      <% end %>
+    </div>
+    <% if prayer_request.persisted? %>
+      <%= render "shared/field", form:, attribute: :answer_note, label: "How it was answered (optional)", type: :text_area, options: { rows: 3 } %>
+    <% end %>
+  <% end %>
+
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", prayer_request.persisted? ? prayer_request : prayer_requests_path, class: button_classes(:outline) %>
+    <% if prayer_request.persisted? && policy(prayer_request).destroy? %>
+      <%= link_to "Delete", prayer_request, data: { turbo_method: :delete, turbo_confirm: "Delete this prayer request?" }, class: "ml-auto #{button_classes(:danger)}" %>
+    <% end %>
+  </div>
+<% end %>

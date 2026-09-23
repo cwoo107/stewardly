@@ -1,0 +1,3 @@
+<p><%= @join_request.person.name %> would like to join <strong><%= @join_request.group.name %></strong>.</p>
+<% if @join_request.message.present? %><blockquote><%= @join_request.message %></blockquote><% end %>
+<p><a class="button" href="<%= group_url(@join_request.group) %>">Review the request</a></p>

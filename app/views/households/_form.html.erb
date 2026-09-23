@@ -1,0 +1,16 @@
+<%= form_with model: household, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: household.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "The Rivera household" } %>
+  <%= render "shared/field", form:, attribute: :address_line1, label: "Address" %>
+  <%= render "shared/field", form:, attribute: :address_line2, label: "Apartment, unit, etc." %>
+  <div class="grid gap-6 sm:grid-cols-3">
+    <%= render "shared/field", form:, attribute: :city %>
+    <%= render "shared/field", form:, attribute: :region, label: "State" %>
+    <%= render "shared/field", form:, attribute: :postal_code, label: "ZIP" %>
+  </div>
+  <p class="text-sm text-gray-500">The address is located on the map in the background after you save.</p>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", household.persisted? ? household : households_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

@@ -1,0 +1,8 @@
+<% content_for :title, "Edit #{@service.name}" %>
+<%= render "shared/page_header", title: @service.name do %>
+  <%= button_to "Delete", @service, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete this service and its schedule?" } } %>
+<% end %>
+<div class="grid gap-6 lg:grid-cols-2">
+  <%= render "form", service: @service %>
+  <%= render "shared/position_needs", needable: @service, positions: @positions, heading: "Volunteers needed each week" %>
+</div>

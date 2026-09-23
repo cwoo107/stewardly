@@ -1,0 +1,5 @@
+<li id="<%= dom_id(field) %>" data-move-url="<%= move_form_field_path(form, field) %>" class="rounded-3xl bg-white shadow-sm ring-1 ring-gray-200">
+  <%= turbo_frame_tag dom_id(field, :frame) do %>
+    <%= render local_assigns[:editing] ? "form_fields/editor" : "form_fields/summary", form:, field:, extra_conditions: 1 %>
+  <% end %>
+</li>

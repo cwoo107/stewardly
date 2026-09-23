@@ -1,0 +1,65 @@
+<% conditions = field.rule.conditions + Array.new(local_assigns.fetch(:extra_conditions, 0)) { {} } %>
+<% earlier = field.earlier_fields %>
+<%= form_with model: field, url: form_field_path(form, field), method: :patch, class: "space-y-4 p-4" do |f| %>
+  <%= render "shared/form_errors", messages: field.errors.full_messages %>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <%= render "shared/field", form: f, attribute: :label, label: "Question", options: { required: true } %>
+    <%= render "shared/field", form: f, attribute: :help_text, label: "Help text" %>
+  </div>
+
+  <% if field.choice? %>
+    <div>
+      <%= label_tag "form_field_options_text_#{field.id}", "Choices (one per line)", class: label_classes %>
+      <%= text_area_tag "form_field[options_text]", field.options.join("\n"), id: "form_field_options_text_#{field.id}", rows: 4, class: input_classes %>
+    </div>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= f.label :maps_to, "Save the answer to", class: label_classes %>
+      <%= f.select :maps_to, Form::Mapping.options_for(field), { include_blank: "Only keep it with the submission" }, class: select_classes %>
+    </div>
+    <div class="flex flex-col justify-end gap-2 text-sm">
+      <label class="inline-flex items-center gap-2"><%= f.check_box :required, class: "rounded border-gray-300 text-cyan-500" %> Required</label>
+      <label class="inline-flex items-center gap-2"><%= f.check_box :sensitive, class: "rounded border-gray-300 text-cyan-500", disabled: field.maps_to == "prayer_request.body" %> Sensitive (stored encrypted, shown only to those allowed)</label>
+    </div>
+  </div>
+
+  <fieldset class="rounded-2xl bg-gray-50 p-4">
+    <legend class="text-sm font-semibold">Show this question</legend>
+    <% if earlier.empty? %>
+      <p class="mt-1 text-sm text-gray-500">Always. (Conditions can use questions above this one.)</p>
+    <% else %>
+      <div class="mt-2 flex flex-wrap items-center gap-2 text-sm">
+        <span>when</span>
+        <div class="w-24">
+          <%= select_tag "form_field[visibility_rule][match]", options_for_select([ [ "all", "all" ], [ "any", "any" ] ], field.rule.match),
+                class: select_classes, aria: { label: "Match" } %>
+        </div>
+        <span>of these are true (leave empty to always show):</span>
+      </div>
+      <div class="mt-3 space-y-2">
+        <% conditions.each_with_index do |condition, index| %>
+          <% prefix = "form_field[visibility_rule][conditions][#{index}]" %>
+          <div class="grid gap-2 sm:grid-cols-[1fr_auto_1fr_auto]">
+            <%= select_tag "#{prefix}[field]", options_for_select(earlier.map { |e| [ e.label, e.key ] }, condition["field"]),
+                  include_blank: "Choose a question", class: select_classes, aria: { label: "Condition #{index + 1} question" } %>
+            <%= select_tag "#{prefix}[operator]", options_for_select(Form::Rule::OPERATORS.invert, condition["operator"]),
+                  class: select_classes, aria: { label: "Condition #{index + 1} comparison" } %>
+            <%= text_field_tag "#{prefix}[value]", condition["value"], placeholder: "Value", class: input_classes, aria: { label: "Condition #{index + 1} value" } %>
+            <label class="inline-flex items-center gap-1 text-xs text-gray-500"><%= check_box_tag "#{prefix}[_destroy]", "1", false, class: "rounded border-gray-300" %> Remove</label>
+          </div>
+        <% end %>
+      </div>
+      <p class="mt-2 text-xs text-gray-500">For a checkbox, “is filled in” means ticked. For choices, use the choice text.</p>
+      <%= f.button "Add condition", name: "add_condition", value: "1", class: "mt-3 #{button_classes(:outline)}" %>
+    <% end %>
+  </fieldset>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <%= f.submit "Save question", class: button_classes(:primary) %>
+    <%= link_to "Cancel", form_field_path(form, field), class: button_classes(:outline) %>
+    <%= link_to "Delete", form_field_path(form, field), class: "ml-auto #{button_classes(:danger)}",
+          data: { turbo_method: :delete, turbo_confirm: "Delete this question? Answers already submitted are kept.", turbo_frame: "_top" } %>
+  </div>
+<% end %>

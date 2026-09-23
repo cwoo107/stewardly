@@ -1,0 +1,8 @@
+<%# Label + input for a form builder field. Usage: render "shared/field", form:, attribute:, type: :text_field, label: nil, hint: nil, options: {} %>
+<div class="<%= local_assigns[:wrapper_class] %>">
+  <%= form.label attribute, local_assigns[:label], class: label_classes %>
+  <%= form.public_send(local_assigns.fetch(:type, :text_field), attribute, { class: input_classes }.merge(local_assigns.fetch(:options, {}))) %>
+  <% if local_assigns[:hint] %>
+    <p class="mt-2 text-sm text-gray-500"><%= hint %></p>
+  <% end %>
+</div>

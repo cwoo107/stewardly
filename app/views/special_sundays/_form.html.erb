@@ -1,0 +1,14 @@
+<%= form_with model: special_sunday, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: special_sunday.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "Back to school" } %>
+  <%= render "shared/field", form:, attribute: :local_date, label: "Date", type: :date_field, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :expected_change_percent, label: "Expected change (%, optional)", type: :number_field,
+        hint: "e.g. 20 for 20% more. Leave blank and forecasts learn it from past years with the same name.", options: { min: -90, max: 300 } %>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", special_sundays_path, class: button_classes(:outline) %>
+    <% if special_sunday.persisted? %>
+      <%= link_to "Delete", special_sunday, data: { turbo_method: :delete, turbo_confirm: "Remove this special Sunday?" }, class: "ml-auto #{button_classes(:danger)}" %>
+    <% end %>
+  </div>
+<% end %>

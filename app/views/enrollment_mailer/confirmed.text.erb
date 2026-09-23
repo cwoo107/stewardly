@@ -1,0 +1,5 @@
+Hi <%= @enrollment.person.first_name %>,
+
+You're enrolled in <%= @offering.name %>, starting <%= l(@offering.starts_on, format: :long) %>.
+
+See your classes: <%= member_courses_url %>

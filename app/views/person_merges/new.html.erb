@@ -1,0 +1,24 @@
+<% content_for :title, "Merge people" %>
+<%= render "shared/page_header", title: "Merge #{@duplicate.full_name} into #{@person.full_name}",
+      subtitle: "#{@person.full_name} is kept. Blank details are filled in from #{@duplicate.full_name}, and their tags, groups, teams, contact history, prayer requests, and login move over." %>
+
+<div class="grid gap-6 sm:grid-cols-2">
+  <% [ [ "Keep", @person ], [ "Merge in and hide", @duplicate ] ].each do |label, person| %>
+    <section class="<%= card_classes %>">
+      <p class="text-xs font-semibold uppercase tracking-wide text-gray-400"><%= label %></p>
+      <h2 class="mt-1 text-lg font-semibold"><%= person.full_name %></h2>
+      <dl class="mt-4 space-y-2 text-sm">
+        <% { "Email" => person.email, "Phone" => person.phone, "Birthdate" => person.birthdate&.to_fs(:long),
+             "Household" => person.household&.name, "Login" => person.user ? "Yes" : "No" }.each do |term, value| %>
+          <div class="flex justify-between gap-3"><dt class="text-gray-500"><%= term %></dt><dd><%= value.presence || "—" %></dd></div>
+        <% end %>
+      </dl>
+    </section>
+  <% end %>
+</div>
+
+<div class="mt-6 flex flex-wrap gap-3">
+  <%= button_to "Merge", person_merge_path(@person), params: { duplicate_id: @duplicate.id }, class: button_classes(:primary) %>
+  <%= link_to "Keep #{@duplicate.first_name} instead", new_person_merge_path(@duplicate, duplicate_id: @person.id), class: button_classes(:outline) %>
+  <%= link_to "Cancel", duplicates_path, class: button_classes(:outline) %>
+</div>

@@ -1,0 +1,24 @@
+<% content_for :title, "Custom fields" %>
+<%= render "shared/page_header", title: "Settings" do %>
+  <%= link_to "New custom field", new_custom_field_path, class: button_classes(:primary) %>
+<% end %>
+<%= render "shared/settings_nav" %>
+
+<p class="mb-4 text-sm text-gray-600">Extra details your church tracks on each person. Drag to reorder how they appear.</p>
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100" data-controller="sortable">
+    <% @custom_fields.each do |field| %>
+      <li class="flex cursor-grab items-center justify-between gap-3 bg-white px-6 py-3" id="<%= dom_id(field) %>" data-move-url="<%= move_custom_field_path(field) %>">
+        <div>
+          <p class="font-medium"><span class="mr-2 text-gray-300" aria-hidden="true">⋮⋮</span><%= field.label %></p>
+          <p class="text-sm text-gray-500"><%= field.field_type.humanize %><%= " · #{field.options.join(", ")}" if field.choice? %></p>
+        </div>
+        <span class="flex gap-2">
+          <%= link_to "Edit", edit_custom_field_path(field), class: button_classes(:outline) %>
+          <%= button_to "Delete", field, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{field.label}? Every person's value for it is deleted too." } } %>
+        </span>
+      </li>
+    <% end %>
+    <% if @custom_fields.empty? %><li class="px-6 py-6 text-sm text-gray-500">No custom fields yet.</li><% end %>
+  </ul>
+</div>

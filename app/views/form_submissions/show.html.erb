@@ -1,0 +1,45 @@
+<% content_for :title, "Submission" %>
+<% show_sensitive = policy(@submission).show_sensitive? %>
+<%= render "shared/page_header", title: "#{@form.name} submission", subtitle: "#{l(@submission.created_at, format: :long)} · #{@submission.status.humanize}" do %>
+  <div class="flex flex-wrap gap-2">
+    <% (FormSubmission.statuses.keys - [ @submission.status ]).each do |status| %>
+      <%= button_to "Mark #{status}", form_submission_path(@form, @submission), method: :patch, params: { form_submission: { status: } }, class: button_classes(:outline) %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="<%= card_classes %> lg:col-span-2">
+    <dl class="space-y-4">
+      <% @form.fields.each do |field| %>
+        <% value = @submission.answer_for(field) %>
+        <div>
+          <dt class="text-sm text-gray-500"><%= field.label %></dt>
+          <dd class="mt-1 whitespace-pre-line">
+            <% if field.sensitive? && !show_sensitive %>
+              <span class="text-sm italic text-gray-400">Hidden: sensitive answer</span>
+            <% elsif field.field_type == "file" && (upload = @submission.upload_for(field)) %>
+              <%= link_to upload.filename, rails_blob_path(upload, disposition: "attachment"), class: "text-cyan-700 hover:underline" %>
+            <% else %>
+              <%= field.display_answer(value).presence || "—" %>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  </section>
+
+  <section class="<%= card_classes %> h-fit space-y-3 text-sm">
+    <h2 class="text-lg font-semibold">Linked to</h2>
+    <% if @submission.person %>
+      <p><%= policy(@submission.person).show? ? link_to(@submission.person.name, @submission.person, class: "font-medium hover:underline") : @submission.person.name %></p>
+    <% elsif @submission.processed? %>
+      <p class="text-gray-500">No person: the form didn't ask for a name.</p>
+    <% else %>
+      <p class="text-gray-500">Processing…</p>
+    <% end %>
+    <% if @submission.prayer_request && policy(@submission.prayer_request).show? %>
+      <p><%= link_to "View the prayer request", @submission.prayer_request, class: "text-cyan-700 hover:underline" %></p>
+    <% end %>
+  </section>
+</div>

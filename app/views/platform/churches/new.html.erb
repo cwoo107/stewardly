@@ -1,0 +1,46 @@
+<% content_for :title, "New church" %>
+<%= render "shared/page_header", title: "New church", subtitle: "Creates the church, its default roles, and its first church admin." %>
+
+<%= form_with scope: :church, url: platform_churches_path, class: "max-w-xl space-y-6 rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200" do |form| %>
+  <%= render "shared/form_errors", messages: @errors || [] %>
+
+  <div>
+    <%= form.label :name, "Church name", class: label_classes %>
+    <%= form.text_field :name, value: @church.name, required: true, class: input_classes %>
+  </div>
+  <div>
+    <%= form.label :subdomain, class: label_classes %>
+    <%= form.text_field :subdomain, value: @church.subdomain, required: true, class: input_classes %>
+    <p class="mt-2 text-sm text-gray-500">The church will live at <em>subdomain</em>.<%= Rails.configuration.x.app_domain %>.</p>
+  </div>
+  <div>
+    <%= form.label :time_zone, class: label_classes %>
+    <%= form.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones, { default: @church.time_zone }, class: "#{input_classes} pr-8" %>
+  </div>
+
+  <fieldset class="space-y-6 border-t border-gray-100 pt-6">
+    <legend class="text-sm font-semibold text-gray-900">First church admin</legend>
+    <%= fields_for :admin do |admin| %>
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <%= admin.label :first_name, class: label_classes %>
+          <%= admin.text_field :first_name, value: params.dig(:admin, :first_name), required: true, class: input_classes %>
+        </div>
+        <div>
+          <%= admin.label :last_name, class: label_classes %>
+          <%= admin.text_field :last_name, value: params.dig(:admin, :last_name), required: true, class: input_classes %>
+        </div>
+      </div>
+      <div>
+        <%= admin.label :email_address, "Email address", class: label_classes %>
+        <%= admin.email_field :email_address, value: params.dig(:admin, :email_address), required: true, class: input_classes %>
+      </div>
+      <div>
+        <%= admin.label :password, "Temporary password", class: label_classes %>
+        <%= admin.password_field :password, required: true, autocomplete: "new-password", class: input_classes %>
+      </div>
+    <% end %>
+  </fieldset>
+
+  <%= form.submit "Create church", class: button_classes(:primary) %>
+<% end %>

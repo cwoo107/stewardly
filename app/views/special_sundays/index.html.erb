@@ -1,0 +1,35 @@
+<% content_for :title, "Special Sundays" %>
+<%= render "shared/page_header", title: "Special Sundays", subtitle: "Days that change attendance. Forecasts adjust for them." do %>
+  <%= link_to "Mark a Sunday", new_special_sunday_path, class: button_classes(:primary) if policy(SpecialSunday).create? %>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Your special Sundays</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @special_sundays.each do |day| %>
+        <li class="flex items-center justify-between gap-3 py-2 text-sm">
+          <span>
+            <span class="font-medium"><%= day.name %></span> · <%= l(day.local_date, format: :long) %>
+            <% if day.expected_change_percent %><span class="text-gray-500"> · expect <%= format("%+d", day.expected_change_percent) %>%</span><% end %>
+          </span>
+          <%= link_to "Edit", edit_special_sunday_path(day), class: "text-cyan-700 hover:underline" if policy(day).update? %>
+        </li>
+      <% end %>
+      <% if @special_sundays.empty? %><li class="py-2 text-sm text-gray-500">None yet: think back to school, friend day, or a baptism Sunday.</li><% end %>
+    </ul>
+    <p class="mt-4 text-xs text-gray-500">Give the same name each year (e.g. “Back to school”) and forecasts learn the effect from your history.</p>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Holidays in the next year</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @built_in.each do |date, days| %>
+        <li class="flex justify-between gap-3 py-2 text-sm">
+          <span class="font-medium"><%= days.map(&:label).to_sentence %></span>
+          <span class="text-gray-500"><%= l(date, format: :long) %></span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+</div>

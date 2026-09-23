@@ -1,0 +1,96 @@
+<% content_for :title, "Attendance" %>
+<%= render "shared/page_header", title: "Attendance",
+      subtitle: @ytd[:this_year] ? "#{number_with_delimiter(@ytd[:this_year])} a week on average this year#{@ytd[:change] ? " · #{format("%+.1f", @ytd[:change])}% vs last year" : ""}" : nil do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Enter counts", attendance_counts_path, class: button_classes(:primary) if policy(:attendance).record? %>
+    <%= link_to "Forecast accuracy", attendance_accuracy_path, class: button_classes(:outline) %>
+    <%= link_to "Special Sundays", special_sundays_path, class: button_classes(:outline) %>
+  </div>
+<% end %>
+
+<% if @missing.any? && policy(:attendance).record? %>
+  <p class="mb-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    Missing counts:
+    <%= safe_join(@missing.map { |o| link_to("#{o.worship_service.name}, #{l(o.local_date, format: :short)}", attendance_counts_path(date: o.local_date), class: "font-medium underline") }, ", ") %>
+  </p>
+<% end %>
+
+<section>
+  <h2 class="text-lg font-semibold">Coming up</h2>
+  <div class="mt-3 grid gap-6 md:grid-cols-2">
+    <% @upcoming.each do |service, occurrence, forecast| %>
+      <article class="<%= card_classes %>">
+        <p class="text-sm text-gray-500"><%= service.name %><%= " · #{l(occurrence.local_date, format: :long)}" if occurrence %></p>
+        <% if forecast %>
+          <p class="mt-2 text-4xl font-semibold tracking-tight"><%= number_with_delimiter(forecast.expected) %></p>
+          <p class="mt-1 text-sm text-gray-600">
+            Likely <%= number_with_delimiter(forecast.low) %>–<%= number_with_delimiter(forecast.high) %>
+            <% if forecast.expected_online %> · ≈ <%= number_with_delimiter(forecast.expected_in_person) %> in person, ≈ <%= number_with_delimiter(forecast.expected_online) %> online<% end %>
+          </p>
+          <details class="mt-4">
+            <summary class="cursor-pointer text-sm font-medium text-cyan-700">Why this number</summary>
+            <%= render "attendance_forecasts/factors", forecast: %>
+          </details>
+        <% else %>
+          <p class="mt-2 text-sm text-gray-500">Not enough history to forecast yet: it needs about six weeks of counts.</p>
+        <% end %>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<section class="mt-8 <%= card_classes %>">
+  <h2 class="text-lg font-semibold">Weekly attendance</h2>
+  <p class="text-sm text-gray-500">All services combined, with 4- and 12-week rolling averages.</p>
+  <% weekly = @weekly.reject { |_, total| total.zero? } %>
+  <% series = [
+       { name: "Weekly total", data: weekly },
+       { name: "4-week average", data: @growth.rolling(@weekly, 4).slice(*weekly.keys) },
+       { name: "12-week average", data: @growth.rolling(@weekly, 12).slice(*weekly.keys) }
+     ] %>
+  <div class="mt-4"><%= line_chart series, **line_chart_options %></div>
+  <%= render "attendance_dashboards/table", headers: [ "Week of", *series.map { |s| s[:name] } ],
+        rows: weekly.keys.reverse.map { |week| [ l(week, format: :short), *series.map { |s| s[:data][week] } ] } %>
+</section>
+
+<div class="mt-8 grid gap-6 lg:grid-cols-2">
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">This year vs last year</h2>
+    <p class="text-sm text-gray-500">Average weekly attendance by month.</p>
+    <% by_year = @growth.monthly_by_year %>
+    <% year_colors = ChartsHelper::SERIES_COLORS.first(2).reverse # this year keeps slot 1 (blue) %>
+    <div class="mt-4"><%= column_chart solid_series(by_year.map { |year, months| { name: year, data: months } }, colors: year_colors), **column_chart_options(colors: year_colors) %></div>
+    <%= render "attendance_dashboards/table", headers: [ "Month", *by_year.keys ],
+          rows: Date::ABBR_MONTHNAMES.compact.map { |month| [ month, *by_year.values.map { |months| months[month] } ] }.select { |row| row.drop(1).any? } %>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">First-time guests</h2>
+    <p class="text-sm text-gray-500">Counted at services plus first-time check-ins, by month.</p>
+    <% guests = @growth.first_time_guests %>
+    <div class="mt-4"><%= column_chart solid_series([ { name: "First-time guests", data: guests } ]), **column_chart_options(legend: false) %></div>
+    <%= render "attendance_dashboards/table", headers: [ "Month", "Guests" ], rows: guests.to_a.reverse %>
+  </section>
+</div>
+
+<section class="mt-8 <%= card_classes %>">
+  <h2 class="text-lg font-semibold">Recent counts</h2>
+  <div class="mt-4 overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead><tr class="text-left text-gray-500"><th class="py-2 pr-4">Service</th><th class="py-2 pr-4">Date</th><th class="py-2 pr-4 text-right">Total</th><th class="py-2 pr-4 text-right">Forecast</th><th class="py-2 pr-4 text-right">Guests</th><th class="py-2">Check-in</th></tr></thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @recent.each do |count| %>
+          <% occurrence = count.service_occurrence %>
+          <tr>
+            <td class="py-2 pr-4"><%= occurrence.worship_service.name %></td>
+            <td class="py-2 pr-4"><%= link_to l(occurrence.local_date, format: :long), attendance_counts_path(date: occurrence.local_date), class: "hover:underline" %></td>
+            <td class="py-2 pr-4 text-right font-medium"><%= number_with_delimiter(count.total) %></td>
+            <td class="py-2 pr-4 text-right text-gray-600"><%= occurrence.forecast ? "#{occurrence.forecast.expected} (#{occurrence.forecast.low}–#{occurrence.forecast.high})" : "—" %></td>
+            <td class="py-2 pr-4 text-right"><%= count.first_time_guests %></td>
+            <td class="py-2"><%= link_to "Check-ins", service_occurrence_check_in_path(occurrence), class: "text-cyan-700 hover:underline" if policy(:attendance).record? %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

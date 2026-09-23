@@ -1,0 +1,58 @@
+<% name = ->(attribute) { "segment[definition][conditions][#{index}][#{attribute}]" } %>
+<% id = ->(attribute) { "condition_#{index}_#{attribute}" } %>
+<% check = "rounded border-gray-300 text-cyan-500" %>
+<fieldset class="rounded-2xl bg-gray-50 p-4" data-segment-condition id="condition_<%= index %>">
+  <div class="mb-3 flex items-center justify-between">
+    <legend class="text-sm font-semibold"><%= condition.label %></legend>
+    <button type="button" class="text-sm text-gray-500 underline hover:no-underline" data-action="segment-builder#remove">Remove</button>
+  </div>
+  <%= hidden_field_tag name.("type"), condition.type, id: nil %>
+
+  <div class="grid gap-3 sm:grid-cols-2">
+    <% case condition.type %>
+    <% when "tag" %>
+      <%= select_tag name.("operator"), options_for_select([ [ "Has any of", "any" ], [ "Has all of", "all" ], [ "Has none of", "none" ] ], condition["operator"]),
+            class: select_classes, aria: { label: "Tag match" } %>
+      <div class="flex flex-wrap gap-3">
+        <% Tag.alphabetical.each do |tag| %>
+          <label class="inline-flex items-center gap-2 text-sm"><%= check_box_tag "#{name.("tag_ids")}[]", tag.id, condition["tag_ids"].include?(tag.id.to_s), id: "#{id.("tag")}_#{tag.id}", class: check %> <%= tag.name %></label>
+        <% end %>
+      </div>
+    <% when "membership_status" %>
+      <div class="flex flex-wrap gap-3 sm:col-span-2">
+        <% Person.membership_statuses.each_key do |status| %>
+          <label class="inline-flex items-center gap-2 text-sm"><%= check_box_tag "#{name.("statuses")}[]", status, condition["statuses"].include?(status), id: "#{id.("status")}_#{status}", class: check %> <%= status.humanize %></label>
+        <% end %>
+      </div>
+    <% when "group" %>
+      <%= select_tag name.("operator"), options_for_select([ [ "Is in", "in" ], [ "Is not in", "not_in" ] ], condition["operator"]), class: select_classes, aria: { label: "Group match" } %>
+      <%= select_tag name.("group_type"), options_for_select(Group.group_types.keys.map { |t| [ t.humanize, t ] }, condition["group_type"]),
+            include_blank: "Any type of group", class: select_classes, aria: { label: "Group type" } %>
+      <div class="sm:col-span-2">
+        <%= select_tag "#{name.("group_ids")}[]", options_from_collection_for_select(Group.active.alphabetical, :id, :name, condition["group_ids"]),
+              multiple: true, class: input_classes, aria: { label: "Specific groups (optional)" } %>
+        <p class="mt-1 text-xs text-gray-500">Choose specific groups, or none for any group.</p>
+      </div>
+    <% when "team" %>
+      <%= select_tag name.("operator"), options_for_select([ [ "Is on", "in" ], [ "Is not on", "not_in" ] ], condition["operator"]), class: select_classes, aria: { label: "Team match" } %>
+      <div>
+        <%= select_tag "#{name.("team_ids")}[]", options_from_collection_for_select(Team.alphabetical, :id, :name, condition["team_ids"]),
+              multiple: true, class: input_classes, aria: { label: "Specific teams (optional)" } %>
+        <p class="mt-1 text-xs text-gray-500">Choose specific teams, or none for any team.</p>
+      </div>
+    <% when "age" %>
+      <%= number_field_tag name.("min"), condition["min"], min: 0, placeholder: "Minimum age", class: input_classes, aria: { label: "Minimum age" } %>
+      <%= number_field_tag name.("max"), condition["max"], min: 0, placeholder: "Maximum age", class: input_classes, aria: { label: "Maximum age" } %>
+    <% when "custom_field" %>
+      <%= select_tag name.("key"), options_for_select(CustomField.ordered.map { |f| [ f.label, f.key ] }, condition["key"]),
+            include_blank: "Choose a field", class: select_classes, aria: { label: "Custom field" } %>
+      <%= text_field_tag name.("value"), condition["value"], placeholder: "Value", class: input_classes, aria: { label: "Value" } %>
+    <% when "distance" %>
+      <%= number_field_tag name.("miles"), condition["miles"], min: 0, step: "0.5", placeholder: "Miles", class: input_classes, aria: { label: "Miles" } %>
+      <%= select_tag name.("campus_id"), options_from_collection_for_select(Campus.located.ordered, :id, :name, condition["campus_id"]),
+            include_blank: "Choose a campus", class: select_classes, aria: { label: "From campus" } %>
+    <% when "no_touchpoint" %>
+      <%= number_field_tag name.("days"), condition["days"], min: 1, placeholder: "Days", class: input_classes, aria: { label: "Days without contact" } %>
+    <% end %>
+  </div>
+</fieldset>

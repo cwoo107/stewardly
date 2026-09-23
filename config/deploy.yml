@@ -1,0 +1,104 @@
+# Name of your application. Used to uniquely configure containers.
+service: stewardly
+
+# Name of the container image (use your-user/app-name on external registries).
+image: stewardly
+
+# Deploy to these servers. Replace the placeholder IPs before the first deploy.
+servers:
+  web:
+    - 192.168.0.1
+  job:
+    hosts:
+      - 192.168.0.1
+    cmd: bundle exec sidekiq
+
+# Church subdomains need a wildcard certificate, which Let's Encrypt only issues via
+# DNS challenge. Terminate TLS at a load balancer or Cloudflare (Full mode) in front of
+# kamal-proxy, and set config.assume_ssl / config.force_ssl in production.rb.
+# Custom church domains arrive in Phase 10.
+proxy:
+  ssl: false
+  hosts:
+    - stewardly.app
+    - "*.stewardly.app"
+
+# Where you keep your container images.
+registry:
+  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
+  server: localhost:5555
+
+  # Needed for authenticated registries.
+  # username: your-user
+
+  # Always use an access token rather than real password when possible.
+  # password:
+  #   - KAMAL_REGISTRY_PASSWORD
+
+# Inject ENV variables into containers (secrets come from .kamal/secrets).
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - STEWARDLY_DATABASE_PASSWORD
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+  clear:
+    APP_DOMAIN: stewardly.app
+    DB_HOST: stewardly-db
+    # Jobs and Action Cable: maxmemory-policy noeviction
+    REDIS_URL: redis://stewardly-redis-jobs:6379/0
+    # Rails cache: maxmemory-policy allkeys-lru
+    REDIS_CACHE_URL: redis://stewardly-redis-cache:6379/0
+    SIDEKIQ_CONCURRENCY: 5
+    MAIL_DOMAIN: stewardly.app
+    SMTP_ADDRESS: smtp.example.com # replace with your mail provider
+
+# Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
+# "bin/kamal logs -r job" will tail logs from the first server in the job section.
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+
+# Use a persistent storage volume for local Active Storage files.
+# Recommended to change this to a mounted volume path that is backed up off server.
+volumes:
+  - "stewardly_storage:/rails/storage"
+
+# Bridge fingerprinted assets, like JS and CSS, between versions to avoid
+# hitting 404 on in-flight requests. Combines all files from new and old
+# version inside the asset_path.
+asset_path: /rails/public/assets
+
+# Configure the image builder.
+builder:
+  arch: amd64
+
+accessories:
+  db:
+    image: postgis/postgis:17-3.5
+    host: 192.168.0.1
+    port: "127.0.0.1:5432:5432"
+    env:
+      clear:
+        POSTGRES_USER: stewardly
+        POSTGRES_DB: stewardly_production
+      secret:
+        - POSTGRES_PASSWORD
+    directories:
+      - data:/var/lib/postgresql/data
+
+  redis-jobs:
+    image: redis:7
+    host: 192.168.0.1
+    port: "127.0.0.1:6379:6379"
+    cmd: redis-server --appendonly yes --maxmemory-policy noeviction
+    directories:
+      - data:/data
+
+  redis-cache:
+    image: redis:7
+    host: 192.168.0.1
+    port: "127.0.0.1:6380:6379"
+    cmd: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru

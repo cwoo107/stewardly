@@ -1,0 +1,13 @@
+<% labels = form.fields.to_h { |f| [ f.key, f.label ] } %>
+<div class="flex items-start justify-between gap-3 p-4">
+  <div class="min-w-0">
+    <p class="font-medium"><span class="mr-2 cursor-grab text-gray-300" aria-hidden="true">⋮⋮</span><%= field.label %><%= " *" if field.required? %></p>
+    <p class="mt-1 text-sm text-gray-500"><%= field.field_type.humanize %><%= " · #{field.options.join(", ")}" if field.choice? %></p>
+    <div class="mt-2 flex flex-wrap gap-2">
+      <% if field.maps_to %><%= badge("→ #{Form::Mapping.find(field.maps_to, form:)&.label || field.maps_to}", color: "cyan") %><% end %>
+      <% if field.sensitive? %><%= badge("Sensitive (encrypted)", color: "violet") %><% end %>
+      <% unless field.rule.always? %><%= badge(field.rule.summary(labels), color: "amber") %><% end %>
+    </div>
+  </div>
+  <%= link_to "Edit", edit_form_field_path(form, field), class: "shrink-0 text-sm text-cyan-700 hover:underline" %>
+</div>

@@ -1,0 +1,33 @@
+<% managing = Current.user.can?(:manage_tasks) %>
+<%= form_with model: task, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: task.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :title, options: { required: true } %>
+  <%= render "shared/field", form:, attribute: :notes, type: :text_area, options: { rows: 4 } %>
+  <div class="grid gap-6 sm:grid-cols-3">
+    <div>
+      <%= form.label :status, class: label_classes %>
+      <%= form.select :status, Task.statuses.keys.map { |s| [ s.humanize, s ] }, {}, class: select_classes %>
+    </div>
+    <div>
+      <%= form.label :priority, class: label_classes %>
+      <%= form.select :priority, Task.priorities.keys.map { |p| [ p.humanize, p ] }, {}, class: select_classes %>
+    </div>
+    <%= render "shared/field", form:, attribute: :due_on, type: :date_field, label: "Due" %>
+  </div>
+  <% if managing %>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div>
+        <%= form.label :owner_id, "Owner", class: label_classes %>
+        <%= form.collection_select :owner_id, User.alphabetical.includes(:person), :id, :name, { include_blank: "Unassigned" }, class: select_classes %>
+      </div>
+      <div>
+        <%= form.label :project_id, class: label_classes %>
+        <%= form.collection_select :project_id, Project.active.alphabetical, :id, :name, { include_blank: "No project" }, class: select_classes %>
+      </div>
+    </div>
+  <% end %>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", task.persisted? ? task : tasks_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

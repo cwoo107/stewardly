@@ -1,0 +1,29 @@
+<% content_for :title, "Import" %>
+<% content_for :head do %><meta name="turbo-refresh-method" content="morph"><meta name="turbo-refresh-scroll" content="preserve"><% end %>
+<%= turbo_stream_from @import unless @import.finished? %>
+
+<%= render "shared/page_header", title: "Import: #{@import.file.filename}", subtitle: @import.status.humanize do %>
+  <%= link_to "All imports", person_imports_path, class: button_classes(:outline) %>
+<% end %>
+
+<section class="<%= card_classes %>">
+  <div class="h-2 overflow-hidden rounded-full bg-gray-100" role="progressbar" aria-valuenow="<%= @import.progress_percent %>" aria-valuemin="0" aria-valuemax="100">
+    <div class="h-full bg-cyan-500 transition-all" style="width: <%= @import.progress_percent %>%"></div>
+  </div>
+  <dl class="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-4">
+    <% { "Rows" => @import.row_count, "Processed" => @import.processed_count, "Added" => @import.created_count, "Updated" => @import.updated_count }.each do |label, value| %>
+      <div><dt class="text-sm text-gray-500"><%= label %></dt><dd class="text-2xl font-semibold"><%= value %></dd></div>
+    <% end %>
+  </dl>
+</section>
+
+<% if @import.row_errors.any? %>
+  <section class="mt-6 <%= card_classes %>">
+    <h2 class="text-lg font-semibold">Rows that weren't imported (<%= @import.row_errors.size %>)</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100 text-sm">
+      <% @import.row_errors.first(200).each do |error| %>
+        <li class="py-2"><span class="font-medium"><%= error["row"] ? "Row #{error["row"]}" : "File" %>:</span> <%= error["message"] %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

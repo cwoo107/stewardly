@@ -1,0 +1,35 @@
+<% content_for :title, @user.name %>
+<%= render "shared/page_header", title: @user.name, subtitle: @user.email_address do %>
+  <% if policy(@user).destroy? %>
+    <%= button_to "Remove account", @user, method: :delete, class: button_classes(:danger),
+          form: { data: { turbo_confirm: "Remove #{@user.name}'s account? Their person record stays." } } %>
+  <% end %>
+<% end %>
+
+<section class="rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+  <h2 class="text-lg font-semibold">Roles</h2>
+
+  <ul id="user_roles" role="list" class="mt-4 divide-y divide-gray-100">
+    <% @user.user_roles.sort_by { |user_role| user_role.role.name }.each do |user_role| %>
+      <li id="<%= dom_id(user_role) %>" class="flex items-center justify-between py-3">
+        <%= link_to user_role.role.name, user_role.role, class: "font-medium hover:underline" %>
+        <% if policy(user_role).destroy? %>
+          <%= button_to "Revoke", user_user_role_path(@user, user_role), method: :delete, class: button_classes(:outline) %>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @user.user_roles.empty? %>
+      <li class="py-3 text-sm text-gray-500">No roles yet.</li>
+    <% end %>
+  </ul>
+
+  <% if @grantable_roles.any? %>
+    <%= form_with model: UserRole.new, url: user_user_roles_path(@user), class: "mt-6 flex flex-wrap items-end gap-3" do |form| %>
+      <div class="min-w-48 flex-1">
+        <%= form.label :role_id, "Grant a role", class: label_classes %>
+        <%= form.collection_select :role_id, @grantable_roles, :id, :name, {}, class: "#{input_classes} pr-8" %>
+      </div>
+      <%= form.submit "Grant", class: button_classes(:primary) %>
+    <% end %>
+  <% end %>
+</section>

@@ -1,0 +1,21 @@
+<%= form_with model: offering, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: offering.errors.full_messages %>
+  <%= form.hidden_field :course_id %>
+  <div class="grid gap-6 sm:grid-cols-2">
+    <%= render "shared/field", form:, attribute: :starts_on, type: :date_field, options: { required: true } %>
+    <%= render "shared/field", form:, attribute: :ends_on, type: :date_field %>
+  </div>
+  <div class="grid gap-6 sm:grid-cols-2">
+    <div>
+      <%= form.label :leader_id, class: label_classes %>
+      <%= form.collection_select :leader_id, Person.unmerged.adult.alphabetical, :id, :name, { include_blank: "—" }, class: select_classes %>
+    </div>
+    <%= render "shared/field", form:, attribute: :capacity, type: :number_field, hint: "Blank = no limit", options: { min: 1 } %>
+  </div>
+  <%= render "shared/field", form:, attribute: :location_name, label: "Where" %>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :enrollment_open, class: "rounded border-gray-300 text-cyan-500" %> Open for enrollment in the member area</label>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", offering.persisted? ? offering : offering.course, class: button_classes(:outline) %>
+  </div>
+<% end %>

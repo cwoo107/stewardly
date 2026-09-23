@@ -1,0 +1,97 @@
+<% content_for :title, @team.name %>
+<%= render "shared/page_header", title: @team.name, subtitle: "#{@team.ministry.name} team" do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Schedule", team_schedule_path(@team), class: button_classes(:primary) if TeamSchedulePolicy.new(Current.user, @team).show? %>
+    <%= link_to "Edit", edit_team_path(@team), class: button_classes(:outline) if policy(@team).update? %>
+    <% if policy(@team).destroy? %>
+      <%= button_to "Delete", @team, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete #{@team.name}?" } } %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <section class="<%= card_classes %> lg:col-span-2">
+    <h2 class="text-lg font-semibold">People</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @memberships.each do |membership| %>
+        <li class="flex items-center justify-between py-2 text-sm">
+          <%= link_to membership.person.name, membership.person, class: "hover:underline" %>
+          <%= button_to "Remove", team_team_membership_path(@team, membership), method: :delete, class: "text-gray-600 underline hover:no-underline" if policy(membership).destroy? %>
+        </li>
+      <% end %>
+      <% if @memberships.empty? %><li class="py-2 text-sm text-gray-500">No one yet.</li><% end %>
+    </ul>
+    <% if policy(@team).update? %><div class="mt-6"><%= render "people/picker", target: "team:#{@team.id}" %></div><% end %>
+  </section>
+
+  <section class="<%= card_classes %>">
+    <h2 class="text-lg font-semibold">Positions</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @positions.each do |position| %>
+        <li class="flex items-center justify-between py-2 text-sm">
+          <%= position.name %>
+          <%= button_to "Remove", team_position_path(@team, position), method: :delete, class: "text-gray-600 underline hover:no-underline" if policy(position).destroy? %>
+        </li>
+      <% end %>
+      <% if @positions.empty? %><li class="py-2 text-sm text-gray-500">No positions yet.</li><% end %>
+    </ul>
+    <% if policy(@team).update? %>
+      <%= form_with model: Position.new, url: team_positions_path(@team), class: "mt-4 flex gap-2" do |form| %>
+        <%= form.text_field :name, placeholder: "Vocals, drums, greeter…", required: true, class: input_classes, aria: { label: "Position name" } %>
+        <%= form.submit "Add", class: button_classes(:secondary) %>
+      <% end %>
+    <% end %>
+  </section>
+</div>
+
+<% if TeamSchedulePolicy.new(Current.user, @team).show? %>
+  <section id="scheduling" class="mt-6 <%= card_classes %>">
+    <h2 class="text-lg font-semibold">Scheduling</h2>
+    <p class="mt-1 text-sm text-gray-600">Who can serve in each position (leave empty for anyone on the team), and how often people want to serve.</p>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <div>
+        <h3 class="text-sm font-semibold">Qualified for</h3>
+        <ul role="list" class="mt-2 space-y-3">
+          <% @positions.each do |position| %>
+            <li class="text-sm">
+              <p class="font-medium"><%= position.name %></p>
+              <div class="mt-1 flex flex-wrap gap-2">
+                <% position.position_qualifications.each do |qualification| %>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs">
+                    <%= qualification.person.name %>
+                    <%= button_to "×", team_position_qualification_path(@team, qualification), method: :delete, class: "text-gray-400 hover:text-rose-600", aria: { label: "Remove" } %>
+                  </span>
+                <% end %>
+                <% if position.position_qualifications.empty? %><span class="text-xs text-gray-500">Anyone on the team</span><% end %>
+              </div>
+              <% candidates = @memberships.map(&:person) - position.position_qualifications.map(&:person) %>
+              <% if candidates.any? %>
+                <%= form_with model: PositionQualification.new, url: team_position_qualifications_path(@team), class: "mt-2 flex gap-2" do |form| %>
+                  <%= form.hidden_field :position_id, value: position.id %>
+                  <%= form.collection_select :person_id, candidates, :id, :name, {}, class: select_classes, aria: { label: "Qualify for #{position.name}" } %>
+                  <%= form.submit "Add", class: button_classes(:outline) %>
+                <% end %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold">Most times a month</h3>
+        <ul role="list" class="mt-2 divide-y divide-gray-100">
+          <% @memberships.each do |membership| %>
+            <li class="flex items-center justify-between gap-3 py-2 text-sm">
+              <%= membership.person.name %>
+              <%= form_with model: membership, url: team_team_membership_path(@team, membership), method: :patch, class: "flex items-center gap-2" do |form| %>
+                <%= form.number_field :max_per_month, min: 1, placeholder: "No limit", class: "w-28 #{input_classes}", aria: { label: "Most times a month for #{membership.person.name}" } %>
+                <%= form.submit "Save", class: button_classes(:outline) %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </section>
+<% end %>

@@ -1,0 +1,13 @@
+<% content_for :title, "New import" %>
+<%= render "shared/page_header", title: "Import people",
+      subtitle: "Upload a CSV with a header row. Next you'll check a preview and match its columns to fields." %>
+
+<%= form_with model: @import, url: person_imports_path, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: @import.errors.full_messages %>
+  <div>
+    <%= form.label :file, "CSV file", class: label_classes %>
+    <%= form.file_field :file, accept: ".csv,text/csv", required: true, class: "block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-semibold" %>
+    <p class="mt-2 text-sm text-gray-500">People with an email that's already here are updated, not duplicated. Up to 5 MB.</p>
+  </div>
+  <%= form.submit "Upload and preview", class: button_classes(:primary) %>
+<% end %>

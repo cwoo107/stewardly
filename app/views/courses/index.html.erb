@@ -1,0 +1,13 @@
+<% content_for :title, "Courses" %>
+<%= render "shared/page_header", title: "Courses", subtitle: "Classes like Membership 101, and each time they're offered." do %>
+  <%= link_to "New course", new_course_path, class: button_classes(:primary) if policy(Course).new? %>
+<% end %>
+<div class="grid gap-6 sm:grid-cols-2">
+  <% @courses.each do |course| %>
+    <%= link_to course, class: "block #{card_classes} hover:ring-cyan-500" do %>
+      <h2 class="font-semibold"><%= course.name %> <%= badge("Inactive") unless course.active? %></h2>
+      <p class="mt-1 text-sm text-gray-600"><%= pluralize(course.offerings.size, "offering") %> · <%= pluralize(course.offerings.sum { |o| o.enrollments.count { |e| e.enrolled? || e.completed? } }, "person") %> enrolled</p>
+    <% end %>
+  <% end %>
+</div>
+<% if @courses.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No courses yet.</p><% end %>

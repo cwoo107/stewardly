@@ -1,0 +1,6 @@
+# Queues are weighted: critical work is picked first, low only when idle.
+:concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 5) %>
+:queues:
+  - [default, 4]
+  - [mailers, 2]
+  - [low, 1]

@@ -1,0 +1,15 @@
+<%= form_with model: course, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: course.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true, placeholder: "Membership 101" } %>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 4 } %>
+  <div>
+    <%= form.label :ministry_id, class: label_classes %>
+    <%= form.collection_select :ministry_id, policy_scope(Ministry).alphabetical.select { |m| Current.user.can?(:manage_courses) || Current.user.leads?(m) },
+          :id, :name, { include_blank: (Current.user.can?(:manage_courses) ? "—" : false) }, class: select_classes %>
+  </div>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :active, class: "rounded border-gray-300 text-cyan-500" %> Active (shown in the member area)</label>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", course.persisted? ? course : courses_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

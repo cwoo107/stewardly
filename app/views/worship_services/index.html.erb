@@ -1,0 +1,23 @@
+<% content_for :title, "Worship services" %>
+<%= render "shared/page_header", title: "Worship services", subtitle: "Weekly service times, and how many volunteers each one needs." do %>
+  <%= link_to "New service", new_worship_service_path, class: button_classes(:primary) %>
+<% end %>
+
+<div class="grid gap-6 sm:grid-cols-2">
+  <% @services.each do |service| %>
+    <article class="<%= card_classes %>" id="<%= dom_id(service) %>">
+      <div class="flex items-start justify-between gap-3">
+        <h2 class="font-semibold"><%= service.name %> <%= badge("Inactive") unless service.active? %></h2>
+        <%= link_to "Edit", edit_worship_service_path(service), class: "text-sm text-cyan-700 hover:underline" %>
+      </div>
+      <p class="mt-1 text-sm text-gray-600"><%= Date::DAYNAMES[service.day_of_week] %>s at <%= service.start_time.strftime("%-l:%M %p") %><%= " · #{service.campus.name}" if service.campus %></p>
+      <ul class="mt-3 space-y-1 text-sm">
+        <% service.position_needs.sort_by { |n| [ n.position.team.name, n.position.name ] }.each do |need| %>
+          <li><%= need.quantity %> × <%= need.position.name %> <span class="text-gray-500">(<%= need.position.team.name %>)</span></li>
+        <% end %>
+        <% if service.position_needs.empty? %><li class="text-gray-500">No volunteer needs yet.</li><% end %>
+      </ul>
+    </article>
+  <% end %>
+</div>
+<% if @services.empty? %><p class="<%= card_classes %> text-sm text-gray-500">No services yet.</p><% end %>

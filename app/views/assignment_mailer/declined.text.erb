@@ -1,0 +1,3 @@
+<%= @assignment.person.name %> can't serve as <%= @assignment.position.name %> at <%= @assignment.title %> on <%= l(@assignment.starts_at, format: :long) %>.
+
+Open the schedule: <%= team_schedule_url(@assignment.team, from: @assignment.local_date) %>

@@ -1,0 +1,57 @@
+<%= form_with model: person, class: "space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: person.errors.full_messages %>
+
+  <div class="grid gap-6 sm:grid-cols-3">
+    <%= render "shared/field", form:, attribute: :first_name, options: { required: true } %>
+    <%= render "shared/field", form:, attribute: :nickname, hint: "Shown instead of the first name" %>
+    <%= render "shared/field", form:, attribute: :last_name, options: { required: true } %>
+  </div>
+
+  <div class="grid gap-6 sm:grid-cols-3">
+    <%= render "shared/field", form:, attribute: :email, type: :email_field %>
+    <%= render "shared/field", form:, attribute: :phone, type: :telephone_field %>
+    <%= render "shared/field", form:, attribute: :birthdate, type: :date_field %>
+  </div>
+
+  <div class="grid gap-6 sm:grid-cols-3">
+    <div>
+      <%= form.label :membership_status, class: label_classes %>
+      <%= form.select :membership_status, Person.membership_statuses.keys.map { |s| [ s.humanize, s ] }, {}, class: select_classes %>
+    </div>
+    <div>
+      <%= form.label :household_id, class: label_classes %>
+      <%= form.collection_select :household_id, Household.alphabetical, :id, :name, { include_blank: "No household" }, class: select_classes %>
+    </div>
+    <div>
+      <%= form.label :household_role, "Role in household", class: label_classes %>
+      <%= form.select :household_role, Person.household_roles.keys.map { |r| [ r.humanize, r ] }, {}, class: select_classes %>
+    </div>
+  </div>
+
+  <% if (tags = Tag.alphabetical.to_a).any? %>
+    <fieldset>
+      <legend class="<%= label_classes %>">Tags</legend>
+      <div class="flex flex-wrap gap-3">
+        <%= form.collection_check_boxes :tag_ids, tags, :id, :name do |box| %>
+          <label class="inline-flex items-center gap-2 text-sm"><%= box.check_box(class: "rounded border-gray-300 text-cyan-500") %> <%= box.text %></label>
+        <% end %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <% if (fields = CustomField.ordered.to_a).any? %>
+    <fieldset class="space-y-4 border-t border-gray-100 pt-6">
+      <legend class="text-sm font-semibold text-gray-900">More details</legend>
+      <div class="grid gap-6 sm:grid-cols-2">
+        <% fields.each do |field| %>
+          <%= render "people/custom_field_input", form:, field:, value: person.custom_field_value(field) %>
+        <% end %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", person.persisted? ? person : people_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

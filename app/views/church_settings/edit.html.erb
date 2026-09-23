@@ -1,0 +1,49 @@
+<% content_for :title, "Settings" %>
+<%= render "shared/page_header", title: "Settings", subtitle: "Your church lives at #{Current.church.host}." %>
+<%= render "shared/settings_nav" %>
+
+<%= form_with model: @church, url: church_settings_path, method: :patch, class: "max-w-xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: @church.errors.full_messages %>
+
+  <div>
+    <%= form.label :name, "Church name", class: label_classes %>
+    <%= form.text_field :name, required: true, class: input_classes %>
+  </div>
+
+  <div>
+    <%= form.label :time_zone, class: label_classes %>
+    <%= form.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones, {}, class: select_classes %>
+    <p class="mt-2 text-sm text-gray-500">Schedules, “this Sunday”, reminders, and reports all use this time zone.</p>
+  </div>
+
+  <div>
+    <%= form.label :group_coverage_miles, "Group coverage radius (miles)", class: label_classes %>
+    <%= form.number_field :group_coverage_miles, min: 1, max: 50, class: "max-w-32 #{input_classes}" %>
+    <p class="mt-2 text-sm text-gray-500">Households farther than this from every active group show up as a coverage gap on the map.</p>
+  </div>
+
+  <div>
+    <%= form.label :contact_email, "Contact email", class: label_classes %>
+    <%= form.email_field :contact_email, class: input_classes %>
+    <p class="mt-2 text-sm text-gray-500">Replies to church emails go here.</p>
+  </div>
+
+  <div>
+    <%= form.label :giving_url, "Online giving link", class: label_classes %>
+    <%= form.url_field :giving_url, placeholder: "https://tithe.ly/give?c=…", class: input_classes %>
+    <p class="mt-2 text-sm text-gray-500">The member area's Give button opens this page.</p>
+  </div>
+
+  <div>
+    <%= label_tag "church_attendance_categories_text", "Attendance categories", class: label_classes %>
+    <%= text_area_tag "church[attendance_categories_text]", @church.attendance_categories.join("\n"), id: "church_attendance_categories_text", rows: 3, class: input_classes %>
+    <p class="mt-2 text-sm text-gray-500">One per line. A category named “Online” counts as online; the rest are in person.</p>
+  </div>
+
+  <div>
+    <%= form.label :reminder_days_before, "Remind volunteers (days before)", class: label_classes %>
+    <%= form.number_field :reminder_days_before, min: 1, max: 14, class: "max-w-32 #{input_classes}" %>
+  </div>
+
+  <%= form.submit "Save settings", class: button_classes(:primary) %>
+<% end %>

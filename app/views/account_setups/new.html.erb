@@ -1,0 +1,13 @@
+<% content_for :title, "Create your account" %>
+<% content_for :subtitle, "Already part of #{Current.church.name}? Enter the email we have for you and we'll send a link." %>
+<%= form_with url: account_setup_path, class: "space-y-6" do |form| %>
+  <div>
+    <%= form.label :email, "Email address", class: label_classes %>
+    <%= form.email_field :email, required: true, autofocus: true, autocomplete: "email", class: input_classes %>
+  </div>
+  <div class="flex items-center justify-between gap-4">
+    <%= form.submit "Email me a link", class: button_classes(:primary) %>
+    <%= link_to "Back to sign in", new_session_path, class: "text-sm text-gray-600 underline hover:no-underline" %>
+  </div>
+  <p class="text-sm text-gray-500">New to our church? Fill in a connect card and we'll be in touch.</p>
+<% end %>

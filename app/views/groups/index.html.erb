@@ -1,0 +1,30 @@
+<% content_for :title, "Groups" %>
+<%= render "shared/page_header", title: "Groups" do %>
+  <%= link_to "New group", new_group_path, class: button_classes(:primary) if policy(Group.new).create? %>
+<% end %>
+
+<%= form_with url: groups_path, method: :get, class: "mb-6 flex flex-wrap gap-3", data: { turbo_action: "replace" } do |form| %>
+  <%= form.select :group_type, options_for_select(Group.group_types.keys.map { |t| [ t.humanize, t ] }, params[:group_type]),
+        { include_blank: "All types" }, class: select_classes, aria: { label: "Type" } %>
+  <%= form.select :ministry_id, options_from_collection_for_select(policy_scope(Ministry).alphabetical, :id, :name, params[:ministry_id]),
+        { include_blank: "All ministries" }, class: select_classes, aria: { label: "Ministry" } %>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :inactive, { checked: params[:inactive] == "1", class: "rounded border-gray-300 text-cyan-500" }, "1", nil %> Include inactive</label>
+  <%= form.submit "Filter", class: button_classes(:secondary) %>
+<% end %>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @groups.each do |group| %>
+      <li>
+        <%= link_to group, class: "flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-gray-50" do %>
+          <div>
+            <p class="font-medium"><%= group.name %> <%= badge("Inactive") unless group.active? %></p>
+            <p class="text-sm text-gray-500"><%= [ group.group_type.humanize, group.ministry&.name, group.meeting_summary ].compact.join(" · ") %></p>
+          </div>
+          <p class="text-sm text-gray-500"><%= group.group_memberships.size %><%= " of #{group.capacity}" if group.capacity %> people <%= badge("Full", color: "amber") if group.full? %></p>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @groups.empty? %><li class="px-6 py-8 text-center text-sm text-gray-500">No groups match.</li><% end %>
+  </ul>
+</div>

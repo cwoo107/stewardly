@@ -1,0 +1,24 @@
+<% content_for :title, "Imports" %>
+<%= render "shared/page_header", title: "Imports", subtitle: "Bring people in from a spreadsheet (CSV)." do %>
+  <%= link_to "New import", new_person_import_path, class: button_classes(:primary) %>
+<% end %>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @imports.each do |import| %>
+      <li>
+        <%= link_to import.pending? ? edit_person_import_path(import) : import, class: "flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-gray-50" do %>
+          <div>
+            <p class="font-medium"><%= import.file.filename %></p>
+            <p class="text-sm text-gray-500"><%= l(import.created_at, format: :short) %><%= " · #{import.created_by.name}" if import.created_by %></p>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <% if import.completed? %><%= import.created_count %> added · <%= import.updated_count %> updated<% end %>
+            <%= badge(import.status.humanize, color: { "completed" => "green", "failed" => "rose", "pending" => "amber" }.fetch(import.status, "cyan")) %>
+          </div>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @imports.empty? %><li class="px-6 py-8 text-center text-sm text-gray-500">No imports yet.</li><% end %>
+  </ul>
+</div>

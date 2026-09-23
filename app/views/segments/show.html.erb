@@ -1,0 +1,28 @@
+<% content_for :title, @segment.name %>
+<%= render "shared/page_header", title: @segment.name, subtitle: @segment.description do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "View on map", map_path(segment_id: @segment.id), class: button_classes(:outline) %>
+    <%= link_to "Edit", edit_segment_path(@segment), class: button_classes(:outline) if policy(@segment).update? %>
+    <% if policy(@segment).destroy? %>
+      <%= button_to "Delete", @segment, method: :delete, class: button_classes(:danger), form: { data: { turbo_confirm: "Delete this segment?" } } %>
+    <% end %>
+  </div>
+<% end %>
+
+<section class="mb-6 <%= card_classes %>">
+  <p class="text-sm font-semibold">People matching <%= @segment.match == "any" ? "any" : "all" %> of:</p>
+  <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+    <% @segment.conditions.each do |condition| %><li><%= condition.summary %></li><% end %>
+    <% if @segment.conditions.empty? %><li>Everyone</li><% end %>
+  </ul>
+  <p class="mt-4 text-2xl font-semibold"><%= pluralize(@pagy.count, "person") %></p>
+</section>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @people.each do |person| %>
+      <li><%= link_to person.name, person, class: "block px-6 py-3 text-sm hover:bg-gray-50" %></li>
+    <% end %>
+  </ul>
+</div>
+<%= render "shared/pagination", pagy: @pagy %>

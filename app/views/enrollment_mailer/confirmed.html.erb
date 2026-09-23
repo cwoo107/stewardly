@@ -1,0 +1,3 @@
+<p>Hi <%= @enrollment.person.first_name %>,</p>
+<p>You're enrolled in <strong><%= @offering.name %></strong>, starting <%= l(@offering.starts_on, format: :long) %>.</p>
+<p><a class="button" href="<%= member_courses_url %>">See your classes</a></p>

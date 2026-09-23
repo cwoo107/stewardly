@@ -1,0 +1,3 @@
+<% content_for :title, "Edit #{@member.first_name}" %>
+<h1 class="text-2xl font-medium tracking-tight">Edit <%= @member.first_name %></h1>
+<%= render "form", member: @member %>

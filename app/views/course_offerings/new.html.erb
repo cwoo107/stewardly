@@ -1,0 +1,3 @@
+<% content_for :title, "New offering" %>
+<%= render "shared/page_header", title: "New #{@offering.course.name} offering" %>
+<%= render "form", offering: @offering %>

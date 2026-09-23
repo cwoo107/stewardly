@@ -1,0 +1,10 @@
+<li id="<%= dom_id(task) %>" class="cursor-grab rounded-2xl bg-white p-3 shadow-sm ring-1 ring-gray-200"
+    <%= tag.attributes(data: { move_url: (move_task_path(task) if policy(task).move?) }) %>>
+  <%= link_to task.title, task, class: "block text-sm font-medium hover:underline #{"text-gray-400 line-through" if task.done?}" %>
+  <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+    <%= priority_badge(task) unless task.priority_normal? %>
+    <% if task.due_on %><span class="<%= "font-semibold text-rose-700" if task.overdue?(Current.church.today) %>">Due <%= l(task.due_on, format: :short) %></span><% end %>
+    <% if task.owner %><span><%= task.owner.name %></span><% end %>
+    <% if task.project %><span>· <%= task.project.name %></span><% end %>
+  </div>
+</li>

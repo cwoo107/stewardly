@@ -1,0 +1,27 @@
+<% content_for :title, "Audit log" %>
+<%= render "shared/page_header", title: "Audit log", subtitle: "Permission changes, deletions, and settings changes. Times are in #{Current.church.time_zone}." %>
+
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @audit_events.each do |event| %>
+      <li id="<%= dom_id(event) %>" class="px-6 py-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="text-sm">
+            <span class="font-medium"><%= event.actor&.name || "System" %></span>
+            <span class="text-gray-700"><%= event.description %></span>
+          </p>
+          <time class="text-xs text-gray-500" datetime="<%= event.created_at.iso8601 %>"><%= l(event.created_at, format: :short) %></time>
+        </div>
+        <p class="mt-1 text-xs text-gray-500"><%= event.auditable_type %> #<%= event.auditable_id %><%= " · #{event.ip_address}" if event.ip_address %></p>
+      </li>
+    <% end %>
+    <% if @audit_events.empty? %>
+      <li class="px-6 py-4 text-sm text-gray-500">Nothing has been recorded yet.</li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="mt-6 flex justify-between">
+  <%= link_to "Newer", audit_events_path(page: @page - 1), class: button_classes(:outline) if @page > 1 %>
+  <%= link_to "Older", audit_events_path(page: @page + 1), class: "ml-auto #{button_classes(:outline)}" if @more %>
+</div>

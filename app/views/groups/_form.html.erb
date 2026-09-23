@@ -1,0 +1,42 @@
+<%= form_with model: group, class: "max-w-2xl space-y-6 #{card_classes}" do |form| %>
+  <%= render "shared/form_errors", messages: group.errors.full_messages %>
+  <%= render "shared/field", form:, attribute: :name, options: { required: true } %>
+  <div class="grid gap-6 sm:grid-cols-2">
+    <div>
+      <%= form.label :group_type, "Type", class: label_classes %>
+      <%= form.select :group_type, Group.group_types.keys.map { |t| [ t.humanize, t ] }, {}, class: select_classes %>
+    </div>
+    <div>
+      <%= form.label :ministry_id, class: label_classes %>
+      <%= form.collection_select :ministry_id, policy_scope(Ministry).alphabetical.select { |m| policy(Group.new(ministry: m)).create? },
+            :id, :name, { include_blank: (Current.user.can?(:manage_ministries) ? "No ministry" : false) }, class: select_classes %>
+    </div>
+  </div>
+  <div class="grid gap-6 sm:grid-cols-4">
+    <div>
+      <%= form.label :meeting_day, class: label_classes %>
+      <%= form.select :meeting_day, Date::DAYNAMES.each_with_index.to_a, { include_blank: "—" }, class: select_classes %>
+    </div>
+    <%= render "shared/field", form:, attribute: :meeting_time, type: :time_field %>
+    <div>
+      <%= form.label :meeting_frequency, "How often", class: label_classes %>
+      <%= form.select :meeting_frequency, Group.meeting_frequencies.keys.map { |f| [ f.humanize, f ] }, {}, class: select_classes %>
+    </div>
+    <%= render "shared/field", form:, attribute: :capacity, type: :number_field, options: { min: 1 } %>
+  </div>
+  <%= render "shared/field", form:, attribute: :description, type: :text_area, options: { rows: 3 } %>
+  <fieldset class="space-y-6 border-t border-gray-100 pt-6">
+    <legend class="text-sm font-semibold text-gray-900">Meeting location</legend>
+    <%= render "shared/field", form:, attribute: :address_line1, label: "Address" %>
+    <div class="grid gap-6 sm:grid-cols-3">
+      <%= render "shared/field", form:, attribute: :city %>
+      <%= render "shared/field", form:, attribute: :region, label: "State" %>
+      <%= render "shared/field", form:, attribute: :postal_code, label: "ZIP" %>
+    </div>
+  </fieldset>
+  <label class="inline-flex items-center gap-2 text-sm"><%= form.check_box :active, class: "rounded border-gray-300 text-cyan-500" %> Active</label>
+  <div class="flex gap-3">
+    <%= form.submit class: button_classes(:primary) %>
+    <%= link_to "Cancel", group.persisted? ? group : groups_path, class: button_classes(:outline) %>
+  </div>
+<% end %>

@@ -1,0 +1,15 @@
+<% content_for :title, @event.title %>
+<%= render "shared/page_header", title: @event.title, subtitle: [ @event.location_summary.presence, @event.ministry&.name ].compact.join(" · ") do %>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Registrations", event_registrations_path(@event), class: button_classes(:outline) if @event.registration_required? && policy(@event).update? %>
+    <%= link_to "Edit", edit_event_path(@event), class: button_classes(:primary) if policy(@event).update? %>
+  </div>
+<% end %>
+<section class="<%= card_classes %>">
+  <% if @event.description.present? %><p class="whitespace-pre-line text-gray-700"><%= @event.description %></p><% end %>
+  <ul class="mt-4 space-y-1 text-sm">
+    <% @occurrences.each do |occurrence| %>
+      <li><%= l(occurrence.starts_at, format: :long) %><%= " · #{occurrence.seats_taken} registered" if @event.registration_required? %></li>
+    <% end %>
+  </ul>
+</section>

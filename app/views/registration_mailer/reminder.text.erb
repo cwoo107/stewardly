@@ -1,0 +1,5 @@
+Hi <%= @registration.person.first_name %>,
+
+See you tomorrow at <%= @registration.event.title %>, <%= l(@occurrence.starts_at, format: :long) %>.
+
+View or cancel: <%= manage_registration_url(@registration.manage_token) %>

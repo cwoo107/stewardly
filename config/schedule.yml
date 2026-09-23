@@ -1,0 +1,12 @@
+# Recurring jobs (sidekiq-cron). Times are UTC; jobs work out each church's local time.
+reminder_sweep:
+  cron: "5 * * * *"
+  class: "ReminderSweepJob"
+  queue: default
+  description: "Sends volunteer and event reminders at 8am in each church's time zone"
+
+forecast_sweep:
+  cron: "15 * * * *"
+  class: "ForecastSweepJob"
+  queue: low
+  description: "Forecasts the next two weeks of services at 2am in each church's time zone, and freezes past forecasts"

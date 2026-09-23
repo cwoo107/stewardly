@@ -1,0 +1,13 @@
+<%= turbo_frame_tag @frame_id do %>
+  <ul class="mt-1 space-y-1">
+    <% @candidates.each do |candidate| %>
+      <li>
+        <%= button_to candidate.person.name, assignments_path, class: "text-left font-medium text-gray-800 hover:underline",
+              params: { assignment: { schedulable_type: @occurrence.class.name, schedulable_id: @occurrence.id, position_id: @position.id, person_id: candidate.person.id } },
+              form: { data: { turbo_stream: true, turbo_frame: "_top" } } %>
+        <span class="block text-gray-500"><%= candidate.reasons.join(" · ") %></span>
+      </li>
+    <% end %>
+    <% if @candidates.empty? %><li class="text-gray-500">No one available. Check blockouts and qualifications.</li><% end %>
+  </ul>
+<% end %>

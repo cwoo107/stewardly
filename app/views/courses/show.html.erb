@@ -1,0 +1,24 @@
+<% content_for :title, @course.name %>
+<%= render "shared/page_header", title: @course.name, subtitle: @course.ministry&.name do %>
+  <div class="flex gap-2">
+    <%= link_to "Edit", edit_course_path(@course), class: button_classes(:outline) if policy(@course).update? %>
+    <%= link_to "New offering", new_course_offering_path(course_id: @course.id), class: button_classes(:primary) if policy(@course).update? %>
+  </div>
+<% end %>
+<% if @course.description.present? %><p class="mb-6 whitespace-pre-line text-gray-700"><%= @course.description %></p><% end %>
+<div class="overflow-hidden rounded-4xl bg-white shadow-sm ring-1 ring-gray-200">
+  <ul role="list" class="divide-y divide-gray-100">
+    <% @offerings.each do |offering| %>
+      <li>
+        <%= link_to offering, class: "flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-gray-50" do %>
+          <div>
+            <p class="font-medium">Starts <%= l(offering.starts_on, format: :long) %></p>
+            <p class="text-sm text-gray-500"><%= [ offering.leader&.name, offering.location_name, pluralize(offering.sessions.size, "session") ].compact_blank.join(" · ") %></p>
+          </div>
+          <p class="text-sm text-gray-600"><%= offering.seats_taken %><%= " of #{offering.capacity}" if offering.capacity %> enrolled <%= badge("Closed") unless offering.enrollment_open? %></p>
+        <% end %>
+      </li>
+    <% end %>
+    <% if @offerings.empty? %><li class="px-6 py-6 text-sm text-gray-500">Not offered yet.</li><% end %>
+  </ul>
+</div>

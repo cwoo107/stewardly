@@ -1,0 +1,59 @@
+<% name = "answers[#{field.key}]" %>
+<% id = "answer_#{field.key}" %>
+<% invalid = error.present? %>
+<% input = "#{input_classes} #{"border-red-400" if invalid}" %>
+<div data-field-key="<%= field.key %>" data-field-type="<%= field.field_type %>">
+  <% if field.field_type == "checkbox" %>
+    <%= hidden_field_tag name, "0", id: nil %>
+    <label class="flex items-start gap-3 text-sm font-semibold text-gray-900">
+      <%= check_box_tag name, "1", value.to_s == "1", id:, class: "mt-0.5 rounded border-gray-300 text-cyan-500" %>
+      <span><%= field.label %><%= " *" if field.required? %></span>
+    </label>
+  <% else %>
+    <% if field.field_type.in?(%w[ multi_select address ]) %>
+      <p class="<%= label_classes %>"><%= field.label %><%= " *" if field.required? %></p>
+    <% else %>
+      <%= label_tag id, "#{field.label}#{" *" if field.required?}", class: label_classes %>
+    <% end %>
+    <% case field.field_type %>
+    <% when "paragraph" %>
+      <%= text_area_tag name, value, id:, rows: 5, maxlength: 5000, required: field.required?, class: input %>
+    <% when "email" %>
+      <%= email_field_tag name, value, id:, autocomplete: "email", required: field.required?, class: input %>
+    <% when "phone" %>
+      <%= telephone_field_tag name, value, id:, autocomplete: "tel", required: field.required?, class: input %>
+    <% when "number" %>
+      <%= number_field_tag name, value, id:, step: "any", required: field.required?, class: input %>
+    <% when "date" %>
+      <%= date_field_tag name, value, id:, required: field.required?, class: input %>
+    <% when "select" %>
+      <%= select_tag name, options_for_select(field.options, value), id:, include_blank: "Choose…", required: field.required?, class: "#{input} pr-8" %>
+    <% when "multi_select" %>
+      <%= hidden_field_tag "#{name}[]", "", id: nil %>
+      <div class="space-y-2">
+        <% field.options.each_with_index do |option, index| %>
+          <label class="flex items-center gap-3 text-sm">
+            <%= check_box_tag "#{name}[]", option, Array(value).include?(option), id: "#{id}_#{index}", class: "rounded border-gray-300 text-cyan-500" %> <%= option %>
+          </label>
+        <% end %>
+      </div>
+    <% when "file" %>
+      <%= file_field_tag name, id:, accept: FormField::UPLOAD_TYPES.join(","), class: "block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-semibold" %>
+    <% when "address" %>
+      <% parts = value.respond_to?(:to_unsafe_h) ? value.to_unsafe_h : value.to_h %>
+      <div class="space-y-3">
+        <%= text_field_tag "#{name}[line1]", parts["line1"], id: "#{id}_line1", placeholder: "Street address", autocomplete: "address-line1", class: input, aria: { label: "#{field.label}: street" } %>
+        <%= text_field_tag "#{name}[line2]", parts["line2"], id: "#{id}_line2", placeholder: "Apartment, unit (optional)", autocomplete: "address-line2", class: input, aria: { label: "#{field.label}: apartment" } %>
+        <div class="grid grid-cols-6 gap-3">
+          <%= text_field_tag "#{name}[city]", parts["city"], id: "#{id}_city", placeholder: "City", autocomplete: "address-level2", class: "col-span-3 #{input}", aria: { label: "#{field.label}: city" } %>
+          <%= text_field_tag "#{name}[region]", parts["region"], id: "#{id}_region", placeholder: "State", autocomplete: "address-level1", class: "col-span-1 #{input}", aria: { label: "#{field.label}: state" } %>
+          <%= text_field_tag "#{name}[postal_code]", parts["postal_code"], id: "#{id}_postal_code", placeholder: "ZIP", autocomplete: "postal-code", class: "col-span-2 #{input}", aria: { label: "#{field.label}: ZIP" } %>
+        </div>
+      </div>
+    <% else %>
+      <%= text_field_tag name, value, id:, maxlength: 255, required: field.required?, class: input %>
+    <% end %>
+  <% end %>
+  <% if field.help_text.present? %><p class="mt-2 text-sm text-gray-500"><%= field.help_text %></p><% end %>
+  <% if invalid %><p class="mt-2 text-sm font-medium text-red-700"><%= field.label %> <%= error %></p><% end %>
+</div>

@@ -1,0 +1,27 @@
+<% content_for :title, "Possible duplicates" %>
+<%= render "shared/page_header", title: "Possible duplicates",
+      subtitle: "People who share an email, or a name plus a phone number, birthdate, or household." %>
+
+<div class="space-y-4">
+  <% @pairs.each do |pair| %>
+    <div class="<%= card_classes %> flex flex-wrap items-center justify-between gap-4" id="pair_<%= pair.person.id %>_<%= pair.duplicate.id %>">
+      <div class="grid flex-1 gap-4 sm:grid-cols-2">
+        <% [ pair.person, pair.duplicate ].each do |person| %>
+          <div class="text-sm">
+            <%= link_to person.full_name, person, class: "font-medium hover:underline" %>
+            <p class="text-gray-500"><%= [ person.email, person.phone, person.birthdate&.to_fs(:long), person.household&.name ].compact_blank.join(" · ") %></p>
+          </div>
+        <% end %>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <%= badge(pair.reason == "same_email" ? "Same email" : "Same name", color: "amber") %>
+        <%= link_to "Review merge", new_person_merge_path(pair.person, duplicate_id: pair.duplicate.id), class: button_classes(:primary) %>
+        <%= button_to "Not the same", duplicate_dismissals_path, params: { duplicate_dismissal: { person_id: pair.person.id, other_person_id: pair.duplicate.id } },
+              class: button_classes(:outline) %>
+      </div>
+    </div>
+  <% end %>
+  <% if @pairs.empty? %>
+    <p class="<%= card_classes %> text-sm text-gray-500">No likely duplicates. Nice and tidy.</p>
+  <% end %>
+</div>

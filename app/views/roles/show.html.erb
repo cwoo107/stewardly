@@ -1,0 +1,33 @@
+<% content_for :title, @role.name %>
+<%= render "shared/page_header", title: @role.name %>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <section class="rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+    <h2 class="text-lg font-semibold">Permissions</h2>
+    <ul role="list" class="mt-4 space-y-3">
+      <% Permission::ALL.each do |key, description| %>
+        <li class="flex gap-3 text-sm">
+          <% if @role.grants?(key) %>
+            <span class="font-semibold text-cyan-600" aria-label="Granted">✓</span>
+            <span class="text-gray-900"><%= description %></span>
+          <% else %>
+            <span class="text-gray-300" aria-label="Not granted">–</span>
+            <span class="text-gray-400"><%= description %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+
+  <section class="rounded-4xl bg-white p-8 shadow-sm ring-1 ring-gray-200">
+    <h2 class="text-lg font-semibold">Users</h2>
+    <ul role="list" class="mt-4 divide-y divide-gray-100">
+      <% @role.users.sort_by(&:name).each do |user| %>
+        <li class="py-2"><%= link_to user.name, user, class: "text-sm hover:underline" %></li>
+      <% end %>
+      <% if @role.users.empty? %>
+        <li class="py-2 text-sm text-gray-500">Nobody has this role.</li>
+      <% end %>
+    </ul>
+  </section>
+</div>
