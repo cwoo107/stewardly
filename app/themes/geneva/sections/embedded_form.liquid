@@ -1,0 +1,12 @@
+{% assign chosen = forms[settings.form] %}
+{% if chosen %}
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <div class="grid lg:grid-cols-12">
+    <div class="lg:col-span-8 lg:col-start-3">
+      <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | default: chosen.name | escape }}</h2></header>
+      {% if chosen.description != blank %}<p class="gv-lede -mt-4 mb-10 text-center">{{ chosen.description | escape }}</p>{% endif %}
+      <div class="site-form gv-form">{{ chosen.html }}</div>
+    </div>
+  </div>
+</section>
+{% endif %}

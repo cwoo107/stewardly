@@ -1,0 +1,26 @@
+{% assign chosen = forms[settings.form] %}
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <div class="clarity-contact grid overflow-hidden rounded-[2rem] {% if chosen %}lg:grid-cols-12{% endif %}">
+    <div class="clarity-contact-aside p-8 sm:p-12 {% if chosen %}lg:col-span-5{% endif %}">
+      <h2 class="site-heading clarity-h2">{{ settings.heading | escape }}</h2>
+      <ul class="mt-10 space-y-8">
+        {% for campus in campuses %}
+          <li class="flex gap-4">
+            <span class="clarity-icon clarity-icon-sm" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" class="h-4 w-4"><path d="M10 17.5s5.5-4.9 5.5-9.25a5.5 5.5 0 10-11 0C4.5 12.6 10 17.5 10 17.5z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="8.25" r="1.75" stroke="currentColor" stroke-width="1.5"/></svg></span>
+            <span class="min-w-0">
+              {% if campus.map_url != blank %}<a href="{{ campus.map_url }}" class="font-semibold hover:underline">{{ campus.name | escape }}</a>{% else %}<span class="font-semibold">{{ campus.name | escape }}</span>{% endif %}
+              {% if campus.address != blank %}<span class="mt-1 block whitespace-pre-line text-sm text-(--site-muted)">{{ campus.address | escape }}</span>{% endif %}
+            </span>
+          </li>
+        {% endfor %}
+        {% if church.contact_email != blank %}
+          <li class="flex items-center gap-4">
+            <span class="clarity-icon clarity-icon-sm" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" class="h-4 w-4"><rect x="2.75" y="4.75" width="14.5" height="10.5" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 6l6.5 5 6.5-5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+            <a href="mailto:{{ church.contact_email | escape }}" class="min-w-0 break-words font-semibold hover:underline">{{ church.contact_email | escape }}</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% if chosen %}<div class="site-form p-8 sm:p-12 lg:col-span-7">{{ chosen.html }}</div>{% endif %}
+  </div>
+</section>

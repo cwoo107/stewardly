@@ -1,0 +1,15 @@
+<section class="site-section px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  <h2 class="site-heading summit-display summit-title">{{ settings.heading | escape }}</h2>
+  <ul class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% for person in settings.blocks %}
+      <li class="summit-zoom group relative aspect-[3/4] overflow-hidden rounded-[1.75rem] bg-(--site-surface)">
+        {% if person.photo_url != blank %}<img src="{{ person.photo_url | escape }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy">{% else %}<div class="summit-tile-fallback absolute inset-0"></div>{% endif %}
+        <div class="summit-shade absolute inset-0 flex flex-col justify-end p-6 text-white">
+          <p class="summit-display text-2xl leading-none sm:text-3xl">{{ person.name | escape }}</p>
+          {% if person.role != blank %}<p class="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-(--site-accent)">{{ person.role | escape }}</p>{% endif %}
+          {% if person.email != blank %}<a href="mailto:{{ person.email | escape }}" class="mt-3 text-sm text-white/80 underline decoration-white/40 underline-offset-4 hover:text-white">{{ person.email | escape }}</a>{% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

@@ -11,7 +11,7 @@ class Email::Tracking
 
   # Where links in email point: https in production, the dev server's port in development.
   def self.base_url(church)
-    return "https://#{church.host}" if Rails.env.production?
+    return "https://#{church.host}" if Rails.env.production? || DemoTunnel.app_host_for(church)
 
     "http://#{church.host}#{":#{Rails.configuration.x.dev_port}" if Rails.configuration.x.dev_port.presence}"
   end

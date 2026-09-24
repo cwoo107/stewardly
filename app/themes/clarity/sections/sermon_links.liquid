@@ -1,0 +1,18 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <h2 class="site-heading clarity-h2">{{ settings.heading | escape }}</h2>
+  <ul class="clarity-list mt-14">
+    {% for sermon in settings.blocks %}
+      <li class="group relative grid items-center gap-x-6 gap-y-1 px-5 py-5 sm:grid-cols-12 sm:px-6">
+        <span class="flex items-center gap-4 sm:col-span-6">
+          <span class="clarity-icon clarity-icon-sm" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" class="h-4 w-4"><path d="M7.5 6v8l6.5-4-6.5-4z" fill="currentColor"/></svg></span>
+          {% if sermon.url != blank %}<a href="{{ sermon.url | escape }}" class="font-semibold tracking-tight"><span class="absolute inset-0" aria-hidden="true"></span>{{ sermon.title | escape }}</a>{% else %}<span class="font-semibold tracking-tight">{{ sermon.title | escape }}</span>{% endif %}
+        </span>
+        <span class="pl-12 text-sm text-(--site-muted) sm:col-span-3 sm:pl-0">{{ sermon.speaker | escape }}</span>
+        <span class="pl-12 text-sm text-(--site-muted) tabular-nums sm:col-span-2 sm:pl-0">{{ sermon.date | escape }}</span>
+        <span class="hidden justify-end sm:col-span-1 sm:flex">{% if sermon.url != blank %}<span class="clarity-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" class="h-4 w-4"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endif %}</span>
+      </li>
+    {% else %}
+      <li class="px-6 py-5 text-(--site-muted)">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ul>
+</section>

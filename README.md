@@ -58,6 +58,24 @@ What uses AI:
 - workflow AI drafts in the approval queue;
 - "Polish with AI" on social posts.
 
+## Demoing over the internet (Cloudflare quick tunnels)
+To show the app to people without deploying it:
+
+```sh
+bin/demo                    # demos Grace (stop your bin/dev first; bin/demo runs its own)
+DEMO_CHURCH=hope bin/demo   # another seeded church
+```
+
+It opens two free Cloudflare quick tunnels, with no account needed: one for the church's staff app and member area, and one for its public website. It prints both `https://….trycloudflare.com` addresses and the logins, then runs `bin/dev`. Links, redirects and emails use the tunnel addresses.
+
+Keep in mind:
+- The addresses are random and change on every run.
+- Anyone with a link can reach the app, and the seeded logins use the password `password`. Share links only with people you trust, and press Ctrl-C when you're done.
+- Viewers can't open developer tools: detailed error pages, `/rails/mailers`, `/rails/info` and `/letter_opener` are hidden on tunnel addresses. They still work on `localhost` for you.
+- Only the chosen church is reachable. The platform console and other churches aren't tunneled.
+- Requires `cloudflared` (`brew install cloudflared`).
+- If a link says "can't be found" on your Mac only, your Mac cached an early DNS miss. Flush it with `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`, or open the link in another browser. `bin/demo` waits for Cloudflare to publish both addresses before printing them, to avoid this.
+
 ## Tasks
 ```sh
 bin/rails churches:create NAME="New Life" SUBDOMAIN=newlife TIME_ZONE="Pacific Time (US & Canada)" \

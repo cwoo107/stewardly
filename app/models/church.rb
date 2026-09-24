@@ -14,10 +14,15 @@ class Church < ApplicationRecord
   has_many :audit_events, dependent: :delete_all
   has_many :campuses, dependent: :destroy
   has_one :pathway, dependent: :destroy
+  # Shown in place of the Stewardly mark across the app, emails, and (unless the site sets its own) the website.
+  has_one_attached :logo
+
+  LOGO_TYPES = %w[ image/png image/jpeg image/webp ].freeze
 
   normalizes :subdomain, with: ->(subdomain) { subdomain.strip.downcase }
 
   validates :name, presence: true
+  validate :logo_is_a_small_image
   validates :subdomain, presence: true, uniqueness: true, length: { maximum: 63 },
     format: { with: /\A[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\z/, message: "may only contain letters, numbers, and hyphens" },
     exclusion: { in: RESERVED_SUBDOMAINS, message: "is reserved" }
@@ -69,12 +74,19 @@ class Church < ApplicationRecord
   end
 
   def host
-    "#{subdomain}.#{Rails.configuration.x.app_domain}"
+    DemoTunnel.app_host_for(self) || "#{subdomain}.#{Rails.configuration.x.app_domain}"
   end
 
   def site = Site.find_by(church: self)
 
   private
+    def logo_is_a_small_image
+      return unless logo.attached?
+
+      errors.add(:logo, "must be a PNG, JPEG, or WebP image") unless LOGO_TYPES.include?(logo.blob.content_type)
+      errors.add(:logo, "must be smaller than 2 MB") if logo.blob.byte_size > 2.megabytes
+    end
+
     def saved_change_to_settings?
       saved_changes.keys.intersect?(AUDITED_SETTINGS)
     end

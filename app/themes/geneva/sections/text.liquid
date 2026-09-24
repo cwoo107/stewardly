@@ -1,0 +1,8 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <div class="grid lg:grid-cols-12">
+    <div class="lg:col-span-8 lg:col-start-3 {% if settings.align == 'center' %}text-center{% endif %}">
+      {% if settings.heading != blank %}<header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>{% endif %}
+      <div class="site-prose gv-book{% if settings.align != 'center' %} gv-dropcap{% endif %}">{{ settings.body | markdown }}</div>
+    </div>
+  </div>
+</section>

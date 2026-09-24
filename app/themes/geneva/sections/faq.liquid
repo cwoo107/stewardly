@@ -1,0 +1,11 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  <ol class="gv-catechism grid gap-x-16 gap-y-10 lg:grid-cols-2">
+    {% for item in settings.blocks %}
+      <li class="gv-qa">
+        <p class="gv-question">{{ item.question | escape }}</p>
+        <div class="site-prose gv-answer">{{ item.answer | markdown }}</div>
+      </li>
+    {% endfor %}
+  </ol>
+</section>

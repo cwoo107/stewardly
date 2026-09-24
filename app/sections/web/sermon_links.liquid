@@ -8,7 +8,7 @@
         <span class="text-sm text-(--site-muted)">{{ sermon.date | escape }}</span>
       </li>
     {% else %}
-      <li class="py-4 text-(--site-muted)">Sermons will be posted here.</li>
+      <li class="py-4 text-(--site-muted)">{{ settings.empty_text | escape }}</li>
     {% endfor %}
   </ul>
 </section>

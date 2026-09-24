@@ -1,6 +1,7 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  config.hosts << ".trycloudflare.com" if config.hosts.is_a?(Array)
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
@@ -43,6 +44,14 @@ Rails.application.configure do
   ENV["OLLAMA_URL"] ||= "http://localhost:11434"
   ENV["AI_MODEL"] ||= "gpt-oss:20b"
   ENV["AI_THINK"] ||= "low" # gpt-oss reasons before answering; keep it brief (unset for models without thinking)
+
+  # Demo tunnels (bin/demo): allow the two trycloudflare.com addresses, and hide developer
+  # tools (detailed errors, mail previews, /rails/info) from people viewing through them.
+  if ENV["DEMO_CHURCH"].present?
+    config.hosts.concat([ ENV["DEMO_APP_HOST"], ENV["DEMO_SITE_HOST"] ].compact_blank)
+    require Rails.root.join("lib/middleware/demo_tunnel_guard")
+    config.middleware.insert_before ActionDispatch::DebugExceptions, DemoTunnelGuard
+  end
 
   # Church websites: grace.sites.localhost (the default ".localhost" only allows one level).
   config.hosts << /[a-z0-9-]+\.#{Regexp.escape(config.x.sites_domain)}/ # Rails adds the anchors and port

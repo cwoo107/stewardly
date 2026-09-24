@@ -1,0 +1,17 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <h2 class="site-heading clarity-h2">{{ settings.heading | escape }}</h2>
+  <ul class="clarity-list mt-14">
+    {% for event in events limit: settings.count %}
+      <li class="group relative flex items-center gap-5 px-5 py-5 sm:gap-8 sm:px-6">
+        <span class="clarity-date" aria-hidden="true"><span class="clarity-date-month">{{ event.month }}</span><span class="clarity-date-day">{{ event.day }}</span></span>
+        <span class="min-w-0 flex-1">
+          <a href="{{ event.url }}" class="block text-lg/7 font-semibold tracking-tight"><span class="absolute inset-0" aria-hidden="true"></span>{{ event.title | escape }}</a>
+          <span class="mt-1 block text-sm text-(--site-muted)">{{ event.date }} · {{ event.time }}{% if event.location != blank %} · {{ event.location | escape }}{% endif %}</span>
+        </span>
+        <span class="clarity-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" class="h-4 w-4"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </li>
+    {% else %}
+      <li class="px-6 py-5 text-(--site-muted)">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ul>
+</section>

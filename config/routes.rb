@@ -1,7 +1,10 @@
 require "sidekiq/web"
 
 Rails.application.routes.draw do
-  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+  # Development's sent mail, never shown to people viewing a demo tunnel (bin/demo).
+  constraints(->(request) { !DemoTunnel.tunnel_host?(request.host) }) do
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end if Rails.env.development?
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

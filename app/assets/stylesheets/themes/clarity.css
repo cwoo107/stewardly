@@ -1,0 +1,131 @@
+/* Clarity (premium): clean and modern. Neutral grays, medium-weight tight headings, bordered
+   rounded cards, framed photos, and inset dark panels with a soft accent glow. Clarity has its
+   own markup for the built-in sections (app/themes/clarity/sections); the generic hooks at the
+   end keep custom sections looking at home. */
+.site { --site-border: color-mix(in srgb, var(--site-text) 11%, transparent); --site-muted: color-mix(in srgb, var(--site-text) 60%, transparent);
+  --clarity-panel: color-mix(in srgb, var(--site-text) 94%, #000); --clarity-soft: color-mix(in srgb, var(--site-surface) 60%, var(--site-bg));
+  background: var(--site-bg); color: var(--site-text); font-family: var(--site-body-font); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.site .site-heading, .site h1, .site h2, .site h3 { font-family: var(--site-heading-font); }
+.site-clarity main { overflow-x: clip; }
+
+/* Header */
+.clarity-mark { width: 2rem; height: 2rem; border-radius: 9999px; flex: none;
+  background: conic-gradient(from 210deg, var(--site-accent), color-mix(in srgb, var(--site-accent) 20%, var(--site-bg)), var(--site-accent)); }
+.site-clarity .site-nav-link { display: block; border-radius: .5rem; padding: .5rem .75rem; color: color-mix(in srgb, var(--site-text) 72%, transparent); transition: background .15s, color .15s; }
+.site-clarity .site-nav-link:hover, .site-clarity .site-nav-link.is-current { background: var(--site-surface); color: var(--site-text); }
+.clarity-menu > summary::-webkit-details-marker { display: none; }
+.clarity-menu > summary:hover { background: var(--site-surface); }
+.clarity-menu-panel { background: var(--site-bg); border: 1px solid var(--site-border); box-shadow: 0 24px 48px -12px rgb(0 0 0 / .18); }
+
+/* Buttons. Display sits in the components layer so utilities (hidden sm:inline-flex) still win. */
+@layer components { .site-clarity .site-button, .clarity-button, .clarity-button-outline { display: inline-flex; } }
+.site-clarity .site-button, .clarity-button { align-items: center; gap: .375rem; border-radius: .5rem; background: var(--site-brand); color: var(--site-bg);
+  padding: .5rem .875rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; transition: background .15s, color .15s; }
+.site-clarity .site-button:hover, .clarity-button:hover { background: color-mix(in srgb, var(--site-brand) 82%, #000); }
+.site-clarity .clarity-button svg { transition: transform .15s; }
+.site-clarity .clarity-button:hover svg { transform: translateX(2px); }
+.site-clarity .clarity-button-light { background: #fff; color: var(--clarity-panel); }
+.site-clarity .clarity-button-light:hover { background: rgb(255 255 255 / .88); }
+.clarity-button-outline { align-items: center; gap: .5rem; border-radius: .5rem; border: 1px solid var(--site-border); padding: calc(.5rem - 1px) calc(.875rem - 1px);
+  font-size: .875rem; line-height: 1.5rem; color: color-mix(in srgb, var(--site-text) 82%, transparent); transition: border-color .15s, background .15s; }
+.clarity-button-outline:hover { border-color: color-mix(in srgb, var(--site-text) 28%, transparent); background: var(--site-surface); }
+
+/* Type */
+.clarity-display { font-size: clamp(2.75rem, 6.5vw, 5rem); line-height: 1.02; font-weight: 500; letter-spacing: -.04em; }
+.clarity-h2 { font-size: clamp(1.875rem, 3.6vw, 2.75rem); line-height: 1.12; font-weight: 500; letter-spacing: -.03em; }
+.clarity-lead { font-size: 1.125rem; line-height: 2rem; color: var(--site-muted); }
+.clarity-prose-lg { font-size: 1.0625rem; line-height: 1.85rem; color: color-mix(in srgb, var(--site-text) 78%, transparent); }
+.clarity-stat { font-size: clamp(2.5rem, 5vw, 3.75rem); line-height: 1; font-weight: 500; letter-spacing: -.04em; margin-bottom: .75rem; }
+
+/* Small parts */
+.clarity-pill { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid var(--site-border); border-radius: 9999px; background: var(--site-bg);
+  padding: .25rem .875rem .25rem .625rem; font-size: .8125rem; font-weight: 500; color: color-mix(in srgb, var(--site-text) 80%, transparent); }
+.clarity-pill-dot { width: .5rem; height: .5rem; border-radius: 9999px; background: var(--site-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 22%, transparent); }
+.clarity-tag { display: inline-flex; border-radius: 9999px; background: var(--site-surface); padding: .125rem .625rem; font-size: .75rem; line-height: 1.25rem; font-weight: 500;
+  color: color-mix(in srgb, var(--site-text) 75%, transparent); }
+.clarity-icon { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border-radius: .75rem;
+  border: 1px solid var(--site-border); background: var(--site-bg); color: var(--site-text); box-shadow: 0 1px 2px rgb(0 0 0 / .04); }
+.clarity-icon-sm { width: 2rem; height: 2rem; border-radius: .5rem; }
+.clarity-icon-dark { background: rgb(255 255 255 / .06); border-color: rgb(255 255 255 / .14); color: #fff; }
+.clarity-arrow { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px;
+  border: 1px solid var(--site-border); color: var(--site-muted); transition: background .15s, color .15s, border-color .15s, transform .15s; }
+.group:hover .clarity-arrow { background: var(--site-brand); border-color: var(--site-brand); color: var(--site-bg); transform: translateX(2px); }
+.clarity-index { font-size: .8125rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--site-accent); }
+.clarity-placeholder { background: linear-gradient(135deg, var(--site-surface), var(--clarity-soft)); }
+
+/* Glows */
+.clarity-glow { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(42rem 26rem at 88% 20%, color-mix(in srgb, var(--site-accent) 16%, transparent), transparent 70%),
+    radial-gradient(30rem 20rem at 0% 100%, color-mix(in srgb, var(--site-accent) 8%, transparent), transparent 70%); }
+.clarity-glow-soft { background: radial-gradient(36rem 18rem at 50% 0%, color-mix(in srgb, var(--site-accent) 14%, transparent), transparent 70%); }
+.clarity-panel-glow { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(44rem 24rem at 85% 130%, color-mix(in srgb, var(--site-accent) 42%, transparent), transparent 70%),
+    radial-gradient(1px 1px at 1px 1px, rgb(255 255 255 / .09) 1px, transparent 0) 0 0 / 1.75rem 1.75rem; }
+
+/* Frames: a photo inside a thin bordered tray */
+.clarity-frame { border: 1px solid var(--site-border); border-radius: 2.5rem; background: var(--clarity-soft); padding: .5rem; }
+.clarity-frame-sm { border-radius: 1.25rem; padding: .375rem; }
+.clarity-float { background: color-mix(in srgb, var(--site-bg) 92%, transparent); border: 1px solid var(--site-border);
+  box-shadow: 0 20px 40px -16px rgb(0 0 0 / .22); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+/* Sections */
+.clarity-section { padding-top: clamp(4.5rem, 9vw, 8rem); padding-bottom: clamp(4.5rem, 9vw, 8rem); }
+.site-clarity main > .clarity-section + .clarity-section { border-top: 1px solid var(--site-border); }
+.clarity-hero { border-bottom: 1px solid var(--site-border); }
+
+/* A bordered grid of cells with hairline dividers */
+.clarity-grid { display: grid; overflow: hidden; border: 1px solid var(--site-border); border-radius: 1.25rem; }
+.clarity-grid-fit { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+.clarity-grid-fit-sm { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+.clarity-grid-cell { margin: 0 -1px -1px 0; box-shadow: inset -1px 0 0 var(--site-border), inset 0 -1px 0 var(--site-border); }
+
+/* Bordered lists (events, sermons) */
+.clarity-list { border: 1px solid var(--site-border); border-radius: 1.25rem; overflow: hidden; }
+.clarity-list > li + li { border-top: 1px solid var(--site-border); }
+.clarity-list > li { transition: background .15s; }
+.clarity-list > li:hover { background: var(--clarity-soft); }
+.clarity-date { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; width: 3.75rem; height: 3.75rem;
+  border: 1px solid var(--site-border); border-radius: .875rem; background: var(--site-bg); line-height: 1; }
+.clarity-date-month { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--site-accent); }
+.clarity-date-day { margin-top: .25rem; font-size: 1.375rem; font-weight: 600; letter-spacing: -.02em; }
+
+/* Cards */
+.site-clarity .site-card, .clarity-card { border: 1px solid var(--site-border); border-radius: 1.25rem; background: var(--site-bg); padding: 1.75rem;
+  transition: border-color .15s, box-shadow .15s; }
+.site-clarity .site-card:hover, .clarity-card:hover { border-color: color-mix(in srgb, var(--site-text) 22%, transparent); box-shadow: 0 12px 28px -16px rgb(0 0 0 / .16); }
+.clarity-bento-feature { color: #fff; }
+
+/* Inset dark panels (call to action, give) */
+.clarity-panel-wrap { padding-top: clamp(2rem, 4vw, 3rem); padding-bottom: clamp(2rem, 4vw, 3rem); }
+.clarity-panel { background: var(--clarity-panel); color: #fff; border-radius: 2.5rem; --site-text: #fff; --site-muted: rgb(255 255 255 / .7); }
+.clarity-panel .site-prose a { color: #fff; }
+.site-clarity main > .clarity-panel-wrap + .clarity-section, .site-clarity main > .clarity-section + .clarity-panel-wrap { border-top: 0; }
+
+/* Quote, contact, forms */
+.clarity-quote { border: 1px solid var(--site-border); background: var(--clarity-soft); }
+.clarity-contact { border: 1px solid var(--site-border); }
+.clarity-contact-aside { background: var(--clarity-soft); }
+.clarity-contact > .site-form { border-top: 1px solid var(--site-border); }
+@media (min-width: 1024px) { .clarity-contact > .site-form { border-top: 0; border-left: 1px solid var(--site-border); } }
+.clarity-form-card { border: 1px solid var(--site-border); border-radius: 1.5rem; padding: clamp(1.5rem, 4vw, 2.5rem); background: var(--site-bg); box-shadow: 0 1px 2px rgb(0 0 0 / .04); }
+.site-clarity .site-form input:not([type=checkbox]):not([type=radio]), .site-clarity .site-form textarea, .site-clarity .site-form select {
+  border-radius: .5rem; border-color: var(--site-border); background: var(--site-bg); }
+.site-clarity .site-form input:focus, .site-clarity .site-form textarea:focus, .site-clarity .site-form select:focus {
+  border-color: var(--site-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 20%, transparent); outline: none; }
+
+/* Custom sections built on the generic hooks */
+.site-clarity .site-section:not(.clarity-section):not(.clarity-panel-wrap) { padding-top: clamp(4rem, 8vw, 7rem); padding-bottom: clamp(4rem, 8vw, 7rem); }
+.site-clarity .site-section:not(.clarity-section):not(.clarity-panel-wrap) h2 { font-size: clamp(1.875rem, 3.6vw, 2.75rem); line-height: 1.12; font-weight: 500; letter-spacing: -.03em; }
+.site-clarity .site-radius { border-radius: 1.5rem; }
+.site-clarity details summary { list-style: none; display: flex; justify-content: space-between; gap: 1rem; font-weight: 600; }
+.site-clarity details summary::-webkit-details-marker { display: none; }
+
+/* Footer */
+.site-clarity .site-footer { border-top: 1px solid var(--site-border); }
+.clarity-footer-card { background: var(--site-surface); }
+
+.site-prose p + p, .site-prose ul, .site-prose ol { margin-top: 1rem; }
+.site-prose ul { list-style: disc; padding-left: 1.5rem; }
+.site-prose ol { list-style: decimal; padding-left: 1.5rem; }
+.site-prose a { color: var(--site-text); text-decoration: underline; text-decoration-color: var(--site-accent); text-underline-offset: 3px; }
+.site-form label { color: var(--site-text); }

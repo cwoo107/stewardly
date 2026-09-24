@@ -1,0 +1,13 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  <ul class="grid gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+    {% for person in settings.blocks %}
+      <li class="text-center">
+        <div class="gv-oval mx-auto">{% if person.photo_url != blank %}<img src="{{ person.photo_url | escape }}" alt="" class="h-full w-full object-cover" loading="lazy">{% endif %}</div>
+        <p class="gv-name mt-6">{{ person.name | escape }}</p>
+        {% if person.role != blank %}<p class="gv-role">{{ person.role | escape }}</p>{% endif %}
+        {% if person.email != blank %}<a href="mailto:{{ person.email | escape }}" class="gv-link mt-2 inline-block text-base">{{ person.email | escape }}</a>{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</section>

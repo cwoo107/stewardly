@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# Share this development app for a demo, with no Cloudflare account and nothing to deploy.
+#
+#   bin/demo            # demos the "grace" church
+#   DEMO_CHURCH=hope bin/demo
+#
+# Starts two Cloudflare quick tunnels (random https://*.trycloudflare.com addresses): one
+# for the church's admin app and member area, one for its public website. Then runs bin/dev
+# with those addresses, so links, redirects, and emails use them. Ctrl-C stops everything.
+# The addresses change every time. Anyone with a link can reach the app, and the seeded
+# logins all use the password "password", so only share links with people you trust,
+# and stop the demo afterwards.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+export PORT="${PORT:-3000}"
+export DEMO_CHURCH="${DEMO_CHURCH:-grace}"
+
+command -v cloudflared >/dev/null || { echo "cloudflared isn't installed: brew install cloudflared"; exit 1; }
+if lsof -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+  echo "Something is already running on port $PORT (probably bin/dev). Stop it first: bin/demo starts its own."
+  exit 1
+fi
+bin/rails runner "exit(Church.exists?(subdomain: ENV['DEMO_CHURCH']) ? 0 : 1)" 2>/dev/null ||
+  { echo "There's no church with the subdomain \"$DEMO_CHURCH\". Try bin/rails db:seed, or set DEMO_CHURCH."; exit 1; }
+
+logs="$(mktemp -d)"
+pids=()
+cleanup() { for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; rm -rf "$logs"; }
+trap cleanup EXIT INT TERM
+
+start_tunnel() { # $1: name. Prints the tunnel's host once it's up.
+  cloudflared tunnel --no-autoupdate --url "http://localhost:$PORT" >"$logs/$1.log" 2>&1 &
+  pids+=("$!")
+  for _ in $(seq 1 45); do
+    url="$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$logs/$1.log" | head -1 || true)"
+    if [ -n "$url" ]; then echo "${url#https://}"; return 0; fi
+    sleep 1
+  done
+  echo "The $1 tunnel didn't start. cloudflared said:" >&2; cat "$logs/$1.log" >&2; return 1
+}
+
+# A new trycloudflare.com name takes a little while to appear in DNS. If a browser (or this Mac)
+# looks it up too early, it caches "not found" for a while. So wait until the name resolves
+# through Cloudflare's own resolver and the tunnel answers, without asking the local resolver
+# early, and only then print the links.
+wait_until_reachable() { # $1: host
+  for _ in $(seq 1 90); do
+    ip="$(dig +short @1.1.1.1 "$1" A 2>/dev/null | grep -E '^[0-9.]+$' | head -1 || true)"
+    if [ -n "$ip" ]; then
+      code="$(curl -s -o /dev/null -m 10 -w '%{http_code}' --resolve "$1:443:$ip" "https://$1/up" || true)"
+      [ "$code" != "000" ] && return 0 # any HTTP answer (even 502 before Rails boots) means the tunnel is up
+    fi
+    sleep 2
+  done
+  echo "Cloudflare hasn't published $1 yet. The links below may take another minute to work." >&2
+}
+
+echo "Starting Cloudflare tunnels…"
+export DEMO_APP_HOST="$(start_tunnel app)"
+export DEMO_SITE_HOST="$(start_tunnel site)"
+echo "Waiting for Cloudflare to publish the addresses…"
+wait_until_reachable "$DEMO_APP_HOST"
+wait_until_reachable "$DEMO_SITE_HOST"
+
+cat <<BANNER
+
+  ┌──────────────────────────────────────────────────────────────────────────────
+  │ Demo of "$DEMO_CHURCH" is starting. The links work once the server has booted (about 10 seconds).
+  │
+  │ App (staff and member area):  https://$DEMO_APP_HOST
+  │ Public website:               https://$DEMO_SITE_HOST
+  │
+  │ Sign in with password "password" as admin@$DEMO_CHURCH.test (church admin), staff@$DEMO_CHURCH.test,
+  │ care@$DEMO_CHURCH.test (care team), or member@$DEMO_CHURCH.test (member area).
+  │ Links change every time you run bin/demo. Ctrl-C to stop.
+  │ If a link says the site can't be found on this Mac only, your DNS cached an early miss:
+  │ run  sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder  (or try another browser).
+  └──────────────────────────────────────────────────────────────────────────────
+
+BANNER
+
+bin/dev

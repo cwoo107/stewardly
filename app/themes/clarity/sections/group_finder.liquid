@@ -1,0 +1,24 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+    <h2 class="site-heading clarity-h2 lg:col-span-6">{{ settings.heading | escape }}</h2>
+    {% if settings.intro != blank %}<p class="text-lg text-(--site-muted) lg:col-span-5 lg:col-start-8">{{ settings.intro | escape }}</p>{% endif %}
+  </div>
+  <ul class="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {% for group in groups %}
+      {% if settings.group_type == 'all' or settings.group_type == group.type_key %}
+        <li class="site-card clarity-card group relative flex flex-col">
+          <div class="flex items-center justify-between gap-4">
+            <span class="clarity-tag">{{ group.type }}</span>
+            {% unless group.full %}<span class="clarity-arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" class="h-4 w-4"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endunless %}
+          </div>
+          {% if group.full %}<p class="mt-6 text-lg/7 font-semibold tracking-tight">{{ group.name | escape }}</p>{% else %}<a href="{{ group.join_url }}" class="mt-6 text-lg/7 font-semibold tracking-tight"><span class="absolute inset-0" aria-hidden="true"></span>{{ group.name | escape }}</a>{% endif %}
+          <p class="mt-1 text-sm text-(--site-muted)">{{ group.meets | escape }}{% if group.area != blank %} · {{ group.area | escape }}{% endif %}</p>
+          {% if group.description != blank %}<p class="mt-4 text-[0.9375rem] text-(--site-muted)">{{ group.description | escape | truncate: 160 }}</p>{% endif %}
+          {% if group.full %}<p class="mt-auto pt-6 text-sm text-(--site-muted)">{{ settings.full_text | escape }}</p>{% endif %}
+        </li>
+      {% endif %}
+    {% else %}
+      <li class="text-(--site-muted)">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ul>
+</section>

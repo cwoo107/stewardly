@@ -1,0 +1,16 @@
+<section class="site-hero summit-dark relative isolate overflow-hidden">
+  {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="absolute inset-0 -z-20 h-full w-full object-cover">{% endif %}
+  <div class="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(0_0_0/.6)_0%,rgb(0_0_0/.35)_45%,rgb(0_0_0/.9)_100%)]" aria-hidden="true"></div>
+  <div class="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-[radial-gradient(60%_60%_at_50%_100%,color-mix(in_srgb,var(--site-accent)_30%,transparent),transparent)]" aria-hidden="true"></div>
+  <div class="flex min-h-[min(88vh,58rem)] flex-col px-6 pt-24 pb-16 sm:px-12 sm:pb-20 lg:px-24 {% if settings.align == 'center' %}items-center justify-center text-center{% else %}justify-end{% endif %}">
+    {% if settings.eyebrow != blank %}<p class="summit-eyebrow mb-6">{{ settings.eyebrow | escape }}</p>{% endif %}
+    <h1 class="site-heading summit-display text-[clamp(3.25rem,10vw,9.5rem)]">{{ settings.heading | escape }}</h1>
+    <div class="mt-10 flex flex-col gap-8 {% if settings.align == 'center' %}items-center{% else %}lg:flex-row lg:items-end lg:justify-between{% endif %}">
+      {% if settings.subheading != blank %}<p class="text-lg text-white/85 sm:text-2xl {% if settings.align != 'center' %}lg:w-1/2{% endif %}">{{ settings.subheading | escape }}</p>{% endif %}
+      <div class="flex flex-wrap gap-4 {% if settings.align == 'center' %}justify-center{% endif %}">
+        {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button">{{ settings.button_label | escape }} <svg viewBox="0 0 20 20" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>{% endif %}
+        {% if settings.secondary_button_label != blank and settings.secondary_button_url != blank %}<a href="{{ settings.secondary_button_url | escape }}" class="summit-button-ghost"><svg viewBox="0 0 20 20" class="h-4 w-4" fill="currentColor" aria-hidden="true"><path d="M6 4.5v11a.5.5 0 0 0 .76.43l9-5.5a.5.5 0 0 0 0-.86l-9-5.5A.5.5 0 0 0 6 4.5Z"/></svg>{{ settings.secondary_button_label | escape }}</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>

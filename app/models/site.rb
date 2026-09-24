@@ -12,6 +12,7 @@ class Site < ApplicationRecord
   # The site a request host belongs to, or nil. Looked up without a tenant (the host decides it).
   def self.for_host(host)
     host = host.to_s.downcase.delete_suffix(".")
+    demo = DemoTunnel.site_for_host(host) and return demo
     sites_domain = Rails.configuration.x.sites_domain
     ActsAsTenant.without_tenant do
       if host.end_with?(".#{sites_domain}")
@@ -32,11 +33,11 @@ class Site < ApplicationRecord
   def custom_layout? = layout_liquid.present?
 
   def primary_domain = domains.verified.find_by(primary: true) || domains.verified.first
-  def default_host = "#{church.subdomain}.#{Rails.configuration.x.sites_domain}"
+  def default_host = DemoTunnel.site_host_for(church) || "#{church.subdomain}.#{Rails.configuration.x.sites_domain}"
   def host = primary_domain&.hostname || default_host
 
   def base_url
-    return "https://#{host}" if Rails.env.production?
+    return "https://#{host}" if Rails.env.production? || DemoTunnel.site_host_for(church)
 
     "http://#{host}#{":#{Rails.configuration.x.dev_port}" if Rails.configuration.x.dev_port.presence}"
   end

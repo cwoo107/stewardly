@@ -1,0 +1,9 @@
+<section class="site-section summit-dark summit-glow px-6 py-24 sm:px-12 lg:px-24 lg:py-36">
+  <div class="grid gap-10 lg:grid-cols-12 lg:items-end">
+    <h2 class="site-heading summit-display text-[clamp(3rem,8vw,7.5rem)] lg:col-span-7">{{ settings.heading | escape }}</h2>
+    <div class="lg:col-span-5 lg:pb-3">
+      {% if settings.body != blank %}<p class="summit-lede">{{ settings.body | escape }}</p>{% endif %}
+      {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button mt-8">{{ settings.button_label | escape }} <svg viewBox="0 0 20 20" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>{% endif %}
+    </div>
+  </div>
+</section>

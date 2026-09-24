@@ -35,6 +35,17 @@ class Site::Renderer
     def definitions = @definitions ||= SectionDefinition::Defaults.web_sections.index_by(&:key)
     def parsed_layout = Email::Liquid.parse(@site.layout)
 
+    # A premium theme's own design for a built-in section, unless the church has edited that section's code.
+    def parsed_section(definition)
+      return definition.parsed_liquid unless definition.system? && !definition.customized?
+
+      @parsed_sections ||= {}
+      @parsed_sections.fetch(definition.key) do
+        liquid = @site.theme.section_liquid(definition.key)
+        @parsed_sections[definition.key] = liquid ? Email::Liquid.parse(liquid) : definition.parsed_liquid
+      end
+    end
+
     def render_section(section)
       definition = definitions.fetch(section["key"])
       settings = definition.settings_schema.to_h { |setting| [ setting["id"], nil ] }.merge(definition.default_settings).merge(section["settings"].to_h)
@@ -47,7 +58,7 @@ class Site::Renderer
         end
       end
       settings["video_embed_url"] = self.class.video_embed_url(settings["url"]) if section["key"] == "video"
-      Email::Liquid.render(definition.parsed_liquid, assigns.merge("settings" => settings, "section" => { "id" => section["id"], "key" => section["key"] }))
+      Email::Liquid.render(parsed_section(definition), assigns.merge("settings" => settings, "section" => { "id" => section["id"], "key" => section["key"] }))
     end
 
     # YouTube (privacy-enhanced) and Vimeo only; anything else isn't embedded.
@@ -65,11 +76,14 @@ class Site::Renderer
     def assigns
       @assigns ||= {
         "site" => Site::Drops::Site.new(@site, page: @page, base_url: @base_url),
-        "church" => Site::Drops::Church.new(@church), "page" => Site::Drops::Page.new(@page), "theme" => @site.settings,
+        "church" => Site::Drops::Church.new(@church), "page" => Site::Drops::Page.new(@page), "theme" => theme_settings,
         "events" => -> { upcoming_events }, "groups" => -> { groups }, "service_times" => -> { service_times },
         "campuses" => -> { Campus.ordered.map { |campus| Site::Drops::Campus.new(campus) } }, "forms" => -> { forms }
       }
     end
+
+    # Every setting the theme has, blank ones as nil, so layouts can test them under strict variables.
+    def theme_settings = @site.theme.settings_schema.to_h { |setting| [ setting["id"], nil ] }.merge(@site.settings)
 
     def upcoming_events
       EventOccurrence.upcoming.joins(:event).merge(Event.published.where(visibility: "public")).includes(:event).chronological.limit(24)
@@ -104,12 +118,14 @@ class Site::Renderer
       }.select { |_, value| value.to_s.match?(/\A[#\w\s,'().-]+\z/) }
       title = [ @page.seo_title.presence || (@page.home? ? nil : @page.title), @site.name ].compact.join(" · ")
       helpers = ActionController::Base.helpers
+      fonts = Site::Theme.font_stylesheet_url(*@site.settings.values_at("heading_font", "body_font"))
       <<~HTML
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>#{ERB::Util.html_escape(title)}</title>
         #{%(<meta name="description" content="#{ERB::Util.html_escape(@page.seo_description)}">) if @page.seo_description.present?}
         #{'<meta name="robots" content="noindex">' if @draft}
+        #{%(<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="#{ERB::Util.html_escape(fonts)}">) if fonts}
         <link rel="stylesheet" href="#{@asset_host}#{helpers.asset_path("tailwind.css")}">
         <link rel="stylesheet" href="#{@asset_host}#{helpers.asset_path("#{@site.theme.stylesheet}.css")}">
         <style>:root{#{variables.map { |name, value| "#{name}:#{value}" }.join(";")}}</style>

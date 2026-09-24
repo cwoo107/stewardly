@@ -1,0 +1,10 @@
+<section class="site-section px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-5"><h2 class="site-heading summit-display summit-title lg:sticky lg:top-32">{{ settings.heading | escape }}</h2></div>
+    <div class="summit-faq divide-y divide-(--site-border) border-y border-(--site-border) lg:col-span-7">
+      {% for item in settings.blocks %}
+        <details class="group py-7"{% if forloop.first %} open{% endif %}><summary>{{ item.question | escape }}</summary><div class="site-prose summit-prose-lg mt-4 pr-14 text-(--site-muted)">{{ item.answer | markdown }}</div></details>
+      {% endfor %}
+    </div>
+  </div>
+</section>

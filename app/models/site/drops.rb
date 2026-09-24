@@ -13,7 +13,14 @@ module Site::Drops
     def url = @base_url
     def tagline = @site.settings["tagline"].to_s
     def footer_text = @site.settings["footer_text"].to_s
-    def logo_url = @logo_url ||= Email::ImageSource.new(@site.settings["logo_url"], base_url: @base_url, width: @site.settings["logo_width"]).resolve&.url.to_s
+    # The website's own logo (Theme settings), or else the church's logo (Settings).
+    def logo_url
+      @logo_url ||= begin
+        source = @site.settings["logo_url"].presence
+        source ||= Email::ImageSource.stored_value(@site.church.logo.blob) if @site.church.logo.attached?
+        Email::ImageSource.new(source, base_url: @base_url, width: @site.settings["logo_width"]).resolve&.url.to_s
+      end
+    end
     def logo_width = @site.settings["logo_width"]
     def facebook_url = @site.settings["facebook_url"].to_s
     def instagram_url = @site.settings["instagram_url"].to_s

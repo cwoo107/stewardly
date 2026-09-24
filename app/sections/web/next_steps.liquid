@@ -1,0 +1,16 @@
+<section class="site-section px-6 py-16 sm:px-12 lg:px-24">
+  <h2 class="site-heading text-3xl font-semibold tracking-tight">{{ settings.heading | escape }}</h2>
+  {% if settings.intro != blank %}<p class="mt-4 text-lg text-(--site-muted)">{{ settings.intro | escape }}</p>{% endif %}
+  <ul class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for step in settings.blocks %}
+      <li class="site-card flex flex-col overflow-hidden">
+        {% if step.image_url != blank %}<img src="{{ step.image_url | escape }}" alt="" class="aspect-video w-full object-cover" loading="lazy">{% endif %}
+        <div class="flex flex-1 flex-col p-6">
+          <p class="text-xl font-semibold">{{ step.title | escape }}</p>
+          {% if step.text != blank %}<p class="mt-2 text-(--site-muted)">{{ step.text | escape }}</p>{% endif %}
+          {% if step.link_label != blank and step.link_url != blank %}<a href="{{ step.link_url | escape }}" class="mt-auto pt-4 text-sm font-semibold text-(--site-brand)">{{ step.link_label | escape }} →</a>{% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</section>

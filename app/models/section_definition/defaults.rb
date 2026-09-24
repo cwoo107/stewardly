@@ -2,7 +2,7 @@
 # app/sections/email) and web (Liquid producing HTML, in app/sections/web).
 module SectionDefinition::Defaults
   # Bump when a built-in section's schema or Liquid changes; churches pick it up on next use.
-  VERSIONS = { "email" => 2, "web" => 1 }.freeze
+  VERSIONS = { "email" => 2, "web" => 3 }.freeze
   VERSION = VERSIONS.fetch("email")
 
   EMAIL = [
@@ -53,12 +53,15 @@ module SectionDefinition::Defaults
 
   WEB = [
     { key: "hero", name: "Hero", settings: [
+      { "id" => "eyebrow", "type" => "text", "label" => "Small line above the heading" },
       { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Welcome home" },
       { "id" => "subheading", "type" => "textarea", "label" => "Subheading", "default" => "Join us this Sunday." },
       { "id" => "image_url", "type" => "image", "label" => "Background image", "size" => { "width" => "image_width" } },
       { "id" => "image_width", "type" => "number", "label" => "Image width to load (px)", "default" => 1600, "min" => 400, "max" => 2400, "hint" => "Bigger looks sharper on large screens but loads slower." },
       { "id" => "button_label", "type" => "text", "label" => "Button label", "default" => "Plan a visit" },
       { "id" => "button_url", "type" => "url", "label" => "Button link" },
+      { "id" => "secondary_button_label", "type" => "text", "label" => "Second button label" },
+      { "id" => "secondary_button_url", "type" => "url", "label" => "Second button link" },
       { "id" => "align", "type" => "select", "label" => "Alignment", "options" => %w[ center left ], "default" => "center" }
     ] },
     { key: "text", name: "Text", settings: [
@@ -110,22 +113,31 @@ module SectionDefinition::Defaults
     ] },
     { key: "service_times", name: "Service times", settings: [
       { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Join us on Sunday" },
-      { "id" => "note", "type" => "textarea", "label" => "Note", "default" => "Kids programs are available at every service." }
+      { "id" => "note", "type" => "textarea", "label" => "Note", "default" => "Kids programs are available at every service." },
+      { "id" => "empty_text", "type" => "text", "label" => "When there are no service times", "default" => "Service times are coming soon." }
     ] },
     { key: "upcoming_events", name: "Upcoming events", settings: [
       { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "What's coming up" },
-      { "id" => "count", "type" => "number", "label" => "How many", "default" => 6, "min" => 1, "max" => 24 }
+      { "id" => "count", "type" => "number", "label" => "How many", "default" => 6, "min" => 1, "max" => 24 },
+      { "id" => "link_label", "type" => "text", "label" => "Link label", "default" => "Details and registration" },
+      { "id" => "empty_text", "type" => "text", "label" => "When nothing is scheduled", "default" => "Nothing on the calendar right now. Check back soon." }
     ] },
     { key: "group_finder", name: "Group finder", settings: [
       { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Find a group" },
       { "id" => "intro", "type" => "textarea", "label" => "Intro", "default" => "Groups meet throughout the week in homes around the city." },
-      { "id" => "group_type", "type" => "select", "label" => "Show", "options" => %w[ all small_group bible_study connection_group other ], "default" => "all" }
+      { "id" => "group_type", "type" => "select", "label" => "Show", "options" => %w[ all small_group bible_study connection_group other ], "default" => "all" },
+      { "id" => "join_label", "type" => "text", "label" => "Join link label", "default" => "Ask to join" },
+      { "id" => "full_text", "type" => "text", "label" => "When a group is full", "default" => "This group is full right now." },
+      { "id" => "empty_text", "type" => "text", "label" => "When there are no groups", "default" => "Groups are forming. Contact us to find one." }
     ] },
     { key: "embedded_form", name: "Form", settings: [
       { "id" => "heading", "type" => "text", "label" => "Heading" },
       { "id" => "form", "type" => "form", "label" => "Form", "hint" => "Published public forms only." }
     ] },
-    { key: "sermon_links", name: "Sermons", settings: [ { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Recent sermons" } ],
+    { key: "sermon_links", name: "Sermons", settings: [
+      { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Recent sermons" },
+      { "id" => "empty_text", "type" => "text", "label" => "When there are no sermons", "default" => "Sermons will be posted here." }
+    ],
       blocks: { "label" => "Sermon", "settings" => [
         { "id" => "title", "type" => "text", "label" => "Title" }, { "id" => "speaker", "type" => "text", "label" => "Speaker" },
         { "id" => "date", "type" => "text", "label" => "Date" }, { "id" => "url", "type" => "url", "label" => "Link" }
@@ -135,9 +147,32 @@ module SectionDefinition::Defaults
       { "id" => "body", "type" => "markdown", "label" => "Text", "default" => "Thank you for your generosity." },
       { "id" => "button_label", "type" => "text", "label" => "Button label", "default" => "Give now" }
     ] },
+    { key: "next_steps", name: "Next steps", settings: [
+      { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Take a next step" },
+      { "id" => "intro", "type" => "textarea", "label" => "Intro" }
+    ], blocks: { "label" => "Step", "settings" => [
+      { "id" => "image_url", "type" => "image", "label" => "Photo (optional)" },
+      { "id" => "title", "type" => "text", "label" => "Title" }, { "id" => "text", "type" => "textarea", "label" => "Text" },
+      { "id" => "link_label", "type" => "text", "label" => "Link label" }, { "id" => "link_url", "type" => "url", "label" => "Link" }
+    ], "default" => [
+      { "title" => "Plan your visit", "text" => "Know what to expect before you arrive.", "link_label" => "Learn more", "link_url" => "/about" },
+      { "title" => "Join a group", "text" => "Find people to walk through life with.", "link_label" => "Find a group", "link_url" => "/groups" },
+      { "title" => "Get connected", "text" => "Tell us a little about yourself.", "link_label" => "Connect", "link_url" => "/contact" }
+    ] } },
+    { key: "stats", name: "Numbers", settings: [ { "id" => "heading", "type" => "text", "label" => "Heading" } ],
+      blocks: { "label" => "Number", "settings" => [
+        { "id" => "number", "type" => "text", "label" => "Number", "hint" => "Like 1,200 or 40+." }, { "id" => "label", "type" => "text", "label" => "Label" }
+      ], "default" => [ { "number" => "3", "label" => "Sunday services" }, { "number" => "40+", "label" => "Small groups" }, { "number" => "12", "label" => "Ministries" } ] } },
+    { key: "quote", name: "Quote", settings: [
+      { "id" => "quote", "type" => "textarea", "label" => "Quote", "default" => "Share a verse, a story, or a word from someone in your church." },
+      { "id" => "attribution", "type" => "text", "label" => "Who said it (or the reference)" },
+      { "id" => "detail", "type" => "text", "label" => "Detail", "hint" => "Like their role, or the translation." },
+      { "id" => "image_url", "type" => "image", "label" => "Photo (optional)" }
+    ] },
     { key: "contact", name: "Contact", settings: [
       { "id" => "heading", "type" => "text", "label" => "Heading", "default" => "Get in touch" },
-      { "id" => "form", "type" => "form", "label" => "Contact form (optional)" }
+      { "id" => "form", "type" => "form", "label" => "Contact form (optional)" },
+      { "id" => "directions_label", "type" => "text", "label" => "Directions link label", "default" => "Directions" }
     ] }
   ].freeze
 

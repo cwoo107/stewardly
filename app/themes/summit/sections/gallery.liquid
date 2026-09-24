@@ -1,0 +1,11 @@
+<section class="site-section px-6 py-20 sm:px-12 lg:px-24 lg:py-28">
+  {% if settings.heading != blank %}<h2 class="site-heading summit-display summit-title mb-12">{{ settings.heading | escape }}</h2>{% endif %}
+  <div class="grid grid-flow-dense auto-rows-[10rem] grid-cols-2 gap-3 sm:auto-rows-[16rem] sm:gap-4 lg:grid-cols-3">
+    {% for photo in settings.blocks %}{% if photo.image_url != blank %}
+      {% assign spot = forloop.index0 | modulo: 6 %}
+      <div class="summit-zoom overflow-hidden rounded-[1.5rem] {% if spot == 0 %}col-span-2 row-span-2{% elsif spot == 5 %}col-span-2 lg:col-span-1{% endif %}">
+        <img src="{{ photo.image_url | escape }}" alt="{{ photo.alt | escape }}" class="h-full w-full object-cover" loading="lazy">
+      </div>
+    {% endif %}{% endfor %}
+  </div>
+</section>

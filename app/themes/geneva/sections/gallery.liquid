@@ -1,0 +1,6 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>{% endif %}
+  <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:gap-10">
+    {% for photo in settings.blocks %}{% if photo.image_url != blank %}<figure class="gv-plate gv-plate-hover"><img src="{{ photo.image_url | escape }}" alt="{{ photo.alt | escape }}" class="aspect-square w-full object-cover" loading="lazy"></figure>{% endif %}{% endfor %}
+  </div>
+</section>

@@ -1,0 +1,8 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<h2 class="site-heading clarity-h2 mb-12">{{ settings.heading | escape }}</h2>{% endif %}
+  <div class="grid auto-rows-[10rem] grid-cols-2 gap-3 sm:auto-rows-[14rem] md:grid-cols-4 md:gap-4">
+    {% for photo in settings.blocks %}{% if photo.image_url != blank %}
+      <img src="{{ photo.image_url | escape }}" alt="{{ photo.alt | escape }}" class="h-full w-full rounded-2xl object-cover {% if forloop.first %}col-span-2 row-span-2{% endif %}" loading="lazy">
+    {% endif %}{% endfor %}
+  </div>
+</section>

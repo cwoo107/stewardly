@@ -1,0 +1,13 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  {% if settings.align == 'center' %}
+    <div class="text-center">
+      {% if settings.heading != blank %}<h2 class="site-heading clarity-h2">{{ settings.heading | escape }}</h2>{% endif %}
+      <div class="site-prose clarity-prose-lg mt-6">{{ settings.body | markdown }}</div>
+    </div>
+  {% else %}
+    <div class="grid gap-8 lg:grid-cols-12">
+      {% if settings.heading != blank %}<h2 class="site-heading clarity-h2 lg:col-span-5">{{ settings.heading | escape }}</h2>{% endif %}
+      <div class="site-prose clarity-prose-lg {% if settings.heading != blank %}lg:col-span-6 lg:col-start-7{% else %}lg:col-span-8{% endif %}">{{ settings.body | markdown }}</div>
+    </div>
+  {% endif %}
+</section>

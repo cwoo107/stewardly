@@ -1,0 +1,8 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>{% endif %}
+  <dl class="gv-figures grid grid-cols-2 lg:grid-flow-col lg:auto-cols-fr lg:grid-cols-none">
+    {% for stat in settings.blocks %}
+      <div class="gv-figure-cell flex flex-col items-center text-center"><dt class="gv-smallcaps gv-muted mt-3">{{ stat.label | escape }}</dt><dd class="site-heading gv-figure order-first">{{ stat.number | escape }}</dd></div>
+    {% endfor %}
+  </dl>
+</section>

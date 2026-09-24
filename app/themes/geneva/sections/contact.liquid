@@ -1,0 +1,17 @@
+{% assign chosen = forms[settings.form] %}
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  <div class="grid gap-12 {% if chosen %}lg:grid-cols-12{% endif %}">
+    <div class="gv-imprint {% if chosen %}lg:col-span-5{% else %}text-center{% endif %}">
+      {% for campus in campuses %}
+        <div class="gv-imprint-entry">
+          <p class="gv-name">{{ campus.name | escape }}</p>
+          {% if campus.address != blank %}<p class="gv-muted whitespace-pre-line italic">{{ campus.address | escape }}</p>{% endif %}
+          {% if campus.map_url != blank %}<a href="{{ campus.map_url }}" class="gv-link mt-1 inline-block">{{ settings.directions_label | escape }}</a>{% endif %}
+        </div>
+      {% endfor %}
+      {% if church.contact_email != blank %}<p class="gv-imprint-entry"><a href="mailto:{{ church.contact_email | escape }}" class="gv-link">{{ church.contact_email | escape }}</a></p>{% endif %}
+    </div>
+    {% if chosen %}<div class="site-form gv-form lg:col-span-7">{{ chosen.html }}</div>{% endif %}
+  </div>
+</section>

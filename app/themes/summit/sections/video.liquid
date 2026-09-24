@@ -1,0 +1,8 @@
+{% if settings.video_embed_url != blank %}
+<section class="site-section summit-dark summit-glow px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  {% if settings.heading != blank %}<h2 class="site-heading summit-display summit-title mb-12">{{ settings.heading | escape }}</h2>{% endif %}
+  <div class="aspect-video overflow-hidden rounded-[2rem] bg-black ring-1 ring-white/10 shadow-[0_60px_120px_-40px_color-mix(in_srgb,var(--site-accent)_45%,transparent)]">
+    <iframe src="{{ settings.video_embed_url | escape }}" title="{{ settings.heading | default: 'Video' | escape }}" class="h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</section>
+{% endif %}

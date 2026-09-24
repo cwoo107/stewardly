@@ -1,0 +1,17 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  <ol class="gv-register">
+    {% for event in events limit: settings.count %}
+      <li class="gv-register-row">
+        <p class="gv-date"><span class="gv-date-day">{{ event.day }}</span><span class="gv-date-month">{{ event.month_name }} {{ event.year }}</span></p>
+        <div class="min-w-0">
+          <a href="{{ event.url }}" class="gv-entry-title">{{ event.title | escape }}</a>
+          {% if event.location != blank %}<p class="gv-role">{{ event.location | escape }}</p>{% endif %}
+        </div>
+        <p class="gv-time">{{ event.time }}</p>
+      </li>
+    {% else %}
+      <li class="gv-muted py-6 text-center italic">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ol>
+</section>

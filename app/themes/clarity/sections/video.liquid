@@ -1,0 +1,10 @@
+{% if settings.video_embed_url != blank %}
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<h2 class="site-heading clarity-h2 mb-12">{{ settings.heading | escape }}</h2>{% endif %}
+  <div class="clarity-frame">
+    <div class="aspect-video overflow-hidden rounded-[2rem] bg-black">
+      <iframe src="{{ settings.video_embed_url | escape }}" title="{{ settings.heading | default: 'Video' | escape }}" class="h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+{% endif %}

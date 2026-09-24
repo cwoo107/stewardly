@@ -1,0 +1,14 @@
+<section class="site-section clarity-panel-wrap px-4 sm:px-6">
+  <div class="clarity-panel relative isolate overflow-hidden px-6 py-16 sm:px-12 sm:py-20 lg:px-20">
+    <div class="clarity-panel-glow" aria-hidden="true"></div>
+    <div class="grid items-center gap-8 lg:grid-cols-12">
+      <div class="lg:col-span-8">
+        <h2 class="site-heading clarity-h2 text-white">{{ settings.heading | escape }}</h2>
+        {% if settings.body != blank %}<p class="mt-4 text-lg text-white/70">{{ settings.body | escape }}</p>{% endif %}
+      </div>
+      {% if settings.button_label != blank and settings.button_url != blank %}
+        <div class="lg:col-span-4 lg:text-right"><a href="{{ settings.button_url | escape }}" class="site-button clarity-button clarity-button-light">{{ settings.button_label | escape }}<svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+      {% endif %}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,18 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  <div class="grid lg:grid-cols-12">
+    <div class="lg:col-span-8 lg:col-start-3">
+      <ul class="gv-order">
+        {% for service in service_times %}
+          <li>
+            <p class="gv-leader"><span class="gv-leader-name">{{ service.name | escape }}</span><span class="gv-leader-dots" aria-hidden="true"></span><span class="gv-leader-value">{{ service.day }} · {{ service.time }}</span></p>
+            {% if service.campus != blank %}<p class="gv-role">{{ service.campus | escape }}</p>{% endif %}
+          </li>
+        {% else %}
+          <li class="gv-muted text-center italic">{{ settings.empty_text | escape }}</li>
+        {% endfor %}
+      </ul>
+      {% if settings.note != blank %}<p class="gv-note">{{ settings.note | escape }}</p>{% endif %}
+    </div>
+  </div>
+</section>

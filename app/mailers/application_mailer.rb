@@ -10,7 +10,9 @@ class ApplicationMailer < ActionMailer::Base
 
   # Links point back at the church's own subdomain. (Public: route helpers call it.)
   def url_options
-    church ? super.merge(host: church.host) : super
+    return super unless church
+
+    DemoTunnel.app_host_for(church) ? super.merge(host: church.host, protocol: "https", port: nil) : super.merge(host: church.host)
   end
 
   private

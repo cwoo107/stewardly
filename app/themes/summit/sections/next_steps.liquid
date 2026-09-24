@@ -1,0 +1,23 @@
+<section class="site-section px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+    <h2 class="site-heading summit-display summit-title lg:col-span-7">{{ settings.heading | escape }}</h2>
+    {% if settings.intro != blank %}<p class="summit-lede lg:col-span-5">{{ settings.intro | escape }}</p>{% endif %}
+  </div>
+  <ul class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    {% for step in settings.blocks %}
+      <li>
+        {% if step.link_url != blank %}<a href="{{ step.link_url | escape }}" class="summit-zoom group relative block aspect-[4/3] overflow-hidden sm:aspect-[4/5] rounded-[1.75rem]">{% else %}<div class="summit-zoom group relative aspect-[4/3] overflow-hidden sm:aspect-[4/5] rounded-[1.75rem]">{% endif %}
+          {% if step.image_url != blank %}<img src="{{ step.image_url | escape }}" alt="" class="absolute inset-0 h-full w-full object-cover" loading="lazy">{% else %}<div class="summit-tile-fallback absolute inset-0"></div>{% endif %}
+          <div class="summit-shade absolute inset-0 flex flex-col justify-between p-7 text-white">
+            <span class="summit-display text-5xl text-(--site-accent)">{{ forloop.index | prepend: "0" | slice: -2, 2 }}</span>
+            <div>
+              <p class="summit-display text-3xl leading-none sm:text-4xl">{{ step.title | escape }}</p>
+              {% if step.text != blank %}<p class="mt-3 text-white/80">{{ step.text | escape }}</p>{% endif %}
+              {% if step.link_label != blank and step.link_url != blank %}<span class="summit-link mt-6 text-(--site-accent)">{{ step.link_label | escape }} <svg viewBox="0 0 20 20" fill="none" class="h-5 w-5" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{% endif %}
+            </div>
+          </div>
+        {% if step.link_url != blank %}</a>{% else %}</div>{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</section>

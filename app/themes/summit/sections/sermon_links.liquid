@@ -1,0 +1,19 @@
+<section class="site-section summit-dark px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  <h2 class="site-heading summit-display summit-title">{{ settings.heading | escape }}</h2>
+  <ul class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for sermon in settings.blocks %}
+      <li>
+        {% if sermon.url != blank %}<a href="{{ sermon.url | escape }}" class="group block">{% else %}<div class="group">{% endif %}
+          <div class="summit-tile-fallback relative flex aspect-video items-center justify-center overflow-hidden rounded-[1.75rem] ring-1 ring-white/10 {% if forloop.first %}bg-[radial-gradient(120%_90%_at_0%_100%,color-mix(in_srgb,var(--site-accent)_60%,transparent),transparent_60%)]{% endif %}">
+            <span class="summit-display absolute top-5 left-6 text-6xl text-white/10">{{ forloop.index | prepend: "0" | slice: -2, 2 }}</span>
+            {% if sermon.url != blank %}<span class="summit-play"><svg viewBox="0 0 20 20" class="ml-1 h-6 w-6" fill="currentColor" aria-hidden="true"><path d="M6 4.5v11a.5.5 0 0 0 .76.43l9-5.5a.5.5 0 0 0 0-.86l-9-5.5A.5.5 0 0 0 6 4.5Z"/></svg></span>{% endif %}
+          </div>
+          <p class="summit-display mt-6 text-2xl leading-tight tracking-tight sm:text-3xl">{{ sermon.title | escape }}</p>
+          <p class="mt-2 text-sm font-semibold uppercase tracking-[0.16em] text-(--site-muted)">{% if sermon.speaker != blank %}{{ sermon.speaker | escape }}{% endif %}{% if sermon.speaker != blank and sermon.date != blank %} · {% endif %}{% if sermon.date != blank %}<span class="text-(--site-accent)">{{ sermon.date | escape }}</span>{% endif %}</p>
+        {% if sermon.url != blank %}</a>{% else %}</div>{% endif %}
+      </li>
+    {% else %}
+      <li class="text-lg text-(--site-muted)">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ul>
+</section>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {{ head }}
+</head>
+<body class="site site-geneva">
+  <header class="site-header px-6 pt-6 sm:px-12 lg:px-24">
+    {% if theme.motto != blank %}<p class="geneva-motto text-center">{{ theme.motto | escape }}</p>{% endif %}
+    <div class="geneva-masthead mt-6 py-8 text-center">
+      <a href="/" class="inline-block">
+        {% if site.logo_url != blank %}<img src="{{ site.logo_url }}" alt="{{ site.name | escape }}" class="mx-auto" style="width: {{ site.logo_width }}px">{% else %}<span class="site-heading geneva-name">{{ site.name | escape }}</span>{% endif %}
+      </a>
+      {% if site.tagline != blank %}<p class="geneva-tagline mt-3">{{ site.tagline | escape }}</p>{% endif %}
+    </div>
+    <nav aria-label="Main" class="geneva-nav hidden py-3 md:block">
+      <ul class="flex flex-wrap justify-center gap-x-10 gap-y-2">
+        {% for link in site.nav %}<li><a href="{{ link.url }}" class="site-nav-link{% if link.current %} is-current{% endif %}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>{% endfor %}
+      </ul>
+    </nav>
+    <details class="geneva-nav geneva-menu md:hidden">
+      <summary aria-label="Menu" class="flex cursor-pointer list-none justify-center py-3"><svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></summary>
+      <ul class="space-y-3 pb-5 text-center">
+        {% for link in site.nav %}<li><a href="{{ link.url }}" class="site-nav-link{% if link.current %} is-current{% endif %}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>{% endfor %}
+      </ul>
+    </details>
+  </header>
+  <main>{{ content_for_layout }}</main>
+  <footer class="site-footer mt-8 px-6 pt-16 pb-10 sm:px-12 lg:px-24">
+    {% if theme.scripture != blank %}<blockquote class="geneva-scripture whitespace-pre-line text-center">{{ theme.scripture | escape }}</blockquote>{% endif %}
+    <div class="geneva-footer-rule my-12" aria-hidden="true"><span>❧</span></div>
+    <div class="grid gap-10 text-center md:grid-cols-3 md:text-left">
+      <div>
+        <p class="site-heading text-2xl">{{ site.name | escape }}</p>
+        {% if theme.denomination != blank %}<p class="mt-2 italic opacity-80">{{ theme.denomination | escape }}</p>{% endif %}
+        {% if theme.confession != blank %}<p class="geneva-smallcaps mt-4">{{ theme.confession | escape }}</p>{% endif %}
+      </div>
+      <div class="md:text-center">
+        {% if site.footer_text != blank %}<p class="whitespace-pre-line opacity-85">{{ site.footer_text | escape }}</p>{% endif %}
+        {% if church.mailing_address != blank %}<p class="mt-3 whitespace-pre-line opacity-70">{{ church.mailing_address | escape }}</p>{% endif %}
+        {% if church.contact_email != blank %}<p class="mt-3"><a href="mailto:{{ church.contact_email | escape }}" class="underline underline-offset-4">{{ church.contact_email | escape }}</a></p>{% endif %}
+      </div>
+      <ul class="geneva-smallcaps space-y-2 md:text-right">
+        {% for link in site.nav %}<li><a href="{{ link.url }}" class="hover:underline">{{ link.title | escape }}</a></li>{% endfor %}
+      </ul>
+    </div>
+    <div class="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-current/20 pt-6 text-sm">
+      <p class="opacity-70">© {{ site.year }} {{ church.name | escape }}{% if theme.closing_line != blank %} · <span class="italic">{{ theme.closing_line | escape }}</span>{% endif %}</p>
+      <p class="geneva-smallcaps space-x-6">
+        {% if site.facebook_url != blank %}<a href="{{ site.facebook_url | escape }}" class="hover:underline">Facebook</a>{% endif %}
+        {% if site.instagram_url != blank %}<a href="{{ site.instagram_url | escape }}" class="hover:underline">Instagram</a>{% endif %}
+        {% if site.youtube_url != blank %}<a href="{{ site.youtube_url | escape }}" class="hover:underline">YouTube</a>{% endif %}
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

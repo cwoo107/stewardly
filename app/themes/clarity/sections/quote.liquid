@@ -1,0 +1,13 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <figure class="clarity-quote relative isolate overflow-hidden rounded-[2rem] px-6 py-14 text-center sm:px-16 sm:py-20">
+    <div class="clarity-glow clarity-glow-soft" aria-hidden="true"></div>
+    <svg viewBox="0 0 48 36" fill="none" class="mx-auto h-9 w-12 text-(--site-accent)" aria-hidden="true"><path d="M0 36V22.5C0 9.9 6.6 2.4 19.8 0l2.1 5.1C14.4 7.2 10.8 11.4 10.5 18H20v18H0zm27 0V22.5C27 9.9 33.6 2.4 46.8 0L48 5.1C41.4 7.2 37.8 11.4 37.5 18H47v18H27z" fill="currentColor"/></svg>
+    <blockquote class="site-heading mt-10 text-2xl/snug font-medium tracking-tight sm:text-4xl/tight"><p class="whitespace-pre-line">{{ settings.quote | escape }}</p></blockquote>
+    {% if settings.attribution != blank %}
+      <figcaption class="mt-10 inline-flex items-center gap-4 text-left">
+        {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="h-12 w-12 rounded-full object-cover ring-4 ring-(--site-bg)" loading="lazy">{% endif %}
+        <span><span class="block font-semibold">{{ settings.attribution | escape }}</span>{% if settings.detail != blank %}<span class="block text-sm text-(--site-muted)">{{ settings.detail | escape }}</span>{% endif %}</span>
+      </figcaption>
+    {% endif %}
+  </figure>
+</section>

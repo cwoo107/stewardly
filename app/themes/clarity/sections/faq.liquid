@@ -1,0 +1,11 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <h2 class="site-heading clarity-h2">{{ settings.heading | escape }}</h2>
+  <dl class="mt-14 gap-x-12 sm:columns-2 lg:columns-3">
+    {% for item in settings.blocks %}
+      <div class="mb-10 break-inside-avoid">
+        <dt class="text-lg/7 font-semibold tracking-tight">{{ item.question | escape }}</dt>
+        <dd class="site-prose mt-3 text-[0.9375rem] text-(--site-muted)">{{ item.answer | markdown }}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+</section>

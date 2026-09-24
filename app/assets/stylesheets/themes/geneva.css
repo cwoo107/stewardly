@@ -1,0 +1,183 @@
+/* Geneva (premium): a historic Reformed congregation. Engraved display serif over a book
+   serif; parchment, ink, and gilt; title-page framing, double rules, small caps, leaders.
+   Built-in sections have their own markup (app/themes/geneva/sections); the generic hooks
+   at the end keep custom sections at home. */
+.site { --site-border: color-mix(in srgb, var(--site-text) 18%, transparent); --site-muted: color-mix(in srgb, var(--site-text) 68%, transparent);
+  --gv-gilt: var(--site-accent); --gv-rule: color-mix(in srgb, var(--site-accent) 55%, transparent); --gv-ink: var(--site-brand);
+  --gv-paper-light: color-mix(in srgb, var(--site-bg) 70%, #fff);
+  background: var(--site-bg); color: var(--site-text); font-family: var(--site-body-font); font-size: 1.125rem; line-height: 1.75;
+  font-feature-settings: "liga", "onum", "kern"; font-variant-numeric: oldstyle-nums; }
+.site .site-heading, .site h1, .site h2, .site h3 { font-family: var(--site-heading-font); font-weight: 600; letter-spacing: .005em; }
+.gv-smallcaps, .geneva-smallcaps, .geneva-nav, .geneva-motto, .gv-eyebrow { font-variant: small-caps; letter-spacing: .14em; text-transform: lowercase; }
+.gv-italic { font-style: italic; }
+.gv-muted { color: var(--site-muted); }
+.gv-gilt { color: var(--gv-gilt); }
+.gv-link { color: var(--gv-ink); font-variant: small-caps; text-transform: lowercase; letter-spacing: .12em; text-decoration: underline;
+  text-decoration-color: var(--gv-rule); text-underline-offset: 5px; transition: color .15s, text-decoration-color .15s; }
+.gv-link:hover { color: var(--gv-gilt); text-decoration-color: var(--gv-gilt); }
+
+/* Masthead and menu (layout) */
+.geneva-motto { font-family: var(--site-heading-font); font-style: italic; font-size: 1.05rem; color: var(--gv-gilt); display: flex; align-items: center; gap: 1.25rem; }
+.geneva-motto::before, .geneva-motto::after { content: ""; flex: 1; height: 1px; background: var(--gv-rule); }
+.geneva-name { display: block; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.05; color: var(--gv-ink); }
+.geneva-tagline { font-style: italic; font-size: 1.2rem; color: var(--site-muted); }
+.geneva-nav { border-top: 3px double var(--gv-rule); border-bottom: 3px double var(--gv-rule); font-size: 1.05rem; }
+.site-geneva .site-nav-link { color: var(--site-text); transition: color .15s; }
+.site-geneva .site-nav-link:hover, .site-geneva .site-nav-link.is-current { color: var(--gv-ink); text-decoration: underline; text-decoration-color: var(--gv-gilt); text-underline-offset: 6px; }
+.geneva-menu > summary::-webkit-details-marker { display: none; }
+.geneva-menu > summary { color: var(--gv-gilt); }
+
+/* Ornaments and headings */
+.gv-orn { display: flex; align-items: center; justify-content: center; gap: 1rem; color: var(--gv-gilt); font-size: 1.35rem; line-height: 1; margin: 1.5rem auto; }
+.gv-orn::before, .gv-orn::after { content: ""; width: clamp(2.5rem, 8vw, 5rem); border-top: 1px solid var(--gv-rule); }
+.gv-orn-tight { margin: 0 auto; font-size: 1rem; }
+.gv-head { text-align: center; margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
+.gv-head::after { content: "❦"; display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: .9rem; color: var(--gv-gilt); font-size: 1.1rem; line-height: 1;
+  background: linear-gradient(var(--gv-rule), var(--gv-rule)) left 50% / calc(50% - 1.25rem) 1px no-repeat, linear-gradient(var(--gv-rule), var(--gv-rule)) right 50% / calc(50% - 1.25rem) 1px no-repeat;
+  width: 11rem; margin-left: auto; margin-right: auto; }
+.gv-head-left { text-align: left; }
+.gv-head-left::after { margin-left: 0; justify-content: flex-start; width: auto; background: none; }
+.gv-title { font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1.12; color: var(--gv-ink); }
+.gv-lede { font-style: italic; font-size: clamp(1.15rem, 1.6vw, 1.35rem); line-height: 1.6; color: var(--site-muted); }
+.gv-name { font-family: var(--site-heading-font); font-size: 1.45rem; font-weight: 600; line-height: 1.25; color: var(--gv-ink); }
+.gv-role { font-style: italic; color: var(--site-muted); }
+
+/* Section rhythm: sections are separated by a fine rule, like leaves of a book */
+.gv-section { padding-top: clamp(4rem, 8vw, 6.5rem); padding-bottom: clamp(4rem, 8vw, 6.5rem); }
+.site-geneva main > .site-section + .site-section, .site-geneva main > .site-hero + .site-section { border-top: 1px solid var(--site-border); }
+
+/* Hero: a title page */
+.gv-titlepage { position: relative; border: 1px solid var(--gv-rule); outline: 3px double var(--gv-rule); outline-offset: .5rem;
+  background: var(--gv-paper-light); padding: clamp(3rem, 8vw, 7rem) clamp(1.5rem, 6vw, 6rem); margin: .5rem; }
+.gv-titlepage::before, .gv-titlepage::after { content: "✦"; position: absolute; left: 50%; transform: translate(-50%, -50%); top: 0; background: var(--gv-paper-light);
+  padding: 0 .75rem; color: var(--gv-gilt); font-size: 1rem; line-height: 1; }
+.gv-titlepage::after { top: 100%; }
+.gv-eyebrow { color: var(--gv-gilt); font-size: 1.05rem; margin-bottom: 1.25rem; }
+.gv-display { font-size: clamp(3rem, 7.5vw, 6.25rem); line-height: 1; font-weight: 500; font-style: italic; color: var(--gv-ink); letter-spacing: -.005em; }
+.gv-hero .gv-lede { font-size: clamp(1.2rem, 2vw, 1.5rem); }
+.gv-titlepage.has-plate .text-center .gv-orn, .gv-titlepage:not(.has-plate) .gv-orn { margin-left: auto; margin-right: auto; }
+.gv-titlepage.has-plate div:not(.text-center) > .gv-orn { justify-content: flex-start; }
+.gv-titlepage.has-plate div:not(.text-center) > .gv-orn::before { display: none; }
+
+/* Plates: engraved frames around photographs */
+.gv-plate { background: var(--gv-paper-light); border: 1px solid var(--site-border); padding: .6rem; box-shadow: 0 0 0 1px var(--gv-paper-light), 0 0 0 2px var(--gv-rule); }
+.gv-plate img, .gv-plate iframe { display: block; filter: sepia(.18) saturate(.9) contrast(1.02); }
+.gv-plate-hover img { transition: filter .4s; filter: grayscale(.85) sepia(.35); }
+.gv-plate-hover:hover img { filter: none; }
+.gv-figure .gv-plate img { max-width: 100%; height: auto; }
+.gv-caption { margin-top: 1rem; text-align: center; font-style: italic; color: var(--site-muted); }
+
+/* Book pages */
+.gv-book { font-size: 1.2rem; line-height: 1.85; hyphens: auto; text-align: justify; text-wrap: pretty; }
+.text-center .gv-book { text-align: center; }
+.gv-dropcap { display: flow-root; }
+.gv-dropcap > p:first-child::first-letter { float: left; font-family: var(--site-heading-font); font-size: 4.6rem; line-height: .8; font-weight: 600;
+  padding: .4rem .65rem 0 0; color: var(--gv-ink); }
+.gv-book blockquote { border-left: 2px solid var(--gv-gilt); padding-left: 1.25rem; font-style: italic; color: var(--site-muted); margin-top: 1rem; }
+
+/* Colophon panels: call to action, give */
+.gv-colophon { border-top: 3px double var(--gv-rule); border-bottom: 3px double var(--gv-rule); padding: clamp(2.5rem, 6vw, 4.5rem) 1rem; }
+.gv-colophon .gv-orn { margin-top: 0; }
+.gv-colophon-ink { background: var(--gv-ink); color: #f5efe0; border: 0; outline: 1px solid rgb(245 239 224 / .35); outline-offset: -.9rem; padding-left: 2rem; padding-right: 2rem; }
+.gv-colophon-ink .gv-title { color: #fff; }
+.gv-colophon-ink .gv-lede, .gv-colophon-ink .site-prose { color: rgb(245 239 224 / .85); }
+.gv-colophon-ink .site-prose a { color: #fff; }
+
+/* Buttons: square, small caps, ink on parchment */
+.site-geneva .site-button, .gv-button { display: inline-block; border-radius: 0; background: var(--gv-ink); color: #f8f3e6; font-family: var(--site-body-font); font-weight: 500;
+  font-variant: small-caps; text-transform: lowercase; letter-spacing: .16em; font-size: 1.05rem; padding: .7rem 1.6rem; border: 1px solid var(--gv-ink);
+  box-shadow: 0 0 0 3px var(--site-bg), 0 0 0 4px var(--gv-rule); transition: background .15s, color .15s; }
+.site-geneva .site-button:hover, .gv-button:hover { background: transparent; color: var(--gv-ink); }
+.gv-button-quiet, .site-geneva .site-button-secondary { background: transparent; color: var(--gv-ink); box-shadow: none; }
+.gv-button-quiet:hover { background: var(--gv-ink); color: #f8f3e6; }
+.gv-colophon-ink .gv-button-light { background: #f5efe0; color: var(--gv-ink); border-color: #f5efe0; box-shadow: 0 0 0 3px var(--gv-ink), 0 0 0 4px rgb(245 239 224 / .5); }
+.gv-colophon-ink .gv-button-light:hover { background: transparent; color: #f5efe0; }
+
+/* Order of the Lord's Day: names and times joined by dotted leaders */
+.gv-order > li { padding: 1.1rem 0; border-bottom: 1px solid var(--site-border); }
+.gv-order > li:first-child { border-top: 3px double var(--gv-rule); }
+.gv-order > li:last-child { border-bottom: 3px double var(--gv-rule); }
+.gv-leader { display: flex; align-items: baseline; gap: .75rem; font-family: var(--site-heading-font); font-size: clamp(1.3rem, 2.4vw, 1.7rem); color: var(--gv-ink); }
+.gv-leader-name { font-weight: 600; }
+.gv-leader-dots { flex: 1; min-width: 1.5rem; border-bottom: 2px dotted var(--gv-rule); transform: translateY(-.3rem); }
+.gv-leader-value { font-style: italic; white-space: nowrap; }
+.gv-note { margin-top: 1.5rem; text-align: center; font-style: italic; color: var(--site-muted); }
+
+/* Registers: events and sermons as ruled ledgers */
+.gv-register { border-top: 3px double var(--gv-rule); border-bottom: 3px double var(--gv-rule); }
+.gv-register-row { display: grid; grid-template-columns: 6.5rem 1fr; gap: .5rem 2rem; align-items: baseline; padding: 1.5rem 0; }
+.gv-register-row + .gv-register-row { border-top: 1px solid var(--site-border); }
+@media (min-width: 768px) { .gv-register-row { grid-template-columns: 9rem 1fr auto; } }
+.gv-date { display: flex; flex-direction: column; line-height: 1; }
+.gv-date-day { font-family: var(--site-heading-font); font-size: 2.6rem; font-weight: 500; color: var(--gv-ink); }
+.gv-date-month { font-variant: small-caps; text-transform: lowercase; letter-spacing: .14em; color: var(--gv-gilt); font-size: 1rem; margin-top: .35rem; }
+.gv-entry-title { font-family: var(--site-heading-font); font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 600; line-height: 1.25; color: var(--gv-ink); }
+a.gv-entry-title:hover { color: var(--gv-gilt); }
+.gv-time { grid-column: 2; font-style: italic; color: var(--site-muted); }
+@media (min-width: 768px) { .gv-time { grid-column: auto; text-align: right; } }
+.gv-sermon { grid-template-columns: 1fr; }
+@media (min-width: 768px) { .gv-sermon { grid-template-columns: 9rem 1fr auto; } }
+.gv-sermon .gv-time { grid-column: auto; font-style: normal; }
+
+/* Catechism: numbered questions, answers beneath */
+.gv-catechism { counter-reset: gv-question; }
+.gv-qa { counter-increment: gv-question; display: grid; grid-template-columns: 2.75rem 1fr; }
+.gv-qa::before { content: counter(gv-question); grid-row: span 2; font-family: var(--site-heading-font); font-size: 2.2rem; line-height: 1; color: var(--gv-gilt); }
+.gv-question { font-family: var(--site-heading-font); font-style: italic; font-weight: 600; font-size: 1.4rem; line-height: 1.35; color: var(--gv-ink); }
+.gv-answer { margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--site-border); }
+
+/* Portraits: oval frames, as in an old church register */
+.gv-oval { width: min(100%, 13rem); aspect-ratio: 4 / 5; border-radius: 50%; overflow: hidden; background: var(--site-surface);
+  border: 1px solid var(--gv-rule); box-shadow: 0 0 0 6px var(--site-bg), 0 0 0 7px var(--gv-rule); }
+.gv-oval img { filter: grayscale(.7) sepia(.3) contrast(1.05); transition: filter .4s; }
+.gv-oval:hover img { filter: sepia(.1); }
+.gv-oval-small { width: 6.5rem; }
+.site-geneva .gv-name + .gv-role { margin-top: .15rem; }
+
+/* Directory and next steps: columns divided by vertical rules */
+.gv-directory { border-top: 3px double var(--gv-rule); }
+.gv-directory-entry { padding: 2rem 0; border-bottom: 1px solid var(--site-border); }
+@media (min-width: 768px) { .gv-directory { column-gap: 0; } .gv-directory-entry { padding: 2rem 2rem; border-left: 1px solid var(--site-border); }
+  .gv-directory-entry:nth-child(2n+1) { border-left: 0; padding-left: 0; } }
+@media (min-width: 1024px) { .gv-directory-entry:nth-child(2n+1) { border-left: 1px solid var(--site-border); padding-left: 2rem; } .gv-directory-entry:nth-child(3n+1) { border-left: 0; padding-left: 0; } }
+.gv-columns { row-gap: 2.5rem; }
+.gv-column { position: relative; }
+.gv-column + .gv-column { border-top: 1px solid var(--gv-rule); padding-top: 2.5rem; }
+@media (min-width: 768px) { .gv-columns { column-gap: 5rem; }
+  .gv-column + .gv-column { border-top: 0; padding-top: 0; }
+  .gv-column + .gv-column::before { content: ""; position: absolute; top: 0; bottom: 0; left: -2.5rem; border-left: 1px solid var(--gv-rule); } }
+
+/* Figures between rules */
+.gv-figures { border-top: 3px double var(--gv-rule); border-bottom: 3px double var(--gv-rule); }
+.gv-figure-cell { padding: 2rem 1rem; }
+.gv-figure-cell:nth-child(2n) { border-left: 1px solid var(--site-border); }
+@media (min-width: 1024px) { .gv-figure-cell + .gv-figure-cell { border-left: 1px solid var(--site-border); } }
+.gv-figure { font-size: clamp(3rem, 6vw, 4.75rem); line-height: 1; font-weight: 500; color: var(--gv-ink); font-variant-numeric: oldstyle-nums; }
+
+/* Scripture and quotations */
+.gv-quote-mark { font-family: var(--site-heading-font); font-size: 7rem; line-height: .6; height: 3rem; color: var(--gv-gilt); }
+.gv-scripture { font-size: clamp(1.75rem, 3.6vw, 2.9rem); line-height: 1.35; font-weight: 500; font-style: italic; color: var(--gv-ink); text-wrap: balance; }
+
+/* Imprint (contact) and forms */
+.gv-imprint-entry + .gv-imprint-entry { margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px solid var(--site-border); }
+.gv-form { background: var(--gv-paper-light); border: 1px solid var(--site-border); padding: clamp(1.5rem, 4vw, 2.5rem); box-shadow: 0 0 0 5px var(--site-bg), 0 0 0 6px var(--gv-rule); }
+.site-geneva .site-form input:not([type=checkbox]):not([type=radio]), .site-geneva .site-form textarea, .site-geneva .site-form select {
+  border-radius: 0; background: #fffdf8; border-color: var(--site-border); font-family: var(--site-body-font); }
+.site-form label { color: var(--site-text); }
+
+/* Footer (layout) */
+.site-geneva .site-footer { background: var(--gv-ink); color: #f1ead8; }
+.site-geneva .site-footer .site-heading { color: #fff; }
+.geneva-scripture { font-family: var(--site-heading-font); font-style: italic; font-size: clamp(1.35rem, 2.5vw, 1.85rem); line-height: 1.45; }
+.geneva-footer-rule { display: flex; align-items: center; gap: 1.25rem; color: var(--gv-gilt); }
+.geneva-footer-rule::before, .geneva-footer-rule::after { content: ""; flex: 1; border-top: 3px double rgb(241 234 216 / .35); }
+
+/* Generic hooks, for custom sections written against the standard markup */
+.site-geneva .site-section h2:not(.gv-title) { color: var(--gv-ink); }
+.site-geneva .site-card { background: var(--site-surface); border: 1px solid var(--site-border); border-top: 3px double var(--gv-gilt); border-radius: 0; padding: 1.75rem; }
+.site-geneva .site-radius { border-radius: 0; border: 1px solid var(--site-border); padding: .5rem; background: var(--site-surface); }
+.site-geneva details summary { font-family: var(--site-heading-font); font-size: 1.35rem; font-weight: 600; font-style: italic; color: var(--gv-ink); }
+.site-prose p + p, .site-prose ul, .site-prose ol { margin-top: 1rem; }
+.site-prose ul { list-style: disc; padding-left: 1.5rem; }
+.site-prose ol { list-style: decimal; padding-left: 1.5rem; }
+.site-prose a { color: var(--gv-ink); text-decoration: underline; text-decoration-color: var(--gv-gilt); text-underline-offset: 4px; }

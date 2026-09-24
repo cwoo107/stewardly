@@ -4,4 +4,7 @@
     <%= button_to "Reset to original", reset_website_section_path(@definition), class: button_classes(:outline), form: { data: { turbo_confirm: "Throw away your changes to this section's code?" } } %>
   <% end %>
 <% end %>
+<% if @definition.system? && !@definition.customized? && @site.theme.section_liquid(@definition.key) %>
+  <p class="mb-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">The <%= @site.theme.name %> theme has its own design for this section. Saving changes here replaces that design with this code.</p>
+<% end %>
 <%= render "form", definition: @definition %>

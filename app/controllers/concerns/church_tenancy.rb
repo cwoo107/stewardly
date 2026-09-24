@@ -14,7 +14,7 @@ module ChurchTenancy
     def set_current_church
       site = Site.for_host(request.host) if SiteHost.site_host_name?(request.host)
       Current.site = site
-      church = site ? site.church : Church.find_by_host_subdomain(request.subdomain)
+      church = site ? site.church : (DemoTunnel.church_for_host(request.host) || Church.find_by_host_subdomain(request.subdomain))
       return render(file: Rails.public_path.join("404.html"), status: :not_found, layout: false) unless church
 
       set_current_tenant(church)

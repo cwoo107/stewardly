@@ -1,0 +1,10 @@
+{% assign chosen = forms[settings.form] %}
+{% if chosen %}
+<section class="site-section clarity-section grid gap-12 px-6 sm:px-12 lg:grid-cols-12 lg:px-24">
+  <div class="lg:col-span-4">
+    <h2 class="site-heading clarity-h2">{{ settings.heading | default: chosen.name | escape }}</h2>
+    {% if chosen.description != blank %}<p class="mt-4 text-lg text-(--site-muted)">{{ chosen.description | escape }}</p>{% endif %}
+  </div>
+  <div class="site-form clarity-form-card lg:col-span-7 lg:col-start-6">{{ chosen.html }}</div>
+</section>
+{% endif %}

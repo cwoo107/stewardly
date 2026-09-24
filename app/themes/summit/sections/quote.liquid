@@ -1,0 +1,12 @@
+<section class="site-section relative isolate overflow-hidden px-6 py-24 sm:px-12 lg:px-24 lg:py-40">
+  <svg viewBox="0 0 120 90" class="absolute top-10 left-2 -z-10 h-40 w-auto text-(--site-accent) opacity-20 sm:left-8 lg:h-64" fill="currentColor" aria-hidden="true"><path d="M0 90V52C0 22 17 4 46 0l4 12C33 17 25 28 24 44h24v46H0Zm70 0V52C70 22 87 4 116 0l4 12c-17 5-25 16-26 32h24v46H70Z"/></svg>
+  <figure>
+    <blockquote class="site-heading text-[clamp(2rem,5vw,4.5rem)] leading-[1.05] font-extrabold tracking-tight"><p class="whitespace-pre-line">{{ settings.quote | escape }}</p></blockquote>
+    {% if settings.attribution != blank %}
+      <figcaption class="mt-12 flex items-center gap-5">
+        {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="h-16 w-16 rounded-full object-cover ring-4 ring-(--site-accent)" loading="lazy">{% else %}<span class="h-1 w-12 rounded-full bg-(--site-accent)"></span>{% endif %}
+        <span><span class="block text-lg font-extrabold uppercase tracking-[0.12em]">{{ settings.attribution | escape }}</span>{% if settings.detail != blank %}<span class="block text-(--site-muted)">{{ settings.detail | escape }}</span>{% endif %}</span>
+      </figcaption>
+    {% endif %}
+  </figure>
+</section>

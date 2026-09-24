@@ -15,6 +15,61 @@ RSpec.describe Site::Renderer do
     expect(html).not_to include("<script>alert")
   end
 
+  it "renders every starter page in each premium theme, with its web fonts and settings" do
+    Site::Theme.all.select(&:premium).each do |theme|
+      site.update!(theme_key: theme.key, theme_settings: {})
+      site.pages.each do |starter|
+        result = described_class.new(site, starter, draft: true).render
+        expect(result.errors).to be_empty, "#{theme.key} #{starter.title}: #{result.errors.join(", ")}"
+        expect(result.html).to include("site-#{theme.key}", "themes/#{theme.key}", "fonts.googleapis.com/css2?family=")
+      end
+    end
+
+    site.update!(theme_key: "summit", theme_settings: { "watch_url" => "https://youtube.com/@grace", "watch_label" => "Watch live", "announcement" => "Easter services",
+      "header_button_label" => "Plan a visit", "header_button_url" => "/about" })
+    expect(render.html).to include("Plan a visit", "https://youtube.com/@grace", "Watch live", "Easter services")
+    site.update!(theme_key: "geneva", theme_settings: { "motto" => "Soli Deo Gloria", "confession" => "Confessing the Westminster Standards", "scripture" => "Isaiah 40:8" })
+    expect(render.html).to include("Soli Deo Gloria", "Confessing the Westminster Standards", "Isaiah 40:8")
+    site.update!(theme_key: "clarity", theme_settings: { "secondary_button_label" => "Give", "secondary_button_url" => "/give" })
+    expect(render.html).to include("clarity-button-outline").and include(%(href="/give"))
+  end
+
+  it "shows no text of its own in a premium theme: with every setting blank, only the church's name is left" do
+    words = ->(text) { text.to_s.scan(/\p{L}+/).map(&:downcase) }
+    allowed = words.("#{site.name} #{church.name}").to_set
+    blank_sections = SectionDefinition::Defaults.web_sections.map do |definition|
+      # What a form saves when every field is left empty.
+      settings = definition.settings_schema.to_h { |setting| [ setting["id"], { "number" => nil, "select" => setting["default"] }.fetch(setting["type"], "") ] }
+      settings["blocks"] = [] if definition.blocks_schema
+      { "id" => definition.key, "key" => definition.key, "settings" => settings }
+    end
+    page.update!(draft_sections: blank_sections)
+
+    Site::Theme.all.select(&:premium).each do |theme|
+      site.update!(theme_key: theme.key, theme_settings: {})
+      body = Nokogiri::HTML(render.html).at("body").tap { |node| node.css("script, style").remove }
+      expect(words.(body.text).to_set - allowed).to be_empty, "#{theme.name} shows its own text: #{(words.(body.text).to_set - allowed).to_a.join(", ")}"
+    end
+  end
+
+  it "uses a theme's own design for a built-in section until the church edits that section's code" do
+    theme = SimpleDelegator.new(site.theme)
+    def theme.section_liquid(key) = (%(<p class="theme-text">{{ settings.heading | escape }}</p>) if key == "text")
+    allow(site).to receive(:theme).and_return(theme)
+    entry = page.add_section!("text")
+    page.update_section!(entry["id"], entry["settings"].merge("heading" => "Our story"))
+    expect(render.html).to include(%(<p class="theme-text">Our story</p>))
+
+    SectionDefinition.kind_web.find_by!(key: "text").update!(liquid: %(<p class="church-text">{{ settings.heading }}</p>), customized: true)
+    html = render.html
+    expect(html).to include(%(<p class="church-text">Our story</p>))
+    expect(html).not_to include("theme-text")
+  end
+
+  it "loads no web fonts for system fonts" do
+    expect(render.html).not_to include("fonts.googleapis.com")
+  end
+
   it "shows only public data: published public events, active groups (town only), service times" do
     create(:worship_service, name: "Sunday Worship", day_of_week: 0, start_time: "10:30")
     group = create(:group, name: "Tuesday Group", city: "Springfield", address_line1: "12 Secret Lane")

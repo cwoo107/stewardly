@@ -1,0 +1,24 @@
+<section class="site-hero gv-hero px-6 pt-10 pb-6 sm:px-12 lg:px-24">
+  <div class="gv-titlepage{% if settings.image_url != blank %} has-plate{% endif %}">
+    <div class="grid items-center gap-10 {% if settings.image_url != blank %}lg:grid-cols-12{% endif %}">
+      {% if settings.image_url != blank %}
+        <figure class="gv-plate lg:col-span-5"><img src="{{ settings.image_url | escape }}" alt="" class="aspect-[4/5] w-full object-cover"></figure>
+      {% endif %}
+      <div class="{% if settings.image_url != blank %}lg:col-span-7{% endif %} {% if settings.align == 'center' or settings.image_url == blank %}text-center{% endif %}">
+        {% if settings.eyebrow != blank %}<p class="gv-eyebrow">{{ settings.eyebrow | escape }}</p>{% endif %}
+        <h1 class="site-heading gv-display">{{ settings.heading | escape }}</h1>
+        <p class="gv-orn" aria-hidden="true"><span>❦</span></p>
+        {% if settings.subheading != blank %}<p class="gv-lede">{{ settings.subheading | escape }}</p>{% endif %}
+        {% assign primary = false %}{% assign secondary = false %}
+        {% if settings.button_label != blank and settings.button_url != blank %}{% assign primary = true %}{% endif %}
+        {% if settings.secondary_button_label != blank and settings.secondary_button_url != blank %}{% assign secondary = true %}{% endif %}
+        {% if primary or secondary %}
+          <div class="mt-10 flex flex-wrap items-center gap-4 {% if settings.align == 'center' or settings.image_url == blank %}justify-center{% endif %}">
+            {% if primary %}<a href="{{ settings.button_url | escape }}" class="site-button gv-button">{{ settings.button_label | escape }}</a>{% endif %}
+            {% if secondary %}<a href="{{ settings.secondary_button_url | escape }}" class="site-button-secondary gv-button gv-button-quiet">{{ settings.secondary_button_label | escape }}</a>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

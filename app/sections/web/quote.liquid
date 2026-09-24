@@ -1,0 +1,7 @@
+<section class="site-section px-6 py-16 text-center sm:px-12 lg:px-24">
+  <figure>
+    {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="mx-auto mb-8 h-20 w-20 rounded-full object-cover" loading="lazy">{% endif %}
+    <blockquote class="site-heading text-2xl font-medium leading-snug sm:text-3xl"><p class="whitespace-pre-line">{{ settings.quote | escape }}</p></blockquote>
+    {% if settings.attribution != blank %}<figcaption class="mt-6"><span class="font-semibold">{{ settings.attribution | escape }}</span>{% if settings.detail != blank %}<span class="text-(--site-muted)"> · {{ settings.detail | escape }}</span>{% endif %}</figcaption>{% endif %}
+  </figure>
+</section>

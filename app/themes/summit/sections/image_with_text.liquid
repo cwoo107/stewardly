@@ -1,0 +1,12 @@
+<section class="site-section overflow-hidden px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  <div class="grid items-center gap-16 lg:grid-cols-12 lg:gap-20">
+    <div class="summit-offset {% if settings.image_side == 'right' %}lg:order-2{% else %}is-left{% endif %} lg:col-span-6">
+      {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="aspect-[4/5] w-full rounded-[2rem] object-cover sm:aspect-[4/3] lg:aspect-[4/5]" loading="lazy">{% else %}<div class="summit-tile-fallback aspect-[4/3] rounded-[2rem]"></div>{% endif %}
+    </div>
+    <div class="lg:col-span-6">
+      <h2 class="site-heading summit-display summit-title">{{ settings.heading | escape }}</h2>
+      <div class="site-prose summit-prose-lg mt-8 text-(--site-muted)">{{ settings.body | markdown }}</div>
+      {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button mt-10">{{ settings.button_label | escape }} <svg viewBox="0 0 20 20" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>{% endif %}
+    </div>
+  </div>
+</section>

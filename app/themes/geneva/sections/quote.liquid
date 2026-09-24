@@ -1,0 +1,12 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <figure class="grid text-center lg:grid-cols-12">
+    <div class="lg:col-span-10 lg:col-start-2">
+      {% if settings.image_url != blank %}<div class="gv-oval gv-oval-small mx-auto mb-8"><img src="{{ settings.image_url | escape }}" alt="" class="h-full w-full object-cover" loading="lazy"></div>{% endif %}
+      <p class="gv-quote-mark" aria-hidden="true">“</p>
+      <blockquote class="site-heading gv-scripture"><p class="whitespace-pre-line">{{ settings.quote | escape }}</p></blockquote>
+      {% if settings.attribution != blank %}
+        <figcaption class="mt-8"><p class="gv-orn gv-orn-tight" aria-hidden="true"><span>✦</span></p><p class="gv-smallcaps mt-3">{{ settings.attribution | escape }}</p>{% if settings.detail != blank %}<p class="gv-role">{{ settings.detail | escape }}</p>{% endif %}</figcaption>
+      {% endif %}
+    </div>
+  </figure>
+</section>

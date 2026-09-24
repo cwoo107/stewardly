@@ -1,0 +1,12 @@
+{% assign chosen = forms[settings.form] %}
+{% if chosen %}
+<section class="site-section summit-soft px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-5">
+      <h2 class="site-heading summit-display summit-title">{{ settings.heading | default: chosen.name | escape }}</h2>
+      {% if chosen.description != blank %}<p class="summit-lede mt-6">{{ chosen.description | escape }}</p>{% endif %}
+    </div>
+    <div class="site-form rounded-[2rem] bg-(--site-bg) p-6 shadow-[0_40px_80px_-50px_rgb(0_0_0/.45)] sm:p-10 lg:col-span-7">{{ chosen.html }}</div>
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,14 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  {% if settings.intro != blank %}<p class="gv-lede -mt-4 mb-12 text-center">{{ settings.intro | escape }}</p>{% endif %}
+  <ul class="gv-columns grid md:grid-cols-3">
+    {% for step in settings.blocks %}
+      <li class="gv-column flex flex-col text-center">
+        {% if step.image_url != blank %}<figure class="gv-plate mb-6"><img src="{{ step.image_url | escape }}" alt="" class="aspect-[3/2] w-full object-cover" loading="lazy"></figure>{% endif %}
+        <p class="gv-name">{{ step.title | escape }}</p>
+        {% if step.text != blank %}<p class="gv-muted mt-3 italic">{{ step.text | escape }}</p>{% endif %}
+        {% if step.link_label != blank and step.link_url != blank %}<a href="{{ step.link_url | escape }}" class="gv-link mt-auto pt-5">{{ step.link_label | escape }}</a>{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</section>

@@ -1,0 +1,12 @@
+{% if settings.video_embed_url != blank %}
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>{% endif %}
+  <div class="grid lg:grid-cols-12">
+    <div class="gv-plate lg:col-span-10 lg:col-start-2">
+      <div class="aspect-video overflow-hidden bg-black">
+        <iframe src="{{ settings.video_embed_url | escape }}" title="{{ settings.heading | default: 'Video' | escape }}" class="h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}

@@ -1,0 +1,20 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+    <h2 class="site-heading clarity-h2 lg:col-span-6">{{ settings.heading | escape }}</h2>
+    {% if settings.note != blank %}<p class="text-lg text-(--site-muted) lg:col-span-5 lg:col-start-8">{{ settings.note | escape }}</p>{% endif %}
+  </div>
+  <ul class="clarity-grid clarity-grid-fit mt-14">
+    {% for service in service_times %}
+      <li class="clarity-grid-cell flex items-start gap-5 p-8">
+        <span class="clarity-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <span>
+          <span class="block text-sm font-medium text-(--site-muted)">{{ service.day }}</span>
+          <span class="site-heading mt-1 block text-3xl font-medium tracking-tight">{{ service.time }}</span>
+          <span class="mt-2 block text-sm text-(--site-muted)">{{ service.name | escape }}{% if service.campus != blank %} · {{ service.campus | escape }}{% endif %}</span>
+        </span>
+      </li>
+    {% else %}
+      <li class="clarity-grid-cell p-8 text-(--site-muted)">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ul>
+</section>

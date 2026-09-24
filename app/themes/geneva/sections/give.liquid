@@ -1,0 +1,8 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <div class="gv-colophon gv-colophon-ink text-center">
+    <p class="gv-orn" aria-hidden="true"><span>❧</span></p>
+    <h2 class="site-heading gv-title gv-italic">{{ settings.heading | escape }}</h2>
+    <div class="grid lg:grid-cols-12"><div class="site-prose gv-lede mt-4 lg:col-span-8 lg:col-start-3">{{ settings.body | markdown }}</div></div>
+    {% if church.giving_url != blank %}<a href="{{ church.giving_url | escape }}" class="site-button gv-button gv-button-light mt-8">{{ settings.button_label | escape }}</a>{% endif %}
+  </div>
+</section>

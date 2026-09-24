@@ -1,0 +1,20 @@
+<section class="site-section summit-accent px-6 py-20 sm:px-12 lg:px-24 lg:py-28">
+  <div class="grid gap-12 lg:grid-cols-12 lg:items-end">
+    <div class="lg:col-span-4">
+      <h2 class="site-heading summit-display text-[clamp(2.5rem,5vw,4.5rem)]">{{ settings.heading | escape }}</h2>
+      {% if settings.note != blank %}<p class="mt-6 text-lg font-medium text-(--site-muted)">{{ settings.note | escape }}</p>{% endif %}
+    </div>
+    <ul class="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:col-span-8 {% if service_times.size > 2 %}xl:grid-cols-3{% endif %}">
+      {% for service in service_times %}
+        {% assign clock = service.time | split: " " %}
+        <li class="border-t-2 border-(--site-text) pt-5">
+          <p class="text-xs font-extrabold uppercase tracking-[0.22em]">{{ service.day }}</p>
+          <p class="summit-display mt-3 flex items-start gap-2 text-[clamp(4rem,8vw,7rem)]">{{ clock.first }}<span class="mt-2 text-xl tracking-normal sm:text-2xl">{{ clock.last }}</span></p>
+          <p class="mt-3 font-semibold text-(--site-muted)">{{ service.name | escape }}{% if service.campus != blank %} · {{ service.campus | escape }}{% endif %}</p>
+        </li>
+      {% else %}
+        <li class="text-lg font-semibold">{{ settings.empty_text | escape }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>

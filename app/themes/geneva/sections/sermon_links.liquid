@@ -1,0 +1,16 @@
+<section class="site-section gv-section px-6 sm:px-12 lg:px-24">
+  <header class="gv-head"><h2 class="site-heading gv-title">{{ settings.heading | escape }}</h2></header>
+  <ol class="gv-register">
+    {% for sermon in settings.blocks %}
+      <li class="gv-register-row gv-sermon">
+        <p class="gv-smallcaps gv-gilt">{{ sermon.date | escape }}</p>
+        <div class="min-w-0">
+          {% if sermon.url != blank %}<a href="{{ sermon.url | escape }}" class="gv-entry-title gv-italic">{{ sermon.title | escape }}</a>{% else %}<span class="gv-entry-title gv-italic">{{ sermon.title | escape }}</span>{% endif %}
+        </div>
+        {% if sermon.speaker != blank %}<p class="gv-smallcaps gv-time">{{ sermon.speaker | escape }}</p>{% endif %}
+      </li>
+    {% else %}
+      <li class="gv-muted py-6 text-center italic">{{ settings.empty_text | escape }}</li>
+    {% endfor %}
+  </ol>
+</section>

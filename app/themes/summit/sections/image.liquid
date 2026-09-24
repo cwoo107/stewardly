@@ -1,0 +1,8 @@
+{% if settings.image_url != blank %}
+<figure class="site-section px-6 py-12 sm:px-12 lg:px-24 lg:py-20">
+  <div class="overflow-hidden rounded-[2rem] shadow-[0_50px_100px_-50px_rgb(0_0_0/.55)]">
+    <img src="{{ settings.image_url | escape }}" alt="{{ settings.alt | escape }}" class="mx-auto w-full object-cover"{% if settings.image_url_width %} width="{{ settings.image_url_width }}"{% endif %}{% if settings.image_url_height %} height="{{ settings.image_url_height }}"{% endif %} loading="lazy">
+  </div>
+  {% if settings.caption != blank %}<figcaption class="summit-eyebrow mt-6">{{ settings.caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

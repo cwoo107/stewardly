@@ -1,0 +1,11 @@
+<section class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  {% if settings.heading != blank %}<h2 class="site-heading clarity-h2 mb-14">{{ settings.heading | escape }}</h2>{% endif %}
+  <dl class="clarity-grid clarity-grid-fit clarity-grid-fit-sm">
+    {% for stat in settings.blocks %}
+      <div class="clarity-grid-cell flex flex-col p-6 sm:p-10">
+        <dt class="text-sm text-(--site-muted)">{{ stat.label | escape }}</dt>
+        <dd class="site-heading clarity-stat order-first">{{ stat.number | escape }}</dd>
+      </div>
+    {% endfor %}
+  </dl>
+</section>

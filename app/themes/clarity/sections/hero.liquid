@@ -1,0 +1,30 @@
+{% assign split = false %}{% if settings.image_url != blank %}{% assign split = true %}{% endif %}
+<section class="site-hero clarity-hero relative isolate overflow-hidden">
+  <div class="clarity-glow" aria-hidden="true"></div>
+  <div class="relative grid items-center gap-14 px-6 pt-12 pb-20 sm:px-12 lg:grid-cols-12 lg:gap-10 lg:px-24 lg:pt-20 lg:pb-28">
+    <div class="{% if split %}lg:col-span-6{% else %}lg:col-span-12{% if settings.align == 'center' %} text-center{% endif %}{% endif %}">
+      {% if settings.eyebrow != blank %}<p class="clarity-pill"><span class="clarity-pill-dot" aria-hidden="true"></span>{{ settings.eyebrow | escape }}</p>{% endif %}
+      <h1 class="site-heading clarity-display mt-6">{{ settings.heading | escape }}</h1>
+      {% if settings.subheading != blank %}<p class="clarity-lead mt-6 whitespace-pre-line">{{ settings.subheading | escape }}</p>{% endif %}
+      {% if settings.button_label != blank and settings.button_url != blank or settings.secondary_button_label != blank and settings.secondary_button_url != blank %}
+        <div class="mt-10 flex flex-wrap items-center gap-3 {% if split == false and settings.align == 'center' %}justify-center{% endif %}">
+          {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button clarity-button">{{ settings.button_label | escape }}<svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>{% endif %}
+          {% if settings.secondary_button_label != blank and settings.secondary_button_url != blank %}<a href="{{ settings.secondary_button_url | escape }}" class="site-button-secondary clarity-button-outline"><svg viewBox="0 0 20 20" fill="none" class="h-5 w-5" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-opacity=".35"/><path d="M8.5 7.5v5l4-2.5-4-2.5z" fill="currentColor"/></svg>{{ settings.secondary_button_label | escape }}</a>{% endif %}
+        </div>
+      {% endif %}
+    </div>
+    {% if split %}
+      <div class="relative lg:col-span-6">
+        <div class="clarity-frame">
+          <img src="{{ settings.image_url | escape }}" alt="" class="aspect-[4/3] w-full rounded-[2rem] object-cover">
+        </div>
+        {% for service in service_times limit: 1 %}
+          <div class="clarity-float absolute -bottom-6 left-6 flex items-center gap-4 rounded-2xl p-4 pr-6 sm:left-10">
+            <span class="clarity-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <span><span class="block text-sm font-semibold">{{ service.day }} {{ service.time }}</span><span class="block text-xs text-(--site-muted)">{{ service.name | escape }}{% if service.campus != blank %} · {{ service.campus | escape }}{% endif %}</span></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>

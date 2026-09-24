@@ -14,3 +14,4 @@
 .site-prose ol { list-style: decimal; padding-left: 1.5rem; }
 .site-prose a { color: var(--site-brand); text-decoration: underline; }
 .site-form label { color: var(--site-text); }
+.site-button-secondary { border: 1px solid currentColor; }

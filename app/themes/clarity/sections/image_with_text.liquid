@@ -1,0 +1,12 @@
+<section class="site-section clarity-section grid items-center gap-12 px-6 sm:px-12 lg:grid-cols-12 lg:gap-16 lg:px-24">
+  <div class="lg:col-span-6 {% if settings.image_side == 'right' %}lg:order-2{% endif %}">
+    <div class="clarity-frame">
+      {% if settings.image_url != blank %}<img src="{{ settings.image_url | escape }}" alt="" class="aspect-[4/3] w-full rounded-[2rem] object-cover" loading="lazy">{% else %}<div class="clarity-placeholder aspect-[4/3] rounded-[2rem]"></div>{% endif %}
+    </div>
+  </div>
+  <div class="lg:col-span-5 {% if settings.image_side == 'right' %}lg:order-1{% else %}lg:col-start-8{% endif %}">
+    <h2 class="site-heading clarity-h2">{{ settings.heading | escape }}</h2>
+    <div class="site-prose clarity-prose-lg mt-6">{{ settings.body | markdown }}</div>
+    {% if settings.button_label != blank and settings.button_url != blank %}<a href="{{ settings.button_url | escape }}" class="site-button clarity-button mt-8">{{ settings.button_label | escape }}<svg viewBox="0 0 16 16" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>{% endif %}
+  </div>
+</section>

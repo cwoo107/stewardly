@@ -151,6 +151,34 @@ RSpec.describe "Church websites" do
       expect(site.settings).to include("brand_color" => "#112233", "tagline" => "Love God, love people")
     end
 
+    it "pick a premium theme and fill in its own settings" do
+      get edit_website_theme_path
+      expect(response.body).to include("Premium themes", "Summit", "Geneva", "Clarity")
+      patch website_theme_path, params: { site: { theme_key: "geneva" }, reset_colors: "1" }
+      get edit_website_theme_path
+      expect(response.body).to include("Motto", "Confessional standard")
+      patch website_theme_path, params: { settings: { motto: "Soli Deo Gloria", confession: "Confessing the Three Forms of Unity" } }
+      expect(site.reload.settings).to include("heading_font" => "cormorant", "motto" => "Soli Deo Gloria", "confession" => "Confessing the Three Forms of Unity")
+    end
+
+    it "reset to the theme's colors and fonts any time, keeping the logo and text" do
+      patch website_theme_path, params: { site: { theme_key: "summit" }, settings: { brand_color: "#112233", tagline: "Love God, love people" } }
+      expect(site.reload.settings).to include("brand_color" => "#112233")
+      patch website_theme_path, params: { settings: { brand_color: "#112233", tagline: "Love God, love people" }, reset_colors: "1" }
+      expect(site.reload.settings).to include("brand_color" => "#0a0a0a", "heading_font" => "montserrat", "tagline" => "Love God, love people")
+    end
+
+    it "start the home page draft from a premium theme's design, leaving the live page alone" do
+      home = site.home_page
+      home.publish!
+      live = home.reload.published_sections
+      patch website_theme_path, params: { site: { theme_key: "summit" }, theme_home: "1" }
+      expect(home.reload.draft_sections.map { |section| section["key"] }).to eq(Site::Theme.fetch("summit").home_sections.map(&:first))
+      expect(home.published_sections).to eq(live)
+      follow_redirect!
+      expect(response.body).to include("uses Summit&#39;s design").or include("uses Summit's design")
+    end
+
     it "can't edit code or domains" do
       get website_sections_path
       expect(response).to have_http_status(:forbidden)

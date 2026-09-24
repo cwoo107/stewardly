@@ -1,0 +1,8 @@
+{% if settings.image_url != blank %}
+<figure class="site-section clarity-section px-6 sm:px-12 lg:px-24">
+  <div class="clarity-frame">
+    <img src="{{ settings.image_url | escape }}" alt="{{ settings.alt | escape }}" class="mx-auto w-full rounded-[2rem] object-cover"{% if settings.image_url_width %} width="{{ settings.image_url_width }}"{% endif %}{% if settings.image_url_height %} height="{{ settings.image_url_height }}"{% endif %} loading="lazy">
+  </div>
+  {% if settings.caption != blank %}<figcaption class="mt-4 flex items-center gap-3 text-sm text-(--site-muted)"><span class="h-px w-8 bg-(--site-border)" aria-hidden="true"></span>{{ settings.caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

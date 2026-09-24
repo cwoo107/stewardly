@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  {{ head }}
+</head>
+<body class="site site-summit">
+  {% if theme.announcement != blank %}
+    <div class="summit-announcement px-6 py-2.5 text-center text-sm font-semibold sm:px-12 lg:px-24">
+      {% if theme.announcement_url != blank %}<a href="{{ theme.announcement_url | escape }}">{{ theme.announcement | escape }} <span aria-hidden="true">→</span></a>{% else %}{{ theme.announcement | escape }}{% endif %}
+    </div>
+  {% endif %}
+  <header class="site-header sticky top-0 z-40">
+    <div class="flex items-center justify-between gap-6 px-6 py-4 sm:px-12 lg:px-24">
+      <a href="/" class="summit-brand flex items-center gap-3 text-lg font-extrabold uppercase tracking-wider">
+        {% if site.logo_url != blank %}<img src="{{ site.logo_url }}" alt="{{ site.name | escape }}" style="width: {{ site.logo_width }}px">{% else %}{{ site.name | escape }}{% endif %}
+      </a>
+      <nav aria-label="Main" class="hidden lg:block">
+        <ul class="flex items-center gap-x-8 text-xs font-bold uppercase tracking-[0.18em]">
+          {% for link in site.nav %}<li><a href="{{ link.url }}" class="site-nav-link{% if link.current %} is-current{% endif %}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>{% endfor %}
+        </ul>
+      </nav>
+      <div class="flex items-center gap-5">
+        {% if theme.watch_url != blank and theme.watch_label != blank %}
+          <a href="{{ theme.watch_url | escape }}" class="summit-live hidden items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] sm:flex"><span class="summit-live-dot" aria-hidden="true"></span>{{ theme.watch_label | escape }}</a>
+        {% endif %}
+        {% if theme.header_button_label != blank and theme.header_button_url != blank %}
+          <a href="{{ theme.header_button_url | escape }}" class="site-button summit-header-button hidden px-5 py-2.5 text-xs font-bold sm:inline-block">{{ theme.header_button_label | escape }}</a>
+        {% endif %}
+        <details class="summit-menu lg:hidden">
+          <summary aria-label="Menu" class="flex h-10 w-10 cursor-pointer list-none items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </summary>
+          <div class="summit-menu-panel absolute inset-x-0 top-full px-6 py-8 sm:px-12">
+            <ul class="space-y-5 text-2xl font-extrabold uppercase tracking-wide">
+              {% for link in site.nav %}<li><a href="{{ link.url }}" class="site-nav-link{% if link.current %} is-current{% endif %}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>{% endfor %}
+            </ul>
+            <div class="mt-8 flex flex-wrap items-center gap-5">
+              {% if theme.header_button_label != blank and theme.header_button_url != blank %}<a href="{{ theme.header_button_url | escape }}" class="site-button summit-header-button inline-block px-6 py-3 text-sm font-bold">{{ theme.header_button_label | escape }}</a>{% endif %}
+              {% if theme.watch_url != blank and theme.watch_label != blank %}<a href="{{ theme.watch_url | escape }}" class="summit-live flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em]"><span class="summit-live-dot" aria-hidden="true"></span>{{ theme.watch_label | escape }}</a>{% endif %}
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </header>
+  <main>{{ content_for_layout }}</main>
+  <footer class="site-footer px-6 pt-20 pb-10 sm:px-12 lg:px-24">
+    <div class="grid gap-12 lg:grid-cols-12">
+      <div class="lg:col-span-5">
+        <p class="site-heading text-4xl font-black uppercase leading-none tracking-tight sm:text-5xl">{{ site.name | escape }}</p>
+        {% if site.tagline != blank %}<p class="mt-4 text-lg opacity-70">{{ site.tagline | escape }}</p>{% endif %}
+        {% if theme.header_button_label != blank and theme.header_button_url != blank %}
+          <a href="{{ theme.header_button_url | escape }}" class="site-button summit-header-button mt-8 inline-block px-6 py-3 text-sm font-bold">{{ theme.header_button_label | escape }}</a>
+        {% endif %}
+      </div>
+      <nav aria-label="Footer" class="lg:col-span-3">
+        {% if theme.footer_links_heading != blank %}<p class="summit-footer-label">{{ theme.footer_links_heading | escape }}</p>{% endif %}
+        <ul class="space-y-3 font-semibold{% if theme.footer_links_heading != blank %} mt-4{% endif %}">
+          {% for link in site.nav %}<li><a href="{{ link.url }}" class="opacity-80 hover:opacity-100">{{ link.title | escape }}</a></li>{% endfor %}
+        </ul>
+      </nav>
+      <div class="lg:col-span-4">
+        {% if theme.footer_info_heading != blank %}<p class="summit-footer-label mb-4">{{ theme.footer_info_heading | escape }}</p>{% endif %}
+        {% if site.footer_text != blank %}<p class=" whitespace-pre-line opacity-80">{{ site.footer_text | escape }}</p>{% endif %}
+        {% if church.contact_email != blank %}<p class="mt-4"><a href="mailto:{{ church.contact_email | escape }}" class="font-semibold underline underline-offset-4">{{ church.contact_email | escape }}</a></p>{% endif %}
+        <ul class="mt-8 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-[0.18em]">
+          {% if site.facebook_url != blank %}<li><a href="{{ site.facebook_url | escape }}" class="summit-social">Facebook</a></li>{% endif %}
+          {% if site.instagram_url != blank %}<li><a href="{{ site.instagram_url | escape }}" class="summit-social">Instagram</a></li>{% endif %}
+          {% if site.youtube_url != blank %}<li><a href="{{ site.youtube_url | escape }}" class="summit-social">YouTube</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+    <p class="mt-16 border-t border-white/15 pt-8 text-sm opacity-60">© {{ site.year }} {{ church.name | escape }}</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<section class="site-section px-6 py-20 sm:px-12 lg:px-24 lg:py-32">
+  {% if settings.align == 'center' %}
+    <div class="text-center">
+      {% if settings.heading != blank %}<h2 class="site-heading summit-display summit-title">{{ settings.heading | escape }}</h2>{% endif %}
+      <div class="site-prose summit-prose-lg mt-8 text-(--site-muted)">{{ settings.body | markdown }}</div>
+    </div>
+  {% else %}
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+      {% if settings.heading != blank %}<h2 class="site-heading summit-display summit-title lg:col-span-5">{{ settings.heading | escape }}</h2>{% endif %}
+      <div class="site-prose summit-prose-lg {% if settings.heading != blank %}lg:col-span-7 lg:pt-3{% else %}lg:col-span-12{% endif %}">{{ settings.body | markdown }}</div>
+    </div>
+  {% endif %}
+</section>

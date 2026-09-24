@@ -22,6 +22,12 @@ module Email::Drops
     # Always the church's time zone: campaigns compile in jobs, outside any request's zone.
     def date = I18n.l(starts_at.to_date, format: :long)
     def time = starts_at.strftime("%-l:%M %p")
+    # For date tiles: "Oct" / "October", "4", "2026", "Sunday".
+    def month = I18n.l(starts_at.to_date, format: "%b")
+    def month_name = I18n.l(starts_at.to_date, format: "%B")
+    def day = starts_at.day.to_s
+    def year = starts_at.year.to_s
+    def weekday = I18n.l(starts_at.to_date, format: "%A")
     def location = @occurrence.event.location_summary
     def url = @url
 

@@ -1,0 +1,8 @@
+{% if settings.image_url != blank %}
+<figure class="site-section gv-section gv-figure px-6 sm:px-12 lg:px-24">
+  <div class="gv-plate mx-auto w-fit">
+    <img src="{{ settings.image_url | escape }}" alt="{{ settings.alt | escape }}" class="mx-auto"{% if settings.image_url_width %} width="{{ settings.image_url_width }}"{% endif %}{% if settings.image_url_height %} height="{{ settings.image_url_height }}"{% endif %} loading="lazy">
+  </div>
+  {% if settings.caption != blank %}<figcaption class="gv-caption">{{ settings.caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

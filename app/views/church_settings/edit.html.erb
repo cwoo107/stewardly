@@ -2,8 +2,22 @@
 <%= render "shared/page_header", title: "Settings", subtitle: "Your church lives at #{Current.church.host}." %>
 <%= render "shared/settings_nav" %>
 
-<%= form_with model: @church, url: church_settings_path, method: :patch, class: "space-y-6 #{card_classes}" do |form| %>
+<%= form_with model: @church, url: church_settings_path, method: :patch, multipart: true, class: "space-y-6 #{card_classes}" do |form| %>
   <%= render "shared/form_errors", messages: @church.errors.full_messages %>
+
+  <div>
+    <%= form.label :logo, "Logo", class: label_classes %>
+    <div class="flex flex-wrap items-center gap-4">
+      <span class="flex h-16 w-16 items-center justify-center rounded-xl bg-gray-50 ring-1 ring-gray-200"><%= render "shared/logo", class: "h-12 w-12" %></span>
+      <div class="space-y-2">
+        <%= form.file_field :logo, accept: Church::LOGO_TYPES.join(","), class: "block text-sm" %>
+        <% if @church.logo.attached? && @church.logo.persisted? %>
+          <label class="flex items-center gap-2 text-sm text-gray-600"><%= check_box_tag "church[remove_logo]", "1", false, class: "rounded border-gray-300" %> Use the default logo instead</label>
+        <% end %>
+      </div>
+    </div>
+    <p class="mt-2 text-sm text-gray-500">PNG, JPEG, or WebP, under 2 MB. A square image works best. It replaces the default mark in the sidebar, the member area, sign-in pages, and on your website unless the website has its own logo.</p>
+  </div>
 
   <div>
     <%= form.label :name, "Church name", class: label_classes %>
