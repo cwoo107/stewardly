@@ -1,11 +1,19 @@
-# Demo data for development. Idempotent: re-running skips churches that exist.
+# Demo data. Idempotent: re-running skips churches that exist.
 # Grace Community Church: grace.localhost:3000  (admin@grace.test / password)
 # Hope Fellowship:        hope.localhost:3000   (admin@hope.test / password)
 # Platform console:       localhost:3000        (platform@stewardly.test / password)
+# In production (a public demo, SEED_DEMO_DATA=1) the demo accounts use SEED_PASSWORD instead.
 require "faker"
 
 Faker::Config.random = Random.new(2026)
-PASSWORD = "password"
+PASSWORD = if Rails.env.production?
+  ENV["SEED_PASSWORD"].to_s.then do |password|
+    abort "Set SEED_PASSWORD (12+ characters) to seed demo accounts in production." if password.length < 12 || password == "password"
+    password
+  end
+else
+  "password"
+end
 
 PlatformAdmin.find_or_create_by!(email_address: "platform@stewardly.test") do |admin|
   admin.name = "Platform Admin"

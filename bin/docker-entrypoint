@@ -3,6 +3,10 @@
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
+  # Demo data for a public demo (skips anything already seeded). Needs SEED_PASSWORD.
+  if [ "${SEED_DEMO_DATA}" == "1" ]; then
+    ./bin/rails db:seed
+  fi
 fi
 
 exec "${@}"
