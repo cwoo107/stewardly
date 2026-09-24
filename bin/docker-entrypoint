@@ -4,9 +4,13 @@
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
   # Demo data for a public demo (skips anything already seeded). Needs SEED_PASSWORD.
-  if [ "${SEED_DEMO_DATA}" == "1" ]; then
-    ./bin/rails db:seed
-  fi
+  case "$(echo "${SEED_DEMO_DATA}" | tr "[:upper:]" "[:lower:]")" in
+    1|true|yes|on)
+      echo "Seeding demo data (SEED_DEMO_DATA=${SEED_DEMO_DATA})"
+      ./bin/rails db:seed
+      echo "Demo data seeded" ;;
+    *) echo "Not seeding demo data (set SEED_DEMO_DATA=1 to seed)" ;;
+  esac
 fi
 
 exec "${@}"
