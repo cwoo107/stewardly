@@ -33,7 +33,7 @@ gem "sidekiq-cron", "~> 2.3"
 gem "redis", ">= 5.0"
 
 # Row-level multi-tenancy: scopes every church-owned model to Current.church
-gem "acts_as_tenant", "~> 1.0"
+gem "acts_as_tenant", "~> 2.0"
 
 # Authorization policies; every controller action is authorized
 gem "pundit", "~> 2.4"
