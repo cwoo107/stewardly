@@ -63,7 +63,7 @@ gem "commonmarker", "~> 2.10"
 
 # Email providers and audience sync, through their official SDKs
 gem "postmark", "~> 1.25"
-gem "aws-sdk-sesv2", "~> 1.110"
+gem "aws-sdk-sesv2", "~> 1.112"
 gem "aws-sdk-sns", "~> 1.121"
 gem "mailchimp-marketing", "~> 0.0.218"
 
